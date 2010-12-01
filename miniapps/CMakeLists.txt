@@ -1,0 +1,6 @@
+add_subdirectory(yes)
+add_subdirectory(primes)
+add_subdirectory(markov)
+add_subdirectory(cubebuilder)
+add_subdirectory(calc)
+add_subdirectory(sdlfont)
