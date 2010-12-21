@@ -1,0 +1,5 @@
+__assert( blackbox(40) == 42 )
+
+def blackbox( a )
+	return a + 2
+end

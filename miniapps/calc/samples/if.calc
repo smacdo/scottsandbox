@@ -1,0 +1,21 @@
+A = 0 
+
+if A > 0
+	__failTest("if broken")
+else
+	# ...
+end
+
+if ( A == 0 and 1 != 0 ) 
+	# ...
+else
+	__failTest()
+end
+
+if A == 0
+	# ...
+elseif A > 0
+	__failTest("A should not be greater than zero")
+else
+	__failTest("A should not be less than zero")
+end

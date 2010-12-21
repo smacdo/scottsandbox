@@ -1,0 +1,5 @@
+A = true
+
+B = false if A == false
+C = false if not A
+D = false unless A
