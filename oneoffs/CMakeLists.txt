@@ -11,6 +11,9 @@ add_simple_oneoff(mkcrctable)
 add_simple_oneoff(stdequalstest)
 add_simple_oneoff(string_to_ints)
 add_simple_oneoff(checkdebug)
+add_simple_oneoff(assignopviapointer)
+add_simple_oneoff(nastynull)
+add_simple_oneoff(singleton)
 
 # Temporarily disable warnings
 set(SAVED_CXX_FLAGS "${CXX_FLAGS}")

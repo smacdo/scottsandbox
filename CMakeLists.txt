@@ -18,6 +18,7 @@ set(CXX_FLAGS "-Wall -Wextra -Werror")
 ###
 ### Build workbench code
 ###
+add_subdirectory(common)
 add_subdirectory(oneoffs)
 add_subdirectory(workbench)
 add_subdirectory(miniapps)
