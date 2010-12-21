@@ -352,7 +352,7 @@ bool isEqual( const MarkovChain& lhs,
 //===========================================================================
 TEST(MarkovTree,EmptyChainGivesEmptyChainString)
 {
-    MC a = {};
+    MC a;
     EXPECT_EQ( "<0;>", toString( a ) );
 }
 
