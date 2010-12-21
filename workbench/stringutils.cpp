@@ -37,13 +37,30 @@
 #include <string>
 #include <vector>
 
-bool hasPrefix( const std::string& base, const std::string& prefix );
-bool hasSuffix( const std::string& base, const std::string& suffix );
+/**
+ * Checks if the input string has the given prefix. Will return true if
+ * it does, false otherwise
+ */
+bool hasPrefix( const std::string& input, const std::string& prefix );
 
+/**
+ * Checks in the input string has the given suffix. Wil lreturn true if
+ * it does, false otherwise
+ */
+bool hasSuffix( const std::string& input, const std::string& suffix );
+
+/**
+ * Returns a string iterator pointing to the first non-whitespace character
+ * in the given string
+ */
 std::string::const_iterator skipStartingWhitespace(
                                std::string::const_iterator begin,
                                std::string::const_iterator end );
 
+/**
+ * Converts the path to a correct path for the system
+ *  (Shouldn't this be in fileutils?)
+ */
 std::string convertPath( const std::string& path, char sep );
 
 /**
@@ -61,43 +78,127 @@ bool matchesPattern( const std::string& text,
                      bool caseInsensitive=false );
 
 /**
- * Returns the length (number of characters) in the given string
+ * Returns the length (number of characters) in the given string. This
+ * is a wrapper around string::length()
  */
-bool length( const std::string& input );
+size_t length( const std::string& input );
 
 /**
  * Returns the length (number of characters) in the given cstring
  */
-bool length( const char * input );
+size_t length( const char * input );
 
 /**
- * Word wrap!
+ * Ensures that the given input string conforms to a maximum number of
+ * characters per line. This method will insert newlines whenever the
+ * number of characters exceeds maxLineLen. (Default is 80)
  */
-std::string wordWrap( const std::string& string, int maxLineLen=80 );
+std::string wordWrap( const std::string& input, int maxLineLen=80 );
 
-size_t wordCount( const std::string& text );
+/**
+ * Returns the number of words found in the input string. A word is
+ * defined to be a consecutive run of letters [A-Za-z_]+.
+ */
+size_t wordCount( const std::string& input );
 
 std::string pad( const std::string& text, size_t len, char pad=' ' );
 
-std::string reverse( const std::string& text );
+/**
+ * Returns the input string reversed, so that each character is in the
+ * inverse position of the input.
+ */
+std::string reverse( const std::string& input );
 
-std::string trim( const std::string& input );
+/**
+ * Trims whitespace and newlines from the beginning and end of the input
+ * string
+ */
+std::string trim( const std::string& input, bool left=true, bool right=true );
+
+/**
+ * Trims whitespace and newlines from the beginning of the input string
+ */
 std::string ltrim( const std::string& input );
+
+/**
+ * Trims whitespace and newlines frmo the end of the input string
+ */
 std::string rtrim( const std::string& input );
 
+/**
+ * Converts the input string to have all uppercase characters. Does not
+ * modify non-alphabetic characters
+ */
 std::string toUpper( const std::string& input );
+
+/**
+ * Converts the input string to have all lowercase characters. Does not
+ * modify non-alphabetic characters
+ */
 std::string toLower( const std::string& input );
 
+/**
+ * Replace searches the input string for all occurences of 'findWhat',
+ * and will replace each one with 'replaceWith'. It will do this up to
+ * 'limit' times.
+ */
+std::string replace( const std::string& input,
+                     const std::string& findWhat,
+                     const std::string& replaceWith,
+                           size_t limit=0 );
+
+/**
+ * Erase will erase all occurences of 'findWhat' that occur in 'input',
+ * up to a maximum of 'limit' times.
+ */
+std::string erase( const std::string& input,
+                   const std::string& findWhat,
+                         size_t limit=0 );
+
+/**
+ * Returns an STL string containing the stringified version of the
+ * input value
+ */
 template<typename T>
 std::string toString( const T& input );
 
+/**
+ * Splits a string into multiple pieces depending on the given delimter
+ * chars
+ */
+size_t split( const std::string& input,
+                    std::vector<std::string>& output,
+              const std::string& delims );
+
+/**
+ * Returns a rot13 "encrypted" version of the string
+ */
+std::string rot13( const std::string& input );
+
+/**
+ * Parses an input string and attempts to convert it to the target output
+ * type. Function will return false if it false if it fails to do so, true
+ * otherwise
+ */
 template<typename T>
 bool parseString( const std::string& input, T& output );
 
+/**
+ * Returns the correct suffix when using the given value. For example,
+ * it will return 'rd' for 3 and 'nd' for 22.
+ */
 const char* nth( long number );
 
+/**
+ * Returns a string of zeros and ones that represent the binary layout
+ * of the given array of bytes
+ */
 std::string bin2str( uint8_t* data, size_t len );
 
+/**
+ * Returns a string of zeros and ones that represent the binary layout
+ * of the given object
+ */
 template<typename T>
 std::string bin2str( const T& obj )
 {
@@ -125,6 +226,9 @@ size_t lineCount( const std::string& input );
 #include <sstream>
 
 #include <cassert>
+#include <cstring>
+
+#include <algorithm>
 
 bool hasPrefix( const std::string& base, const std::string& prefix )
 {
@@ -191,10 +295,14 @@ std::string::const_iterator skipStartingWhitespace(
     return end;
 }
 
-std::string convertPath( const std::string& path, char sep )
+size_t length( const std::string& input )
 {
-    assert( sep == '\\' || sep == '/' );
-    return path;
+    return input.size();
+}
+
+size_t length( const char * input )
+{
+    return strlen( input );
 }
 
 /**
@@ -220,23 +328,15 @@ bool matchesPattern( const std::string& text,
     return false;
 }
 
-/**
- * Word wrap!
- */
 std::string wordWrap( const std::string& input, int maxlen )
 {
     maxlen = maxlen;        // shut compiler up
     return input;
 }
 
-size_t wordCount( const std::string& text )
+size_t wordCount( const std::string& input )
 {
-    return text.size();
-}
-
-std::string shuffle( const std::string& text )
-{
-    return text;
+    return input.size();
 }
 
 std::string pad( const std::string& text, size_t len, char pad )
@@ -245,9 +345,135 @@ std::string pad( const std::string& text, size_t len, char pad )
     return text;
 }
 
-std::string reverse( const std::string& text )
+std::string reverse( const std::string& input )
 {
-    return text;
+    return std::string( input.rbegin(), input.rend() );
+}
+
+char rot13( char input )
+{
+    char  cap = input & 32;
+    
+    input &= ~cap;
+    input = ((input >= 'A' && (input <= 'Z')) ?
+                ((input - 'A' + 13) % 26 + 'A') : input );
+
+    return (input | cap);
+}
+
+std::string rot13( const std::string& input )
+{
+    std::string output( input );
+    size_t len = input.size();
+
+    for ( size_t i = 0; i < len; ++i )
+    {
+        output[i] = input[i];
+    }
+
+    return output;
+}
+
+std::vector<std::string> split( const std::string& input,
+                                const std::strnig& delims )
+{
+    std::vector<std::string> output;
+    split( input, output, delims );
+
+    return output;
+}
+
+template<typename ContainerT>
+size_t split( const std::string& input,
+                    ContainerT&  output,
+              const std::string& delims )
+{
+    std::string::size_type pos  = 0, lastPos = 0;
+    std::string::size_type last = input.size();
+    size_t startCount           = output.size()
+
+    while ( pos < last )
+    {
+        pos = input.find_first_of( delims, lastPos );
+
+        if ( pos == std::string::npos )
+        {
+            // no more occurrences
+            pos = input.length();       // set position to end of string
+        }
+
+        if ( pos != lastPos || !trimEmpty )
+        {
+            // So long as there is something to capture, or if the user
+            // wants to capture _everything_ then grab the last capture
+            // group formed by [lastPos,pos).
+            output.push_back(
+                ContainerT::value_type( input, lastPos, pos-lastPos )
+            );
+        }
+
+        lastPos = pos + 1;
+    }
+
+    return ( output.size() - startCount );
+}
+
+std::string trim( const std::string& input, bool ltrim, bool rtrim )
+{
+    std::string::size_type left  = 0;
+    std::string::size_type right = input.size();
+    
+    if ( ltrim )
+    {
+        std::string::size_type t = input.find_first_not_of(" \t\r\n");
+        left = ( t != std::string::npos ? t : input.size() );
+    }
+
+    if ( rtrim )
+    {
+        std::string::size_type t = input.find_last_not_of(" \t\r\n");
+        right = ( t != std::string::npos ? t : 0 );
+    }
+
+    return std::string( input, left, (right-left+1) );
+}
+
+std::string ltrim( const std::string& input )
+{
+    return trim( input, true, false );
+}
+
+std::string rtrim( const std::string& input )
+{
+    return trim( input, false, true );
+}
+
+std::string::value_type internalToUpper( std::string::value_type v )
+{
+    return toupper( static_cast<char>(v) );
+}
+
+std::string::value_type internalToLower( std::string::value_type v )
+{
+    return tolower( static_cast<char>(v) );
+}
+
+std::string toUpper( const std::string& input )
+{
+    std::string output( input ); // presize?
+    std::transform( input.begin(), input.end(), output.begin(),
+                    internalToUpper );
+
+    return output;
+}
+
+std::string toLower( const std::string& input )
+{
+    std::string output( input );
+    std::transform( input.begin(), input.end(), output.begin(),
+                    internalToLower );
+
+    return output;
 }
 
 const char* nth( long number )
@@ -332,4 +558,111 @@ TEST(StringUtils,HasPrefixButIsTooLong)
 TEST(StringUtils,HasPrefixStartsButDoesNotMatch)
 {
     EXPECT_FALSE( hasPrefix("hello", "hexl") );
+}
+
+// reverse
+TEST(StringUtils,ReverseAString)
+{
+    EXPECT_EQ( "ftwseonho", reverse(std::string("ohnoeswtf")) );
+}
+
+TEST(StringUtils,ReverseOneCharDoesNothing)
+{
+    EXPECT_EQ( "a", reverse("a") );
+}
+
+TEST(StringUtils,ReverseEmptyDoesNothing)
+{
+    EXPECT_EQ( "", reverse("") );
+}
+
+TEST(StringUtils,ReversePalindromIsSame)
+{
+    EXPECT_EQ( "racecar", reverse("racecar") );
+}
+
+// trim
+TEST(StringUtils,TrimEmptyIsEmpty)
+{
+    EXPECT_EQ( "", trim("") );
+}
+
+TEST(StringUtils,TrimAllWhitespaceIsEmpty)
+{
+    EXPECT_EQ( "", trim(" \t \r    \t\n\r \r\n   \n") );
+}
+
+TEST(StringUtils,TrimWhitespaceAtEnds)
+{
+    EXPECT_EQ( "hai", trim("    hai       ") );
+}
+
+TEST(StringUtils,TrimWithNothingNeededToTrim)
+{
+    EXPECT_EQ( "hai", trim("hai") );
+}
+
+TEST(StringUtils,TrimNothing)
+{
+    EXPECT_EQ("   hahaha   ", trim("   hahaha   ", false, false) );
+}
+
+TEST(StringUtils,TrimWhitespaceOnlyAtEnds)
+{
+    EXPECT_EQ( "ha i", trim("ha i") );
+    EXPECT_EQ( "ha i", trim("  ha i") );
+    EXPECT_EQ( "ha i", trim("ha i  ") );
+    EXPECT_EQ( "ha i", trim("  ha i ") );
+}
+
+TEST(StringUtils,TrimOnlyLeftWhitespace)
+{
+    EXPECT_EQ( "te s  t  ", trim("   te s  t  ", true, false) );
+}
+
+TEST(StringUtils,TrimOnlyRightWhitespace)
+{
+    EXPECT_EQ( "   te s  t", trim("   te s  t  ", false, true) );
+}
+
+// To upper
+TEST(StringUtils,ToUpper)
+{
+    EXPECT_EQ("OH HELLO THERE!!1", toUpper("oH hELlo there!!1"));
+}
+
+// To lower
+TEST(StringUtils,ToLower)
+{
+    EXPECT_EQ("oh hello there!!1", toLower("OH hELlo there!!1"));
+}
+
+// length
+TEST(StringsUtils,LengthEmptyStringIsZero)
+{
+    EXPECT_EQ( (size_t)0, length(std::string("")) );
+    EXPECT_EQ( (size_t)0, length("") );
+}
+
+TEST(StringUtils,LengthnormalString)
+{
+    EXPECT_EQ( (size_t)11, length(std::string("hello world")) );
+    EXPECT_EQ( (size_t)11, length("hello world") );
+}
+
+// wordwrap
+TEST(StringUtils,WordWrap)
+{
+}
+
+// wordcount
+TEST(StringUtils,WordCount)
+{
+    /*
+    EXPECT_EQ( (size_t)0, std::string("") );
+    EXPECT_EQ( (size_t)1, std::string("        ONE") );
+    EXPECT_EQ( (size_t)5, std::string("one two three four five") );
+    EXPECT_EQ( (size_t)5, std::string("  one . two ^.X three four five."));
+    EXPECT_EQ( (size_t)3, std::string("   three one     two    ") );
+    */
 }

@@ -13,6 +13,8 @@
 #include <set>
 #include <string>
 
+#include <iostream>
+
 #include <cassert>
 
 class EntityManager;
@@ -158,11 +160,30 @@ struct Health : public Component
     Health()
         : hp(0)
     {
+        std::cout << "health default ctor, this="
+            << (uint32_t)(this) << std::endl;
     }
 
     Health( size_t hp_ )
         : hp( hp_ )
     {
+        std::cout << "health value ctor, this="
+            << (uint32_t)(this) << std::endl;
+    }
+
+    Health( const Health& h )
+        : hp( h.hp )
+    {
+        std::cout << "health copy ctor, this="
+            << (uint32_t)(this) << ", other=" << (uint32_t)(&h) << std::endl;
+    }
+
+    const Health& operator = ( const Health& h )
+    {
+        std::cout << "health assign op" << std::endl;
+        hp = h.hp;
+
+        return *this;
     }
 
     static const ComponentId CID;
@@ -178,12 +199,18 @@ struct Health : public Component
 
 EntityManager* Entity::defaultEntityManager = &(EntityManager::getDefault());
 
+//=========================================================================
+// Entity class
+//=========================================================================
 Entity::Entity( EntityId id_ )
     : m_id( id_ )
 {
     assert( defaultEntityManager != NULL );
 }
 
+//=========================================================================
+// Entity Manager class
+//=========================================================================
 EntityManager::EntityManager( const std::string& name )
     : m_nextId( 1 ),
       m_name( name )
@@ -203,7 +230,6 @@ EntityManager::~EntityManager()
 
 void EntityManager::clear()
 {
-    std::cout << "CLEARING ENTITY MANAGER" << std::endl;
     size_t components = 0;
     size_t instances  = 0;
 
@@ -221,6 +247,7 @@ void EntityManager::clear()
 
         for ( ; inner != itr->second.end(); ++inner )
         {
+            std::cout << "Deleting " << (uint32_t)(inner->second) << std::endl;
             delete inner->second;
             instances++;
         }
@@ -228,8 +255,8 @@ void EntityManager::clear()
         components++;
     }
 
-    std::cout << "Cleared " << components << " components and "
-              << instances << " instances" << std::endl;
+    // Reset the entity map
+    m_cstore = ComponentStore();
 }
 
 Entity EntityManager::createEntity()
@@ -262,20 +289,38 @@ void EntityManager::addComponent( const Entity& e, const T& componentInstance )
 template<typename T>
 void EntityManager::setComponent( const Entity& e, const T& componentInstance )
 {
-    EntityComponentMap& store        = m_cstore[ T::CID ];
-    EntityComponentMap::iterator itr = store.find( e.id() );
+    //
+    // Locate the map that contains all of the entities having a
+    // component of type T. If this has not been created (itr = null),
+    // then make sure to initialize it
+    //
+    ComponentStore::iterator csItr = m_cstore.find( T::CID );
 
-    if ( itr != store.end() )
+    if ( csItr == m_cstore.end() )
+    {
+        m_cstore[ T::CID ] = EntityComponentMap();
+        csItr             = m_cstore.find( T::CID );
+    }
+
+    //
+    // Grab the map of entities containing component 'T'. From here,
+    // associate the entitiy id to a newly created instance copied from
+    // componentInstance
+    //
+    EntityComponentMap& eCompStore           = csItr->second;
+    EntityComponentMap::iterator eCompMapItr = eCompStore.find( e.id() );
+
+    if ( eCompMapItr != eCompStore.end() )
     {
         // There is an instance of the component stored for this
         // entity. Use the assignment operator to avoid having to delete
         // the object
-        T* storedInstance = reinterpret_cast<T*>(itr->second);
+        T* storedInstance = reinterpret_cast<T*>(eCompMapItr->second);
         *storedInstance = componentInstance;
     }
     else
     {
-        *(store[ e.id() ]) = componentInstance;
+        eCompStore[ e.id() ] = new T( componentInstance );
     }
 }
 
@@ -284,7 +329,7 @@ T EntityManager::getComponent( const Entity& e )
 {
     Component* c = findComponent( T::CID, e.id() );
 
-    assert( c != NULL );
+    assert( c != NULL && "Entity's component must exist" );
     return T( *(reinterpret_cast<T*>( c )) );
 }
 
@@ -302,8 +347,17 @@ bool EntityManager::hasComponent( const Entity& e ) const
 
 Component * EntityManager::findComponent( ComponentId cid, EntityId eid )
 {
-    EntityComponentMap& store = m_cstore[ cid ];
-    return store[eid];
+    EntityComponentMap& store              = m_cstore[ cid ];
+    EntityComponentMap::const_iterator itr = store.find( eid );
+
+    if ( itr == store.end() )
+    {
+        return NULL;
+    }
+    else
+    {
+        return itr->second;
+    }
 }
 
 bool EntityManager::hasComponent( ComponentId cid, EntityId eid ) const
@@ -332,7 +386,29 @@ const ComponentId Health::CID   = 2;
 /////////////////////////////////////////////////////////////////////////////
 #include <googletest/googletest.h>
 
-TEST(EntityManager,DefaultEntityManagerIsSet)
+class EntityManagerTest : public ::testing::Test
+{
+public:
+    EntityManagerTest()
+        : em( EntityManager::getDefault() )
+    {
+    }
+
+protected:
+    virtual void SetUp()
+    {
+
+    }
+
+    virtual void TearDown()
+    {
+        em.clear();
+    }
+
+    EntityManager& em;
+};
+
+TEST_F(EntityManagerTest,DefaultEntityManagerIsSet)
 {
     EntityManager manager("notdefault");
     EXPECT_EQ( "notdefault", manager.name() );
@@ -342,18 +418,16 @@ TEST(EntityManager,DefaultEntityManagerIsSet)
                Entity::defaultEntityManager->name() );
 }
 
-TEST(EntityManager,CreateNewEntity)
+TEST_F(EntityManagerTest,CreateNewEntity)
 {
-    EntityManager& em = EntityManager::getDefault();
     Entity e = em.createEntity();
 
     // verify valid id
     EXPECT_NE( (EntityId) 0, e.id() );
 }
 
-TEST(EntityManager,CreateNewEntityReturnsNewId)
+TEST_F(EntityManagerTest,CreateNewEntityReturnsNewId)
 {
-    EntityManager& em = EntityManager::getDefault();
     Entity a = em.createEntity();
     Entity b = em.createEntity();
 
@@ -365,33 +439,38 @@ TEST(EntityManager,CreateNewEntityReturnsNewId)
     EXPECT_NE( a.id(), b.id() );
 }
 
-TEST(EntityManager,EntityShouldNotHaveComponentThatWasNotAdded)
+TEST_F(EntityManagerTest,EntityShouldNotHaveComponentThatWasNotAdded)
 {
-    EntityManager& em = EntityManager::getDefault();
     Entity e = em.createEntity();
 
     EXPECT_FALSE( em.hasComponent<Health>( e ) );
 }
 
-TEST(EntityManager,AddComponentToEntity)
+TEST_F(EntityManagerTest,AddComponentToEntityAndFetchIt)
 {
+    Entity e = em.createEntity();
+    em.addComponent( e, Health(42) );
 
+    Health h = em.getComponent<Health>( e );
+    EXPECT_EQ( (size_t) 42, h.hp );
+
+    std::cout << "DONE" << std::endl;
 }
 
-TEST(EntityManager,AddComponentToEntityTwiceFails)
+TEST_F(EntityManagerTest,AddComponentToEntityTwiceFails)
 {
-
+    int i = 0;
+    i += 2;
 }
 
-TEST(EntityManager,AddComponentToEntityMeansComponentExists)
+TEST_F(EntityManagerTest,AddComponentToEntityMeansComponentExists)
 {
-    EntityManager& em = EntityManager::getDefault();
     Entity e = em.createEntity();
 
     em.addComponent( e, Health(42) );
 
     EXPECT_TRUE( em.hasComponent<Health>( e ) );
 }
-TEST(EntityManager,DoesItWorkTest)
+TEST_F(EntityManagerTest,DoesItWorkTest)
 {
 }

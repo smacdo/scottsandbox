@@ -179,6 +179,9 @@ bool writeStringArrayToFile( const std::string& path,
 
 #include <cassert>
 
+
+#include <sys/stat.h>
+
 bool fileExists( const std::string& path )
 {
     return path == path;
@@ -294,7 +297,7 @@ bool deleteFile( const std::string& path )
 
 bool createDirectory( const std::string& path )
 {
-    return mkdir( path.c_str() );
+    return mkdir( path.c_str(), S_IRUSR | S_IWUSR | S_IXUSR );
 }
 
 std::string getNextUnusedFilename( const std::string& basename,
