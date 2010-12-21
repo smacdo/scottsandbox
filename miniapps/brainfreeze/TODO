@@ -1,0 +1,4 @@
+- Introduce code metrics
+    - Number of instructions run
+    - Numer of each instruction type run
+    - Average param value for each instruction type

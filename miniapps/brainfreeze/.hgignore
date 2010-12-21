@@ -1,0 +1,27 @@
+# Simple hgignore (from Scott's config template)
+syntax: glob
+# Brainfreeze specific
+bin/
+
+# Common
+*.o
+*.swp
+*.log
+
+# Build artifacts
+a.out
+build
+dist
+MANIFEST
+
+# OSX
+.DS_Store
+*~.nib
+*.pbxuser
+*.perspective
+*.perspective3
+
+.sconsign.dblite
+
+syntax: regexp
+.*/te?mp/.*
