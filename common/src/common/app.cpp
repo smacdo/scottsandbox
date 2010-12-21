@@ -26,7 +26,7 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#include "appcore.h"
+#include <common/app.h>
 
 #include <iostream>
 #include <cstdlib>
@@ -43,7 +43,7 @@ void raiseFatalError( const char * message,
     std::cout << message << std::endl;
     std::cout << std::endl;
     std::cout << " Reason    : " << reason << std::endl;
-    std::cout << " Expression: " << expr   << std::endl;
+    std::cout << " Expression: " << "XXX"  << std::endl;
     std::cout << " Location  : " << func
               << " (line: "      << line
               << ", "            << file

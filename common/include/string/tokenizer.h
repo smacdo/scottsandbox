@@ -116,3 +116,6 @@ private:
     bool m_hasNextToken;
     bool m_errorFlag;
 };
+
+#endif
+
