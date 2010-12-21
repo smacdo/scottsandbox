@@ -32,13 +32,18 @@ add_library(commonlibX ${commonlib_srcs} )
 ### String common lib
 ###
 set(stringlib_incs
-        include/string/tokenizer.h)
+        include/string/tokenizer.h
+        include/string/util.h)
 
 set(stringlib_srcs
-        src/string/tokenizer.cpp)
+        src/string/tokenizer.cpp
+        src/string/replace.cpp
+        src/string/streamprint.cpp)
 
 set(stringlib_tests
-        tests/string/test_tokenizer.cpp)
+        tests/string/test_tokenizer.cpp
+        tests/string/test_streamprint.cpp
+        tests/string/test_replace.cpp)
 
 add_library(stringlib STATIC ${stringlib_srcs})
 
