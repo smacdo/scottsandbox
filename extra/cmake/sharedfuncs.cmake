@@ -1,4 +1,3 @@
-
 ###
 ### Initializes google test
 ###
@@ -20,8 +19,11 @@ function(add_standard_targets name)
                       WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
     # GDB test
-    add_custom_target(d-${name} gdb ${CMAKE_CURRENT_BINARY_DIR}/${name}
-                      DEPENDS ${name})
+    add_custom_target(d-${name}
+                      gdb `pwd`/${name} -d ${PROJECT_SOURCE_DIR} -cd ${PROJECT_SOURCE_DIR}
+                      DEPENDS ${name}
+                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                      COMMENT "Runs selected application with debugging")
 
     # Valgrind test
     add_custom_target(m-${name}
@@ -35,6 +37,11 @@ function(add_standard_targets name)
                                        ${CMAKE_CURRENT_BINARY_DIR}/${name}
         DEPENDS ${name})
 
+    # View assembly for file
+    add_custom_target(asm-${name}
+                      objdump CMakeFiles/${name}.dir/${name}.cpp.o -dl -M intel -S --no-show-raw-insn
+                      DEPENDS ${name}
+                      COMMENT "Shows assembly output for application")
 endfunction()
 
 ###
