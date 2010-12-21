@@ -1,0 +1,27 @@
+<sprite name="mysprite">
+    <spritesheet path="PATH/TO/FILE"
+                 transparentColor="000000"
+                 cellWidth="32" cellHeight="32"
+                 cellMarginTop="0" cellMarginRight="0"
+                 cellMarginLeft="0" cellMarginBottom="0"
+                 sheetMarginTop="0" sheetMarginBottom="0"
+                 sheetMarginLeft="0" sheetMarginRight="0" />
+
+        <!-- width and height will pull default values -->
+        <frame name="default" x="32" y="32" w="32" h="32" />
+
+        <!-- pull by col / row. Uses defaults above to calc offset>
+        <frame name="standingForward" row="1" col="2" />
+
+        <!-- pull a set by col / row -->
+        <frameset name="walkingForward">
+            <!-- This iterates across the rows. If we reverse rowset
+                 and colset it iterates down columns -->
+            <rowset startRow="0" numberOfCells="3" />
+        </frameset>
+    </spritesheet>
+
+    <animations>
+        <animation name="walking" time="33" repeats="forever"/>
+    </animations>
+</sprite>

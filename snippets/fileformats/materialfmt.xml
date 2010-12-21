@@ -1,0 +1,14 @@
+<!-- Sample demonstration material -->
+<material name="simple">
+    <lighting model="default">
+        <ambient r="0.25" g="0.1" b="0.0" />
+        <diffuse />
+        <specular />
+        <emissive />
+        <shininess v="1" />
+    </lighting>
+
+    <texturepass>
+        <file>PATH/TO/FILEM</file>
+    </texturepass>
+</material>
