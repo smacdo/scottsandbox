@@ -32,227 +32,10 @@
 #include <googletest/googletest.h>
 #include <cassert>
 
-///////////////////////////////////////////////////////////////////////////
-// Simple debugging
-///////////////////////////////////////////////////////////////////////////
-struct nullstream : std::ostream
-{
-    struct nullbuf : std::streambuf
-    {
-        int overflow( int c )
-        {
-            return traits_type::not_eof(c);
-        }
-    } m_sbuf;
-
-    nullstream()
-        : std::ios( &m_sbuf ), std::ostream( &m_sbuf )
-    {
-    }
-};
-
-#define ERRORLOG getOutputLog(GErrors)
-#define DEBUGLOG getOutputLog(GDebug)
-#define TRACELOG getOutputLog(GTrace)
-#define ENDLOG   << std::endl
-bool GErrors = true;
-bool GDebug  = false;
-bool GTrace  = false;
-nullstream GNullStream;
-
-std::ostream& getOutputLog( bool returnOrNot )
-{
-    if ( returnOrNot )
-    {
-        return std::cerr;
-    }
-    else
-    {
-        return GNullStream;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////
-// Markov class
-///////////////////////////////////////////////////////////////////////////
-struct ElementNode;
-
-typedef std::vector<std::string> MarkovChain;
-typedef std::unordered_map<std::string, ElementNode*> ENodeChildren;
-typedef ENodeChildren::iterator ENodeChildrenItr;
-typedef ENodeChildren::const_iterator ENodeChildrenConstItr;
-
-struct ElementNode
-{
-    ElementNode()
-        : value(),
-          weightsum(0),
-          children()
-    {
-    }
-
-    ElementNode( const std::string& value )
-        : value( value ),
-          weightsum( 0 ),
-          children()
-    {
-    }
-
-    ~ElementNode()
-    {
-        for ( ENodeChildrenItr itr  = children.begin();
-                               itr != children.end();
-                             ++itr )
-        {
-            delete itr->second;
-        }
-    }
-
-    bool hasChildren() const
-    {
-        return children.size() > 0;
-    }
-
-    std::string value;
-    size_t weightsum;
-    ENodeChildren children;
-};
-
-class MarkovData
-{
-public:
-    MarkovData( size_t depth )
-        : m_depth( depth ),
-          m_root()
-    {
-        assert( depth > 0 && depth < 10 );
-    }
-
-    int childrenAtRoot() const
-    {
-        return m_root.children.size();
-    }
-
-    int weightSumAtRoot() const
-    {
-        return m_root.weightsum;
-    }
-
-    void insert( const std::vector<std::string>& chain )
-    {
-        assert( chain.size() == m_depth+1 );
-
-        //
-        // Debug output
-        //
-        DEBUGLOG << "Inserting chain: " ENDLOG;
-        for ( size_t i = 0; i < chain.size(); ++i )
-        {
-            DEBUGLOG << "\t'" << chain[i] << "'" ENDLOG;
-        }
-
-        //
-        // Insert the chain into the markov database
-        //
-        ElementNode * node = &m_root;
-
-        for ( size_t i = 0; i < chain.size(); ++i )
-        {
-            node = insertAt( node, chain[i] );
-        }
-
-        node->weightsum += 1;       // tick the leaf
-    }
-
-    ElementNode* getNodeFor( const MarkovChain& chain )
-    {
-        assert( chain.size() <= m_depth +1 );
-
-        // Recursively look up the node
-        return getNodeFor( chain, &m_root, 0 );
-    }
-
-    template<typename IteratorFunction>
-    void iterateNodesInBFS( IteratorFunction& func ) const
-    {
-    }
-
-protected:
-    ElementNode* insertAt( ElementNode* node, const std::string& value )
-    {
-        assert( node != 0 );
-
-        //
-        // Test if the element exists as a child of the current node.
-        // If it does, increment summation. Otherwise add the element as
-        // a new child
-        //
-        ENodeChildrenItr pos   = node->children.find( value );
-        ElementNode*     child = NULL;
-
-        if ( pos == node->children.end() )
-        {
-            // element did not exist, so create a new element to store it
-            child = new ElementNode( value );
-
-            // add it
-            node->children.insert( ENodeChildren::value_type(value, child) );
-
-            // update parent summation as well
-            node->weightsum += 1;
-
-            // debug
-            DEBUGLOG << "Inserting (CREATE) value: '" << value << "'" ENDLOG;
-        }
-        else
-        {
-            child = pos->second;
-
-            // element exists
-            node->weightsum += 1;
-            
-            // debug
-            DEBUGLOG << "Inserting (EXIST) value: '" << value << "'" ENDLOG;
-        }
-
-        assert( child != 0 );
-        assert( child != node );
-        return child;
-    }
-
-
-    ElementNode* getNodeFor( const MarkovChain& chain,
-                             ElementNode* node,
-                             size_t depth )
-    {
-        ElementNode * result = NULL;
-
-        if ( depth == chain.size() )
-        {
-            // This is the node to return
-            result = node;
-        }
-        else
-        {
-            // We still haven't found the end of the chain. Keep
-            // recursively looking for it (if it exists)
-            const std::string& value = chain[depth];
-            ENodeChildrenItr pos     = node->children.find( value );
-            
-            if ( pos != node->children.end() )
-            {
-                result = getNodeFor( chain, pos->second, depth+1 );
-            }
-        }
-
-        return result;
-    }
-
-private:
-
-    size_t      m_depth;
-    ElementNode m_root;
-};
+#include "markov.h"
+#include "markovdata.h"
+#include "elementnode.h"
+#include "logging.h"
 
 std::ostream& operator << ( std::ostream& os, const MarkovChain& chain )
 {
@@ -352,7 +135,7 @@ bool isEqual( const MarkovChain& lhs,
 //===========================================================================
 TEST(MarkovTree,EmptyChainGivesEmptyChainString)
 {
-    MC a;
+    MC a = {};
     EXPECT_EQ( "<0;>", toString( a ) );
 }
 
@@ -412,8 +195,8 @@ TEST(MarkovTree,FindNonexistantChainReturnsNull)
 
     data.insert( MC3(aa,bb,cc) );
 
-    EXPECT_EQ( NULL, data.getNodeFor( MC1(xx) ) );
-    EXPECT_EQ( NULL, data.getNodeFor( MC2(aa,cc) ) );
+    EXPECT_TRUE( NULL == data.getNodeFor( MC1(xx) ) );
+    EXPECT_TRUE( NULL == data.getNodeFor( MC2(aa,cc) ) );
 }
 
 TEST(MarkovTree,InsertChainCanRetrieveIt)
@@ -496,4 +279,107 @@ TEST(MarkovTree,ComplexOneLevelTreeTest)
     // c branch
     EXPECT_TRUE( testSubchain( data, MC1(c),   1, 1 ) );
     EXPECT_TRUE( testSubchain( data, MC2(c,d), 1, 0 ) );
+
+    std::cout << data.debugDumpToString() << std::endl;
+}
+
+TEST(MarkovChain,ComplexTwoLevelTTreeest)
+{
+    MarkovData data(2);
+
+    /**
+     * (ROOT:24)
+     *   - A:6
+     *      - B:2
+     *          - A:1
+     *          - D:1
+     *      - C:4
+     *          - D:2
+     *          - A:1
+     *          - C:1
+     *   - B:11
+     *      - B:3
+     *          - A:3
+     *      - A:5
+     *          - A:1
+     *          - B:2
+     *          - C:1
+     *          - D:1
+     *      - C:3
+     *          - A:1
+     *          - D:2
+     *   - C:3
+     *      - B:3
+     *          - D:3
+     *   - D:4
+     *      - A:1
+     *          - C:1
+     *      - B:3
+     *          - A:2
+     *          - D:1
+     */
+    data.insert( MC3(a,b,a) ); data.insert( MC3(a,c,c) );   // 1
+    data.insert( MC3(d,a,c) ); data.insert( MC3(c,b,d) );   // 2
+    data.insert( MC3(a,c,d) ); data.insert( MC3(a,c,d) );   // 3
+    data.insert( MC3(b,a,a) ); data.insert( MC3(b,b,a) );   // 4
+    data.insert( MC3(b,c,a) ); data.insert( MC3(c,b,d) );   // 5
+    data.insert( MC3(c,b,d) ); data.insert( MC3(a,b,d) );   // 6
+
+    data.insert( MC3(a,c,a) ); data.insert( MC3(b,c,d) );   // 7
+    data.insert( MC3(d,b,a) ); data.insert( MC3(b,c,d) );   // 8
+    data.insert( MC3(d,b,a) ); data.insert( MC3(d,b,d) );   // 9
+    data.insert( MC3(b,b,a) ); data.insert( MC3(b,a,c) );   // 10
+    data.insert( MC3(b,a,b) ); data.insert( MC3(b,a,b) );   // 11
+    data.insert( MC3(b,a,d) ); data.insert( MC3(b,b,a) );   // 12
+
+    // make sure sum is 10 and 3 children
+    EXPECT_EQ( 4, data.childrenAtRoot() );
+    EXPECT_EQ( 24, data.weightSumAtRoot() );
+
+    // Verify chains
+    // a branch
+    EXPECT_TRUE( testSubchain( data, MC1(a),   6, 2 ) );
+    EXPECT_TRUE( testSubchain( data, MC2(a,b), 2, 2 ) );
+    EXPECT_TRUE( testSubchain( data, MC2(a,c), 4, 3 ) );
+
+    EXPECT_TRUE( testSubchain( data, MC3(a,b,a), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(a,b,d), 1, 0 ) );
+
+    EXPECT_TRUE( testSubchain( data, MC3(a,c,d), 2, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(a,c,a), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(a,c,c), 1, 0 ) );
+
+    // b branch
+    EXPECT_TRUE( testSubchain( data, MC1(b),  11, 3 ) );
+    EXPECT_TRUE( testSubchain( data, MC2(b,a), 5, 4 ) );
+    EXPECT_TRUE( testSubchain( data, MC2(b,b), 3, 1 ) );
+    EXPECT_TRUE( testSubchain( data, MC2(b,c), 3, 2 ) );
+
+    EXPECT_TRUE( testSubchain( data, MC3(b,b,a), 3, 0 ) );
+
+    EXPECT_TRUE( testSubchain( data, MC3(b,a,a), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(b,a,b), 2, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(b,a,c), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(b,a,d), 1, 0 ) );
+
+    EXPECT_TRUE( testSubchain( data, MC3(b,c,a), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(b,c,d), 2, 0 ) );
+
+    // c branch
+    EXPECT_TRUE( testSubchain( data, MC1(c),   3, 1 ) );
+    EXPECT_TRUE( testSubchain( data, MC2(c,b), 3, 1 ) );
+
+    EXPECT_TRUE( testSubchain( data, MC3(c,b,d), 3, 0 ) );
+
+    // d branch
+    EXPECT_TRUE( testSubchain( data, MC1(d),   4, 2 ) );
+    EXPECT_TRUE( testSubchain( data, MC2(d,a), 1, 1 ) );
+    EXPECT_TRUE( testSubchain( data, MC2(d,b), 3, 2 ) );
+
+    EXPECT_TRUE( testSubchain( data, MC3(d,a,c), 1, 0 ) );
+
+    EXPECT_TRUE( testSubchain( data, MC3(d,b,a), 2, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(d,b,d), 1, 0 ) );
+
+    std::cout << data.debugDumpToString() << std::endl;
 }
