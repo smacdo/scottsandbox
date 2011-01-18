@@ -35,6 +35,7 @@
 #include "markov.h"
 #include "markovdata.h"
 #include "elementnode.h"
+#include "markovfactory.h"
 #include "logging.h"
 
 std::ostream& operator << ( std::ostream& os, const MarkovChain& chain )
@@ -135,7 +136,7 @@ bool isEqual( const MarkovChain& lhs,
 //===========================================================================
 TEST(MarkovTree,EmptyChainGivesEmptyChainString)
 {
-    MC a = {};
+    MC a = MarkovChain();
     EXPECT_EQ( "<0;>", toString( a ) );
 }
 
@@ -380,6 +381,19 @@ TEST(MarkovChain,ComplexTwoLevelTTreeest)
 
     EXPECT_TRUE( testSubchain( data, MC3(d,b,a), 2, 0 ) );
     EXPECT_TRUE( testSubchain( data, MC3(d,b,d), 1, 0 ) );
+}
+
+TEST(MarkovChain, InsertBasicLetterString)
+{
+    MarkovData data = MarkovFactory::createFromLetters( 3, "ABCACBAD" );
 
     std::cout << data.debugDumpToString() << std::endl;
+
+    // make sure it conforms to expectations
+    EXPECT_TRUE( testSubchain( data, MC3(A,B,C), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(B,C,A), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(C,A,C), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(A,C,B), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(C,B,A), 1, 0 ) );
+    EXPECT_TRUE( testSubchain( data, MC3(B,A,D), 1, 0 ) );
 }
