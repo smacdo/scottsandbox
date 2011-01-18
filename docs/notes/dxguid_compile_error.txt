@@ -1,0 +1,5 @@
+Cannot open input file 'dxguid.lib'
+
+Comes up when using newer versions of DX SDK. Change from:
+C:\Program Files\Microsoft DirectX SDK\(December 2006)\Lib
+C:\Program Files\Microsoft DirectX SDK (December 2006)\Lib\x86
