@@ -96,6 +96,10 @@ struct Value
             case TYPE_STRING:
                 ss << sVal;
                 break;
+
+            default:
+                ss << "<??? type>";
+                break;
         }
 
         return ss.str();
@@ -194,7 +198,7 @@ class Expression
 
         virtual ~Expression()
         {
-            for ( int i = 0; i < params.size(); ++i )
+            for ( size_t i = 0; i < params.size(); ++i )
             {
                 std::cout << "print " << i << std::endl;
                 delete params[i];
@@ -383,17 +387,17 @@ public:
 
     bool parseForNextToken()
     {
-        int pos      = getCurrentPosition();
-        assert( pos >= 0 && pos < codestr.size() );
+        size_t pos      = getCurrentPosition();
+        assert( pos < codestr.size() );
 
         //
         // Consume whitespace
         //
-        for ( pos; 
+        for ( ; 
               pos < codestr.size() && isWhitespace(codestr[pos]);
             ++pos )
         {
-            /* ... */
+            // do nothing, just consume space. 
         }
 
         //
@@ -405,7 +409,7 @@ public:
             return false;
         }
 
-        int startPos = pos;
+        size_t startPos = pos;
 
         //
         // Search for the next token
@@ -414,7 +418,7 @@ public:
         bool      done  = false;
         bool      error = false;
 
-        for ( pos ;
+        for ( ;
             (!done) && pos < codestr.size() && (!isWhitespace(codestr[pos]))
                     && ((pos == startPos) || !isEndOfToken(codestr[pos]) );
             ++pos )
@@ -516,7 +520,7 @@ public:
             lastTokenType   = type;
         }
 
-        int getCurrentPosition() const { return currentPosition; }
+        size_t getCurrentPosition() const { return currentPosition; }
         void setCurrentPosition( int p ) { currentPosition = p; }
 
         std::string codestr;
@@ -597,7 +601,7 @@ private:
         //
         std::cout << "CONSTRUCT: ";
 
-        for ( int i = 0; i < params.size(); ++i )
+        for ( size_t i = 0; i < params.size(); ++i )
         {
             std::cout << params[i]->dump() << " ";
         }
@@ -628,7 +632,7 @@ private:
     std::string codestr;
 };
 
-int main( int argc, char* argv[] )
+int main( int, char*[] )
 {
     std::string code = "(test 42 ( - 44 ( + 1 1 ) ) )  ";
     Compiler compiler(code);
