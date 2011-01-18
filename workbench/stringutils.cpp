@@ -37,6 +37,8 @@
 #include <string>
 #include <vector>
 
+typedef std::vector<std::string> StringList;
+
 /**
  * Checks if the input string has the given prefix. Will return true if
  * it does, false otherwise
@@ -161,6 +163,13 @@ std::string erase( const std::string& input,
  */
 template<typename T>
 std::string toString( const T& input );
+
+/**
+ * Returns an array of strings that result in splitting the string along
+ * the given delimitter characters
+ */
+StringList split( const std::string& input,
+                   const std::string& delims );
 
 /**
  * Splits a string into multiple pieces depending on the given delimter
@@ -375,7 +384,7 @@ std::string rot13( const std::string& input )
 }
 
 std::vector<std::string> split( const std::string& input,
-                                const std::strnig& delims )
+                                const std::string& delims )
 {
     std::vector<std::string> output;
     split( input, output, delims );
@@ -383,6 +392,42 @@ std::vector<std::string> split( const std::string& input,
     return output;
 }
 
+size_t split( const std::string& input,
+                    StringList&  output,
+              const std::string& delims )
+{
+    std::string::size_type pos  = 0, lastPos = 0;
+    std::string::size_type last = input.size();
+    size_t startCount           = output.size();
+    const bool trimEmpty        = true;
+
+    while ( pos < last )
+    {
+        pos = input.find_first_of( delims, lastPos );
+
+        if ( pos == std::string::npos )
+        {
+            // no more occurrences
+            pos = input.length();       // set position to end of string
+        }
+
+        if ( pos != lastPos || !trimEmpty )
+        {
+            // So long as there is something to capture, or if the user
+            // wants to capture _everything_ then grab the last capture
+            // group formed by [lastPos,pos).
+            output.push_back( std::string(input, lastPos, pos-lastPos) );
+        }
+
+        lastPos = pos + 1;
+    }
+
+    return ( output.size() - startCount );
+}
+
+/**
+ * A powerful genericized split
+ */
 template<typename ContainerT>
 size_t split( const std::string& input,
                     ContainerT&  output,
@@ -390,7 +435,8 @@ size_t split( const std::string& input,
 {
     std::string::size_type pos  = 0, lastPos = 0;
     std::string::size_type last = input.size();
-    size_t startCount           = output.size()
+    size_t startCount           = output.size();
+    const bool trimEmpty        = true;
 
     while ( pos < last )
     {
