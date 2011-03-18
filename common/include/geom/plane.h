@@ -28,8 +28,8 @@
 #ifndef SCOTT_COMMON_GEOM_PLANE_H
 #define SCOTT_COMMON_GEOM_PLANE_H
 
-#include "math/mathdefs.h"
-#include "math/vector.h"
+#include <math/defs.h>
+#include <math/vector.h>
 
 struct IntersectResult;
 struct Ray;

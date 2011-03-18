@@ -25,12 +25,13 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#ifndef SCOTT_MATHLIB_FRUSTRUM_H
-#define SCOTT_MATHLIB_FRUSTRUM_H
+#ifndef SCOTT_COMMON_MATH_FRUSTRUM_H
+#define SCOTT_COMMON_MATH_FRUSTRUM_H
 
-#include "geoms.h"
+#include <math/defs.h>
+#include <math/vector.h>
+#include <geom/plane.h>
 
-const int FrustumPlaneCount = 6;
 
 class Frustum
 {
@@ -44,8 +45,10 @@ public:
              Scalar ratio );
     bool isInFrustum( const BoundingBox& box ) const;
 
+    static const int PlaneCount = 6;
+
 private:
-    Plane m_planes[FrustumPlaneCount];
+    Plane m_planes[PlaneCount];
 };
 
 #endif

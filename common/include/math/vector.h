@@ -25,12 +25,12 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#ifndef SCOTT_MATHLIB_VECTOR_H
-#define SCOTT_MATHLIB_VECTOR_H
+#ifndef SCOTT_COMMON_MATH_VECTOR_H
+#define SCOTT_COMMON_MATH_VECTOR_H
 
-#include "common/math/mathdefs.h"
-#include "common/math/utils.h"
-#include "common/math/constants.h"
+#include <math/defs.h>
+#include <math/util.h>
+#include <math/constants.h>
 #include <cmath>
 
 #if MATH_DEBUG_MODE == 1

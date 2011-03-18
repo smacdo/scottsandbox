@@ -28,7 +28,7 @@
 #ifndef SCOTT_COMMON_MATH_CONSTANTS_H
 #define SCOTT_COMMON_MATH_CONSTANTS_H
 
-#include <common/math/defs.h>
+#include <math/defs.h>
 
 ///////////////////////////////////////////////////////////////////////////
 // Constants

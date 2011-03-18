@@ -28,6 +28,8 @@
 #ifndef SCOTT_COMMON_GEOM_BOUNDINGBOX_H
 #define SCOTT_COMMON_GEOM_BOUNDINGBOX_H
 
+#include <math/vector.h>
+
 /**
  * Axis aligned bounding box
  */
