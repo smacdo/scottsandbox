@@ -1,36 +1,101 @@
+#########################################################################
+# Common libs
+# -----------
+#
+# This subdirectory provides re-usable unit tested classes and functions
+# to accomplish useful functionality including core common code, string
+# manipulation, math calculations and geometry processing
+#
+# You do not need to use everything in here, just remove the libraries
+# that you are not interested in :)
+########################################################################
 project(CommonLibs)
+set(COMMON_LIBS_VERSION 2)
+
 cmake_minimum_required(VERSION 2.6)
 
 init_googletest()
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-###
-### Common subdirectory. This directory contains code marked as "common",
-### which basically means its a library of highly reusable code that can
-### be copied to new projects.
-###
-set(commonlib_incs 
-        include/common/app.h
+#########################################################################
+### Core common lib
+#########################################################################
+set(commonlib_incs
+        include/common/color.h
         include/common/noncopyable.h
         include/common/singleton.h
         include/common/static_assert.h
+        include/common/time.h
         include/common/utils.h)
 
 set(commonlib_srcs
-        src/common/app.cpp)
-
-set(commonlib_srcs_nontestable
-    )
+        src/common/time.cpp)
 
 set(commonlib_tests
-    )
+        tests/common/test_color.cpp)
 
-add_library(commonlib  ${commonlib_srcs} ${commonlib_srcs_nontestable})
-add_library(commonlibX ${commonlib_srcs} )
+#########################################################################
+### Application common lib
+#########################################################################
+set(applib_incs
+        include/app/app.h
+        include/app/debug.h
+        include/app/platform.h
+        include/app/windowsinclude.h)
 
-###
-### String common lib
-###
+set(applib_srcs
+        src/app/app.cpp
+        src/app/debug.cpp)
+
+set(applib_tests
+        )
+
+#########################################################################
+### Geometry library
+#########################################################################
+set(geomlib_incs
+        include/geom/boundingbox.h
+        include/geom/camera.h
+        include/geom/frustum.h
+        include/geom/intersection.h
+        include/geom/plane.h
+        include/geom/ray.h
+        include/geom/sphere.h)
+
+set(geomlib_srcs
+        src/geom/frustum.cpp)
+
+set(geomlib_tests
+        tests/geom/test_intersectionresult.cpp)
+
+#########################################################################
+### Math library
+#########################################################################
+set(mathlib_incs
+        include/math/constants.h
+        include/math/conversion.h
+        include/math/defs.h
+        include/math/io.h
+        include/math/matrix.h
+        include/math/point.h
+        include/math/util.h
+        include/math/vector.h)
+
+set(mathlib_srcs
+        src/math/utils.cpp
+        src/math/vector.cpp)
+
+set(mathlib_tests
+        tests/math/test_matrix2.cpp
+        tests/math/test_matrix4.cpp
+        tests/math/test_point.cpp
+        tests/math/test_ray.cpp
+        tests/math/test_utils.cpp
+        tests/math/test_vector3.cpp)
+
+#########################################################################
+### String common lib                                                 ###
+#########################################################################
 set(stringlib_incs
         include/string/tokenizer.h
         include/string/util.h)
@@ -45,15 +110,27 @@ set(stringlib_tests
         tests/string/test_streamprint.cpp
         tests/string/test_replace.cpp)
 
-add_library(stringlib STATIC ${stringlib_srcs})
+###====================================================================###
+### Create separate libraries for every common library                 ###
+###====================================================================###
+add_library(commonlib STATIC ${commonlib_srcs} ${commonlib_incs})
+add_library(applib    STATIC ${applib_srcs}    ${applib_incs})
+add_library(geomlib   STATIC ${geomlib_srcs}   ${geomlib_incs})
+add_library(mathlib   STATIC ${mathlib_srcs}   ${mathlib_incs})
+add_library(stringlib STATIC ${stringlib_srcs} ${stringlib_incs})
 
-###
-### Test runner
-###
-set(testlibs "commonlibX;stringlib")
-set(tests    ${commonlib_tests} ${stringlib_tests})
+###====================================================================###
+### Create an executable that will run all unit tests for every common ###
+### library that we build.                                             ###
+###====================================================================###
+set(testlibs "commonlib;applib;geomlib;mathlib;stringlib")
+set(tests    ${commonlib_tests}
+             ${applib_tests}
+             ${geomlib_tests}
+             ${mathlib_tests}
+             ${stringlib_tests})
 
-add_program_with( commonlibstest
+add_program_with( testcommonlibs
                   "${testlibs};googletest"
                   "${PROJECT_SOURCE_DIR}/include"
                   ""
