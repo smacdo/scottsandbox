@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<material name="materials/basic">
+    <lighting mode="default">
+        <ambient><color r="0" g="1" b="0" /></ambient>
+        <diffuse><color r="0" g="1" b="0" /></diffuse>
+        <specular s="1.0"><color r="0" g="1" b="0" /></specular>
+    </lighting>
+
+    <texture>path/to/texture</texture>
+    <normal>path/to/normalmap</normal>
+    <specular>path/to/spec</specular>
+</material>

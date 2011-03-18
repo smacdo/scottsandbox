@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+
+<!-- A simple vertex mesh. Nothing at all special -->
+<mesh name="simple" normals="yes" texcoord="yes" winding="ccw">
+    <verts>
+        <v px="1.0" py="1.0" pz="1.0" nx="1.0" ny="0.0" nz="0.0"
+           tu="1.0" tv="1.0" />
+    </verts>
+
+    <faces>
+        <f a="0" b="1" c="2" />
+    </faces>
+</mesh>

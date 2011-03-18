@@ -1,0 +1,13 @@
+
+<assets>
+    <texture id="textures/penguin/base" file="textures/penguin/base.png" />
+    <material id="materials/penguin">
+        <texture name="textures/penguin/base" />
+    </material>
+
+    <model id="models/penguin" mesh="meshes/penguin">
+        <materials>
+            <apply-material name="materials/penguin" group="default" />
+        </materials>
+    </model>
+</assets>

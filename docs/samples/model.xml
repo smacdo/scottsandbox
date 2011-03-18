@@ -1,0 +1,8 @@
+<?xml version="1."0"?>
+
+<model name="SimpleModel" type="skinned">
+    <mesh name="meshes/simple" />
+    <animations>
+        <animation name="animations/simple" />
+    </animations>
+</model>

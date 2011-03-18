@@ -1,0 +1,10 @@
+<?xml?>
+
+<assets>
+    <include file="materials.xml" />
+    <include file="meshes.xml"    />
+
+    <model id="penguin" mesh="meshes/penguin">
+        <mat facegroup="default" material="penguin" />
+    </model>
+</assets>
