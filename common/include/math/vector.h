@@ -33,6 +33,8 @@
 #include <math/constants.h>
 #include <cmath>
 
+#include <ostream>
+
 #if MATH_DEBUG_MODE == 1
 #   include <cassert>
 #   include <limits>
@@ -136,32 +138,6 @@ public:
                 break;
             default:
                 vector_assert( false && "Vector at() index out of range" );
-                return T();
-        }
-    }
-
-    /**
-     * Look up one of the vector's X/Y/Z components using the axis
-     * name, and return the value
-     */
-    T at( char axis ) const
-    {
-        switch ( axis )
-        {
-            case 'x':
-            case 'X':
-                return m_x;
-                break;
-            case 'y':
-            case 'Y':
-                return m_y;
-                break;
-            case 'z':
-            case 'Z':
-                return m_z;
-                break;
-            default:
-                vector_assert( false && "Vector at() unknown axis" );
                 return T();
         }
     }
@@ -320,7 +296,7 @@ public:
      *
      * NOTE: This method has a call to sqrt, which can be expensive if
      * used frequently. If exact distance, and or direction is not needed
-     * use the faster squaredLength method instead.
+     * use the faster lengthSquared method instead.
      */
     T length() const
     {
@@ -349,13 +325,15 @@ public:
         T len = length();
         vector_assert( len > 0 );
 
-        if ( equals_close( len, static_cast<T>(1.0) ) )
+        // If the vector is already normalized ( length is 1), then
+        // simply return the vector with renormalizing it
+        if ( Math::equalsClose( len, static_cast<T>(1.0) ) )
         {
-            // If the vector is already normalized, then merely return it
             return TVector3( m_x, m_y, m_z );
         }
         else
         {
+            // Vector was not normalize. Do it now
             return TVector3( m_x / len, m_y / len, m_z / len );
         }
     }
@@ -534,13 +512,21 @@ T distance( const TVector3<T>& lhs, const TVector3<T>& rhs )
                          ( lhs.m_z - rhs.m_z ) * ( lhs.m_z - rhs.m_z )) );
 }
 
+template<typename T>
+std::ostream& operator << ( std::ostream& os, const TVector3<T>& v )
+{
+    os << "<" << v.x() << ", " << v.y() << ", " << v.z() << ">";
+    return os;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Vector typedefs - typedef common vector types
 /////////////////////////////////////////////////////////////////////////////
-#ifdef MATHLIB_COMMON_TYPEDEFS
+//#ifdef MATHLIB_COMMON_TYPEDEFS
+typedef TVector3<long>   IVec;
 typedef TVector3<float>  Vec3;
 typedef TVector3<float>  Vec3f;
 typedef TVector3<double> Vec3d;
-#endif
+//#endif
 
 #endif

@@ -3,7 +3,7 @@
  * (template type=float)
  */
 #include <googletest/googletest.h>
-#include <common/math/matrix.h>
+#include <math/matrix.h>
 
 const float DELTA = 0.00001;
 

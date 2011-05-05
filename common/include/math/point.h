@@ -28,8 +28,12 @@
 #ifndef SCOTT_COMMON_MATH_POINT_H
 #define SCOTT_COMMON_MATH_POINT_H
 
-#include "common/math/mathdefs.h"
+#include <math/defs.h>
 
+/**
+ * 3d integer point
+ * [explanation forthcoming]
+ */
 class Point
 {
 public:
@@ -156,6 +160,8 @@ public:
     int y() const { return m_y; }
     int z() const { return m_z; }
 
+    friend std::ostream& operator << ( std::ostream& os, const Point& p );
+
 protected:
     union 
     {
@@ -163,5 +169,13 @@ protected:
         int v[3];
     };
 };
+
+std::ostream& operator << ( std::ostream& os, const Point& p )
+{
+    return os << "<"
+              << p.m_x << ", "
+              << p.m_y << ", "
+              << ">";
+}
 
 #endif

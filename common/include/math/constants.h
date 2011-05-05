@@ -47,6 +47,8 @@ namespace Math
 
     // e constant
     const Scalar E      = 2.71828182845904523536f;
+    const Scalar Log10E = 0.4342944819032518f;
+    const Scalar Log2E  = 1.4426950408889633f;
 
     // sqrt
     const Scalar SqrtTwo      = 1.41421356237309504880f;

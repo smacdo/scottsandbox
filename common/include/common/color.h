@@ -1,7 +1,9 @@
-#ifndef SCOTT_MATH_COLOR_H
-#define SCOTT_MATH_COLOR_H
+#ifndef SCOTT_COMMON_COLOR_H
+#define SCOTT_COMMON_COLOR_H
 
 #include <stdint.h>
+#include <cmath>
+#include <ostream>
 
 /**
  * Represents a simple 32bit RGBA color value
@@ -9,6 +11,11 @@
 class Color
 {
 public:
+    Color()
+        : m_color( 0 )
+    {
+    }
+
     Color( uint8_t r, uint8_t g, uint8_t b, uint8_t a )
         : m_color( a | ( b << 8 ) || ( g << 16 ) || ( r << 24 ) )
     {
@@ -26,9 +33,9 @@ public:
 
     Color getGammaCorrected( float val ) const
     {
-        return Color( pow( r(), val ),
-                      pow( g(), val ),
-                      pow( b(), val ),
+        return Color( std::pow( r(), val ),
+                      std::pow( g(), val ),
+                      std::pow( b(), val ),
                       a()
         );
     }
@@ -62,13 +69,44 @@ public:
         return m_color & 0x000000FF;
     }
 
+    /**
+     * Return int32 representation of the pixel
+     */
     uint32_t rgba32() const
     {
         return m_color;
     }
 
+    /**
+     * Equality operator
+     */
+    bool operator == ( const Color& rhs ) const
+    {
+        return m_color == rhs.m_color;
+    }
+
+    /**
+     * Inequality operator
+     */
+    bool operator != ( const Color& rhs ) const
+    {
+        return m_color != rhs.m_color;
+    }
+
+    friend std::ostream& operator << ( std::ostream& os, const Color& c );
+
 private:
     uint32_t m_color;
 };
+
+std::ostream& operator << ( std::ostream& os, const Color& c )
+{
+    os << "{color;"
+       << c.r() << ","
+       << c.g() << ","
+       << c.b() << ","
+       << c.a()
+       << "}";
+}
 
 #endif

@@ -2,7 +2,9 @@
  * Unit tests for common/math/utils
  */
 #include <googletest/googletest.h>
-#include <common/math/utils.h>
+#include <math/util.h>
+
+using namespace Math;
 
 //=========================================================================
 // CloseEquals (fuzzy equality checking for floating point values)
@@ -10,43 +12,43 @@
 TEST(MathUtils,EqualsCloseBasicEquals)
 {
     // floating point
-    EXPECT_TRUE( equals_close( 42.0f, 42.0f ) );
+    EXPECT_TRUE( equalsClose( 42.0f, 42.0f ) );
 
     // double
-    EXPECT_TRUE( equals_close( 42.0, 42.0 ) );
+    EXPECT_TRUE( equalsClose( 42.0, 42.0 ) );
 
     // int
-    EXPECT_TRUE( equals_close( 42, 42 ) );
+    EXPECT_TRUE( equalsClose( 42, 42 ) );
 }
 
 TEST(MathUtils,EqualsCloseBasicNotEquals)
 {
     // floating point
-    EXPECT_FALSE( equals_close( 42.0f, -42.0f ) );
+    EXPECT_FALSE( equalsClose( 42.0f, -42.0f ) );
 
     // double
-    EXPECT_FALSE( equals_close( 42.0, -42.0 ) );
+    EXPECT_FALSE( equalsClose( 42.0, -42.0 ) );
 
     // int
-    EXPECT_FALSE( equals_close( 42, -42 ) );
+    EXPECT_FALSE( equalsClose( 42, -42 ) );
 }
 
 TEST(MathUtils,EqualsCloseEdges)
 {
-    EXPECT_TRUE( equals_close( 1.0, 0.99999999 ) );
-    EXPECT_TRUE( equals_close( 1.0, 1.00000001 ) );
+    EXPECT_TRUE( equalsClose( 1.0, 0.99999999 ) );
+    EXPECT_TRUE( equalsClose( 1.0, 1.00000001 ) );
 }
 
 TEST(MathUtils,EqualsIsZeroEdges)
 {
-    EXPECT_TRUE( equals_close( 0.0, 0.000001 ) );
-    EXPECT_TRUE( equals_close( 0.0,-0.000001 ) );
-    EXPECT_TRUE( equals_close( 0.0,-0.0      ) );
+    EXPECT_TRUE( equalsClose( 0.0, 0.000001 ) );
+    EXPECT_TRUE( equalsClose( 0.0,-0.000001 ) );
+    EXPECT_TRUE( equalsClose( 0.0,-0.0      ) );
 }
 
 TEST(MathUtils,EqualsCloseNegatives)
 {
-    EXPECT_TRUE( equals_close( -2.00, -2.00001 ) );
+    EXPECT_TRUE( equalsClose( -2.00, -2.00001 ) );
 }
 
 //===========================================================================
@@ -54,31 +56,37 @@ TEST(MathUtils,EqualsCloseNegatives)
 //===========================================================================
 TEST(MathUtils,IsZeroIsTrueIfZero)
 {
-    EXPECT_TRUE( is_zero( 0.00 ) );
+    EXPECT_TRUE( isZero( 0.00 ) );
 }
 
 TEST(MathUtils,IsZeroIsFalseIfNotZero)
 {
-    EXPECT_FALSE( is_zero( 0.1 ) );
+    EXPECT_FALSE( isZero( 0.1 ) );
 }
 
 TEST(MathUtils,IsZeroIsTrueIfWithinBounds)
 {
     const int ZeroBounds = 0.000000001;
 
-    EXPECT_TRUE( is_zero( 0.0000000009 ) );
-    EXPECT_TRUE( is_zero(-0.0000000009 ) );
+    EXPECT_TRUE( isZero( 0.0000000009 ) );
+    EXPECT_TRUE( isZero(-0.0000000009 ) );
 }
 
 TEST(MathUtils,IsZeroIsFalseIfOutsideBounds)
 {
-    EXPECT_FALSE( is_zero( 0.000000002 ) );
-    EXPECT_FALSE( is_zero(-0.000000002 ) );
+    EXPECT_FALSE( isZero( 0.000000002 ) );
+    EXPECT_FALSE( isZero(-0.000000002 ) );
 }
 
 //===========================================================================
 // Close compare to zero
 //===========================================================================
+TEST(MathUtils,IsNotZeroSimple)
+{
+    EXPECT_FALSE( Math::isNotZero( 1 ) );
+    EXPECT_FALSE( Math::isNotZero( (double) 1.0  ) );
+    EXPECT_FALSE( Math::isNotZero( (float)  1.0f ) );
+}
 
 //===========================================================================
 // Clamp
@@ -108,42 +116,6 @@ TEST(MathUtils,ClampLessEquals)
 }
 
 //===========================================================================
-// Min2
-//===========================================================================
-TEST(MathUtils,MinALessB)
-{
-    EXPECT_EQ( 2, min( 2, 5 ) );
-}
-
-TEST(MathUtils,MinAEqualB)
-{
-    EXPECT_EQ( 3, min( 3, 3 ) );
-}
-
-TEST(MathUtils,MinAGreaterB)
-{
-    EXPECT_EQ( -2, min( 5, -2 ) );
-}
-
-//===========================================================================
-// Max2
-//===========================================================================
-TEST(MathUtils,MaxALessB)
-{
-    EXPECT_EQ( 5, max( 2, 5 ) );
-}
-
-TEST(MathUtils,MaxAEqualB)
-{
-    EXPECT_EQ( 3, max( 3, 3 ) );
-}
-
-TEST(MathUtils,MaxAGreaterB)
-{
-    EXPECT_EQ( 5, max( 5, -2 ) );
-}
-
-//===========================================================================
 // Wrap
 //===========================================================================
 TEST(MathUtils,WrapZeroToTen)
@@ -159,24 +131,6 @@ TEST(MathUtils,WrapLessTenToTen)
 TEST(MathUtils,WrapMoreTenToTen)
 {
     EXPECT_EQ( 2, wrap( 22, 10 ) );
-}
-
-//===========================================================================
-// Lerp
-//===========================================================================
-TEST(MathUtils,LerpStartLeft)
-{
-    EXPECT_EQ( 1, lerp( 1, 3, 0 ) );
-}
-
-TEST(MathUtils,LerpEndRight)
-{
-    EXPECT_EQ( 3, lerp( 1, 3, 1 ) );
-}
-
-TEST(MathUtils,LerpMidle)
-{
-    EXPECT_EQ( 3, lerp( 2.0f, 4.0f, 0.5f ) );
 }
 
 //===========================================================================
@@ -250,26 +204,37 @@ TEST(MathUtils,OneCubedIsStillOne)
 //===========================================================================
 TEST(MathUtils,CastClampSameTypeDoesNotChangeValue)
 {
-    EXPECT_EQ( 1024, castAndClamp<int,int>( 1024 ) );
+    int result = castAndClamp<int, int>( 1024 );
+    EXPECT_EQ( 1024, result );
 }
 
 TEST(MathUtils,CastClampToSammlerTypeDoesNotChangeIfInRange)
 {
-    EXPECT_EQ( 64, castAndClamp<int,char>( 64 ) );
+    char result = castAndClamp<int, char>( 64 );
+    EXPECT_EQ( (char) 64, result );
 }
 
 TEST(MathUtils,CastClampToUnsignedClampsAtZero)
 {
-    EXPECT_EQ( 0, castAndClamp<int, unsigned int>( -1024 ) );
+    unsigned int result = castAndClamp<int, unsigned int>( -1024 );
+    EXPECT_EQ( (unsigned int) 0, result );
+}
+
+TEST(MathUtils,CastClampFromLargerToEdge)
+{
+    unsigned char result = castAndClamp<int, unsigned char>( 671 );
+    EXPECT_EQ( (unsigned char) 127, result );
 }
 
 TEST(MathUtils,CastClampToSmallerTypeClampsAtMax)
 {
-    EXPECT_EQ( 127, castAndClamp<int, unsigned char>( 127 ) );
+    unsigned char result = castAndClamp<int, unsigned char>( 127 );
+    EXPECT_EQ( (unsigned char) 127, result );
 }
 
 TEST(MathUtils,CastClampToSmallerSignedTypeClampsAtMax)
 {
-    EXPECT_EQ( 255, castAndClamp<int, signed char>( 255 ) );
+    signed char result = castAndClamp<int, signed char>( 255 );
+    EXPECT_EQ( (signed char) 255, result );
 }
 

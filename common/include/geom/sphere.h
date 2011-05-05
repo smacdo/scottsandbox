@@ -25,11 +25,11 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#ifndef SCOTT_COMMON_SPHERE_H
-#define SCOTT_COMMON_SPHERE_H
+#ifndef SCOTT_COMMON_GEOM_SPHERE_H
+#define SCOTT_COMMON_GEOM_SPHERE_H
 
-#include <common/math/mathdefs.h>
-#include <common/math/vector.h>
+#include <math/defs.h>
+#include <math/vector.h>
 
 /**
  * Information representing a sphere in 3d space

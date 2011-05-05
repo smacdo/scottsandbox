@@ -28,8 +28,8 @@
 #ifndef SCOTT_COMMON_GEOM_INTERSECTION_H
 #define SCOTT_COMMON_GEOM_INTERSECTION_H
 
-#include <common/math/defs.h>
-#include <common/math/vector.h>
+#include <math/defs.h>
+#include <math/vector.h>
 
 struct IntersectResult
 {

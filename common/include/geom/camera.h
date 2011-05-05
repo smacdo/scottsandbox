@@ -1,7 +1,8 @@
-#ifndef SCOTT_ROGEULIKE_CAMERA_H
-#define SCOTT_ROGUELIKE_CAMERA_H
+#ifndef SCOTT_COMMON_GEOM_CAMERA_H
+#define SCOTT_COMMON_GEOM_CAMERA_H
 
-#include "math/vector.h"
+#include <math/vector.h>
+#include <math/matrix.h>
 
 class Camera
 {
@@ -10,34 +11,17 @@ public:
     Camera( const Vec3& center );
     Camera( const Camera& camera );
 
+    virtual ~Camera();
+
     /**
      * Resets the camera to its starting position (usually world center)
      */
-    void reset();
+    virtual void reset();
 
     /**
      * Moves the camera center to the specified location
      */
-    void resetTo( const Vec3& center );
-
-    /**
-     * Resets the camera's looking_at vector. This will have the effect
-     * of rotating the camera's view back to the default look_at, but the
-     * camera's center will be unchanged.
-     */
-    void resetDirection();
-
-    void moveForward()  { moveForward(  m_baseSpeed ); }
-    void moveBackward() { moveBackward( m_baseSpeed ); }
-    void strafeLeft()   { strafeLeft(   m_baseSpeed ); }
-    void strafeRight()  { strafeRight(  m_baseSpeed ); }
-    
-    void moveForward(  float distance );
-    void moveBackward( float distance );
-    void strafeLeft(   float distance );
-    void strafeRight(  float distance );
-
-    void addMouseLookDelta( float deltaX, float deltaY );
+    virtual void resetTo( const Vec3& center );
 
     /**
      * Returns a position vector representing the camera's center
@@ -70,23 +54,18 @@ public:
      * Debugging method that will instruct the camera to print lots of
      * useful information to the debugging console
      */
-    void printDebugInfo() const;
+    virtual void printDebugInfo() const;
 
-protected:
-    void rotateYAxis( float angle );
-    void rotateXAxis( float angle );
+    virtual Mat4 createProjectionMatrix() const;
 
 private:
     Vec3 m_center;
     Vec3 m_direction;
     Vec3 m_up;
     Vec3 m_right;
-    Vec3 m_rotation;        // used for debugging purposes only
-    
+    Vec3 m_rotation;
 
     float m_viewDistance;
-    float m_baseSpeed;
-
 };
 
 #endif

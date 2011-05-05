@@ -1,74 +1,87 @@
 #include <iostream>
+#include <boost/scoped_ptr.hpp>
 
-template<typename T>
-class ScopedPtr
+using boost::scoped_ptr;
+
+class Foo
 {
 public:
-    explicit ScopedPtr( T* ptr )
-        : m_ptr(ptr),
-          m_name( "unnamed" )
+    Foo()
+        : name("default")
     {
+        std::cout << "Foo:ctor, name=default" << std::endl;
     }
 
-    ScopedPtr( T* ptr, const std::string& name )
-        : m_ptr(ptr),
-          m_name( name )
+    Foo( const std::string& name )
+        : name( name )
     {
+        std::cout << "Foo:ctor2, name=" << name << std::endl;
     }
 
-    ~ScopedPtr()
+    ~Foo()
     {
-        std::cout << "Deleting: " << m_name << std::endl;
-        delete m_ptr;
+        std::cout << "Foo:dtor, name=" << name << std::endl;
     }
 
-    T& operator * () const
+    Foo( const Foo& f )
+        : name( f.name )
     {
-        return *m_ptr;
+        std::cout << "Foo:copyctor, name=" << name << std::endl;
     }
 
-    T * get() const
+    Foo& operator = ( const Foo& f )
     {
-        return m_ptr;
-    }
-
-    T * operator ->() const
-    {
-        return m_ptr;
+        name = f.name;
+        std::cout << "Food:assign, name=" << name << std::endl;
+        return *this;
     }
 
 private:
-    ScopedPtr( const ScopedPtr<T>& ptr );
-    ScopedPtr<T>& operator = ( const ScopedPtr<T>& rhs );
-
-    T * m_ptr;
-    std::string m_name;
+    std::string name;
 };
 
-class AwesomeClass
+class Bar
 {
-    public:
-        int getIt() const { return 42; }
+public:
+    Bar()
+        : m_ptr( new Foo("alice") )
+    {
+        std::cout << "Bar constructor start" << std::endl;
+        m_ptr.reset( new Foo("bob") );
+        std::cout << "Bar constructor stop" << std::endl;
+    }
+
+    ~Bar()
+    {
+        std::cout << "Bar destructor" << std::endl;
+    }
+
+    void test()
+    {
+        std::cout << "Test func start" << std::endl;
+        scoped_ptr<Foo> temp( new Foo("charlie") );
+        m_ptr.swap( temp );
+        std::cout << "Test func stop" << std::endl;
+    }
+
+private:
+    scoped_ptr<Foo> m_ptr;
 };
-
-int printIt( int * val )
-{
-    std::cout << "Value of pointer is " << *val << std::endl;
-    return *val;
-}
-
-
 
 int main( int argc, char* argv[] )
 {
-    ScopedPtr<int> ptr( new int(42) );
-    printIt( ptr.get() );
+    scoped_ptr<int> a( new int( 42 ) );
+    std::cout << "a: " << *a << std::endl;
 
+    std::cout << "===============" << std::endl;
+    std::cout << "- Dynamic allocate bar" << std::endl;
+    Bar *pBar = new Bar();
 
-    ScopedPtr<AwesomeClass> nptr( new AwesomeClass );
-    nptr->getIt();
+    std::cout << "- test func on bar" << std::endl;
+    pBar->test();
 
-    std::cout << "Value of dereferenced int is: " << *ptr << std::endl;
+    std::cout << "- destroying bar" << std::endl;
+    delete pBar;
 
-    return 0;
+    
 }

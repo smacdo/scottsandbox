@@ -25,10 +25,12 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#ifndef SCOTT_COMMON_MATH_RAY_H
-#define SCOTT_COMMON_MATH_RAY_H
+#ifndef SCOTT_COMMON_GEOM_RAY_H
+#define SCOTT_COMMON_GEOM_RAY_H
 
-#include <common/math/vector.h>:w
+#include <math/vector.h>
+#include <ostream>
+#include <string>
 
 /**
  * A ray in 3d space. Has an origin and a normalized direction vector
@@ -55,5 +57,11 @@ struct Ray
      */
     Vec3   direction;
 };
+
+std::ostream& operator << ( std::ostream& os, const Ray& ray )
+{
+    os << "{ray;o=" << ray.origin << ",d=" << ray.direction << "}";
+    return os;
+}
 
 #endif

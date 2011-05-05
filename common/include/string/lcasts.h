@@ -1,11 +1,19 @@
-#ifndef SCOTT_STRING_CASTS
-#define SCOTT_STRING_CASTS
+#ifndef SCOTT_COMMON_STRING_CASTS
+#define SCOTT_COMMON_STRING_CASTS
 
 #include <string>
 #include <sstream>
 
 namespace String
 {
+    /**
+     * Attempts to lexically convert the given object into a STL
+     * string. This asssumes that the objec's type supports stream
+     * out operation.
+     *
+     * Great for converting base types (such as ints, floats) into
+     * strings
+     */
     template<typename T>
     inline std::string ToString( const T& object )
     {
@@ -27,6 +35,16 @@ namespace String
         }
     }
 
+    /**
+     * Attempt to lexically convert a string value into the requested
+     * type. An object must implement the stream in ( >> ) operator for
+     * this method to work.
+     *
+     * All builtins function fine with this method without any extra
+     * code.
+     *
+     * \return Returns true if the conversion succeeded, false otherwise
+     */
     template<typename T>
     inline bool FromStringCast( const std::string& input, const T& output )
     {

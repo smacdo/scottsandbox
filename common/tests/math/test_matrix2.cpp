@@ -2,7 +2,7 @@
  * Unit test for templated matrix 2x2
  */
 #include <googletest/googletest.h>
-#include <common/math/matrix.h>
+#include <math/matrix.h>
 
 const float DELTA = 0.00001;
 

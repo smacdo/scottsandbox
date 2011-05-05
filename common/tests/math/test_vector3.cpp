@@ -70,21 +70,6 @@ TEST(Vector3, VectorAt)
     EXPECT_EQ( v.at(2), 1.0 );
 }
 
-TEST(Vector3, VectorAtAxis)
-{
-    const Vec3 v( 5.0, 6.0, 1.0 );
-
-    // lower
-    EXPECT_EQ( v.at('x'), 5.0 );
-    EXPECT_EQ( v.at('y'), 6.0 );
-    EXPECT_EQ( v.at('z'), 1.0 );
-
-    // upper
-    EXPECT_EQ( v.at('X'), 5.0 );
-    EXPECT_EQ( v.at('Y'), 6.0 );
-    EXPECT_EQ( v.at('Z'), 1.0 );
-}
-
 TEST(Vector3, VectorAxisAccessors)
 {
     const Vec3 v( 5.0, 6.0, 1.0 );

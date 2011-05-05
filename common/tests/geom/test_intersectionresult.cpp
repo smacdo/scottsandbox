@@ -1,4 +1,4 @@
-#include <math/geoms.h>
+#include <geom/intersection.h>
 #include <math/vector.h>
 #include <googletest/googletest.h>
 

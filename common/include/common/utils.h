@@ -8,4 +8,17 @@
 #ifndef SCOTT_COMMON_UTILS_H
 #define SCOTT_COMMON_UTILS_H
 
+template<typename ContainerT>
+deletePtrContainer( ContainerT& input )
+{
+    typename ContainerT::iterator itr;
+
+    for ( itr = input.begin(); itr != itr.end(); ++itr )
+    {
+        delete *itr;
+    }
+
+    target.clear();
+}
+
 #endif

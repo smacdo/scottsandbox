@@ -36,7 +36,7 @@ bool Frustum::isInFrustum( const BoundingBox& box ) const
     float maxX = 0.0, maxY = 0.0, maxZ = 0.0;
     bool bIsInFrustrum = true;
 
-    for ( int i = 0; i < FrustumPlaneCount; ++i )
+    for ( int i = 0; i < PlaneCount; ++i )
     {
         //
         // Test X/Y/Z axis

@@ -1,23 +1,20 @@
-#include "math/utils.h"
-#include "math/mathdefs.h"
 
-int random( int min, int max )
+#include <math/util.h>
+#include <math/defs.h>
+
+float Math::fastSqrt( float v )
 {
-    Scalar r = ((static_cast<Scalar>(rand()) / static_cast<Scalar>(RAND_MAX)) *
-                (high - low) + low);
-    return lround(r);
+    long i;
+    float x2, y;
+    const float threehalfs = 1.5f;
+
+    x2 = v * 0.5f;
+    y  = v;
+    i  = *( long *) &y;             // evil floating point bit level hack
+    i  = 0x5f3759df - ( i >> 1 );   // seriously, wtf
+    y  = *( float *) &i;            // more magic
+    y  = y * (threehalfs - (x2 * y * y));   // 1st iteration
+//  y  = y * (threehalfs - (x2 * y * y));   // 2nd itr, can be removed
+
+    return y;
 }
-
-Scalar random( Scalar min, Scalar max )
-{
-    return ((static_cast<Scalar>(rand()) / static_cast<Scalar>(RAND_MAX)) *
-            (high - low) + low);
-}
-
-bool isPowerOfTwo( long value )
-{
-    return ( value & ( value-1) ) == 0;
-}
-
-
-

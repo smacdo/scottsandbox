@@ -12,83 +12,97 @@
 
 namespace Math
 {
-    static const float  FloatEpsilon  = 0.00001f;
-    static const double DoubleEpsilon = 0.000000001;
+    static const float  ZeroEpsilonF  = 0.00001f;
+    static const double ZeroEpsilonD = 0.000000001;
 
     /**
-     * Checks if two values of type T are equal, account for a small amount
-     * of numeric inaccuracy. (Uses the floating point epsilon as the acceptable
-     * range of inaccuracy)
+     * Checks if two numeric values of the same type have identical values.
+     * For imprecise floating point values, this method will check if they
+     * are within an acceptable distance of being equal to each other. 
      */
     template<typename T>
-    inline bool equals_close( T a, T b )
+    inline bool equalsClose( T a, T b )
     {
         return a == b;
     }
 
     /**
-     * Checks if two floating point values are equal, accounting for a small
-     * amount of numerical inaccuracy
+     * Checks if the two single precision floating point values are within
+     * an acceptable distance of each other.
      */
     template<>
-    inline bool equals_close<float>( float a, float b )
+    inline bool equalsClose<float>( float a, float b )
     {
-        return ( std::fabs( a - b ) < FloatEpsilon );
+        return ( std::fabs( a - b ) < ZeroEpsilonF );
     }
 
     /**
-     * Checks if two double values are equal, accounting for a small amount
-     * of numeric inaccuracy
+     * Checks if the two double precision floating point values are within
+     * an acceptable distance of each other
      */
     template<>
-    inline bool equals_close<double>( double a, double b )
+    inline bool equalsClose<double>( double a, double b )
     {
-        return ( std::fabs( a - b ) < DoubleEpsilon );
+        return ( std::fabs( a - b ) < ZeroEpsilonD );
     }
 
     /**
-     * Checks if a value is close to being zero, and accounting for a small
-     * amount of numerical inaccuracy. This uses the floating point epsilon
-     * as the acceptable range of inaccuracy
+     * Checks if the value is zero. In the case of floating point values,
+     * this method will check if the value is precisely zero or within an
+     * acceptable distance (epsilon) of zero.
      */
     template<typename T>
-    inline bool is_zero( T a )
+    inline bool isZero( T a )
     {
         return ( a == 0 );
     }
 
+    /**
+     * Checks if the single precision floating point value is zero or
+     * within an acceptable distance of zero.
+     */
     template<>
-    inline bool is_zero<float>( float a )
+    inline bool isZero<float>( float a )
     {
-        return ( a <= Math::FloatEpsilon && a >= -Math::FloatEpsilon );
-    }
-
-    template<>
-    inline bool is_zero<double>( double a )
-    {
-        return ( a <= Math::DoubleEpsilon && a >= -Math::DoubleEpsilon );
+        return ( std::fabs( a - a ) < ZeroEpsilonF );
     }
 
     /**
-     * Checks if value is greater than zero. Uses floating point epsilon to allow
-     * for an acceptable range of inaccuracy
+     * Checks if the double precision floating point value is zero or
+     * within an acceptable distance of zero
+     */
+    template<>
+    inline bool isZero<double>( double a )
+    {
+        return ( std::fabs( a - a ) < ZeroEpsilonD );
+    }
+
+    /**
+     * Checks if value is not zero. Floating point values are checked
+     * for near equality
      */
     template<typename T>
-    inline bool greater_zero( T a )
+    inline bool isNotZero( T a )
     {
-        return a > 0;
+        return ( a != 0 );
     }
 
+    /**
+     * Checks if single precision floating point value is not zero
+     */
     template<>
-    inline bool greater_zero<float>( float a )
+    inline bool isNotZero<float>( float a )
     {
-        return ( a > Math::FloatEpsilon );
+        return a > ZeroEpsilonF || a < -ZeroEpsilonF;
     }
 
+    /**
+     * Checks if double precision floating point value is not zero
+     */
     template<>
-    inline bool greater_zero<double>( double a )
+    inline bool isNotZero<double>( double a )
     {
-        return ( a > Math::DoubleEpsilon );
+        return a > ZeroEpsilonD || a < -ZeroEpsilonD;
     }
 
     /**
@@ -112,75 +126,6 @@ namespace Math
     {
         math_assert( val >= 0 && "Value to be wrapped must be positive" );
         return val % max;
-    }
-
-    /**
-     * Performs a linear interpolation on the range [x,y] using s as the
-     * linear interpolation value.
-     */
-    template<typename T,typename U>
-    T lerp( const T& x, const T& y, const U& s )
-    {
-        return x + ( ( y - x ) * s);
-    }
-
-    /**
-     * Performs a hermite linear interpolation on the range [a,b] using s as
-     * the interpolvation percent (0 = a, 1=b).
-     *
-     * This is similiar to a linear interpolation, but the interpolation is
-     * eased near the limits
-     */
-    template<typename T, typename U>
-    T hermite( const T& a, const T& b, const U& s )
-    {
-        return lerp( a, b, s * s * ( 3.0f - 2.0f * s ) );
-    }
-
-    /**
-     * Performs a sinusoidal interpolation on the range [a,b] using s as the
-     * interpolation percent (0 = a, 1=b).
-     *
-     * The graph formed from [a,b] is similiar to a linear interpolatino, but
-     * the end limit is eased in
-    */
-    template<typename T, typename U>
-    T sinerp( const T& a, const T& b, const U& s )
-    {
-        return lerp( a, b, sin( s * Math::Pi * 0.5f ) );
-    }
-
-    /**
-     * Performs a cosinusoidal interpolation on the range [a,b] using s as the
-     * interpolation percent (0=a, 1=b).
-     *
-     * The graph formed from [a,b] is similiar to a linear interpolation, but
-     * the start limit is eased in
-     */
-    template<typename T, typename U>
-    T coserp( const T& a, const T& b, const U& s )
-    {
-        return lerp( a, b, cos( s * Math::Pi * 0.5f ) );
-    }
-
-    /**
-     * Performs a "boing!" interpolation on the range [a,b] using s as the
-     * interpolation percent (0=a, 1=b).
-     *
-     * This interpolation will cause the value to overshoot the upper limit,
-     * and then converge.
-     */
-    template<typename T, typename U>
-    T berp( const T& a, const T& b, const U& s )
-    {
-        T v = clamp( s, 0, 1 );
-        v = sin(v * Math::Pi * (0.2f + 2.5f * s*s*s)) *
-            pow(1.0f-s,2.2f);
-    /*
-    *    value = Mathf.Clamp01(value);
-    *    value = (Mathf.Sin(value * Mathf.PI * (0.2f + 2.5f * value * value * value)) * Mathf.Pow(1f - value, 2.2f) + value) * (1f + (1.2f * (1f - value)));
-    *    return start + (end - start) * value;
-    */
     }
 
     /**
@@ -222,13 +167,14 @@ namespace Math
     }
 
     /**
-     * Casts the passed value to the requested numeric type, and clamps
-     * the passed value to be within the bounds of the cast type.
+     * Casts the provided value to the requested type. The value casted
+     * will be clamped to be within the acceptable bounds of the new
+     * type.
      *
      * ex: castAntClamp<int8_t>( 1000 ) == 255
      */
     template<typename T, typename U>
-    U castAndClamp( const T& base )
+    U clampedCast( const T& base )
     {
         if ( base > std::numeric_limits<U>::max() )
         {
@@ -245,49 +191,9 @@ namespace Math
     }
 
     /**
-     * Generates a random integer and returns it. Completly at the whim
-     * of the standard library's random number generator
-     *
-     * TODO Don't use the built in standard library. Be more creative
-     */
-    template<typename T>
-    T random()
-    {
-        return static_cast<T>( rand() );
-    }
-
-    /**
-     * Generates a random floating point number between 0 and 1
-     * TODO: Verify range. Does it include or exclude boundry?
-     */
-    template<>
-    float random<float>()
-    {
-        return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-    }
-
-    /**
-     * Generates a random double precision number between 0 and 1
-     * TODO: Verify ranges. Does it include or exlude boundry?
-     */
-    template<>
-    double random<double>()
-    {
-        return static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
-    }
-
-    /**
-     * Returns a random number in the range [min,max]
-     */
-    int random( int min, int max )
-    {
-        return min + ( random<int>() %  (max - min + 1) );
-    }
-
-    /**
      * Converts degrees into radians
      */
-    static inline float RadiansToDegrees( float radians )
+    static inline float rad2deg( float radians )
     {
         return radians * 180 / Math::Pi;
     }
@@ -295,7 +201,7 @@ namespace Math
     /**
      * Converts radian value into degrees
      */
-    static inline float DegreesToRadians( float degrees )
+    static inline float deg2rad( float degrees )
     {
         return degrees * Math::Pi / 180;
     }
@@ -303,23 +209,77 @@ namespace Math
     /**
      * Clamps an angle given in degrees to its natural 0-360 range.
      */
-    static inline float ClampAngle( float degrees )
+    template<typename T>
+    inline T clampAngle( T deg )
+    {
+        return deg % 360;
+    }
+
+    /**
+     * Returns a clamped double precision angle in [0, 360.0]
+     */
+    template<>
+    inline double clampAngle<double>( double degrees )
+    {
+        double angle = degrees;
+
+        if ( angle > 360.0 )
+        {
+            angle -= 360.0 * static_cast<double>(
+                                static_cast<int>( angle / 360.0 ));
+        }
+        else
+        {
+            angle += 360.0 * static_cast<double>(
+                                static_cast<int>(fabs(angle)/360.0));
+        }
+
+        return angle;
+    }
+
+    /**
+     * Returns clamped single precision angle in [0, 360.0]
+     */
+    template<>
+    inline float clampAngle<float>( float degrees )
     {
         float angle = degrees;
 
         if ( angle > 360.0f )
         {
             angle -= 360.0f * static_cast<float>(
-                                    static_cast<int>( angle / 360.0f ) );
+                                static_cast<int>( angle / 360.0f ) );
         }
         else
         {
             angle += 360.0f * static_cast<float>(
-                                    static_cast<int>(fabs(angle)/360.0f));
+                                static_cast<int>(fabs(angle)/360.0f));
         }
 
         return angle;
     }
+
+    /**
+     * Returns the next highest power of two value for the given
+     * argument v.
+     *
+     * TODO Verify this works correctly on 64bit platforms for values
+     * larger than a 32bit int
+     */
+    static inline int nextPowerOfTwo( int v )
+    {
+        v--;
+        v |= v >> 1;
+        v |= v >> 2;
+        v |= v >> 4;
+        v |= v >> 8;
+        v |= v >> 16;
+        v++;
+
+        return v;
+    }
+
+    inline float fastSqrt( float v );
 }
 
 #endif

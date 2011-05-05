@@ -25,7 +25,11 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#include "math/geoms.h"
+#include <geom/intersection.h>
+#include <geom/plane.h>
+#include <geom/ray.h>
+#include <geom/sphere.h>
+
 #include <limits>
 
 IntersectResult::IntersectResult()
@@ -66,7 +70,7 @@ bool Plane::intersects( const Ray& ray ) const
 {
     Scalar d2 = dot( normal, ray.direction );
 
-    if ( greaterequal_zero(d2) ) 
+    if ( d2 > -Math::FloatEpsilon ) 
     {
         return false;     // ray is parallel to plane, or ray hits wrong side
     }
@@ -74,7 +78,7 @@ bool Plane::intersects( const Ray& ray ) const
     Scalar d1 = -( dot( normal, ray.origin ) + distance );
     Scalar  t = d1 / d2;
     
-    if ( less_zero(t) )
+    if ( t < Math::FloatEpsilon )
     {
         return false;     // ray intersects behind plane origin
     }

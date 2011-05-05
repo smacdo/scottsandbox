@@ -30,8 +30,8 @@
 
 #include <algorithm>
 #include <functional>
-#include "math/mathdefs.h"
-#include "math/utils.h"
+#include <math/defs.h>
+#include <math/util.h>
 
 #if MATH_DEBUG_MODE == 1
 #   include <cassert>
@@ -276,7 +276,7 @@ class TMatrix
         bool operator == ( const TMatrix<T,N>& rhs ) const
         {
 #ifdef MATH_USE_FUZZY_EQUALS
-            return std::equal( m, m + N*N, rhs.m, equals_close<T> );
+            return std::equal( m, m + N*N, rhs.m, Math::equalsClose<T> );
 #else
             return std::equal( m, m + N*N, rhs.m );
 #endif
@@ -312,7 +312,7 @@ class TMatrix
          */
         bool equalsClose( const TMatrix<T,N>& rhs ) const
         {
-            return std::equal( m, m + N*N, rhs.m, equals_close<T> );
+            return std::equal( m, m + N*N, rhs.m, Math::equalsClose<T> );
         }
 
         /**
@@ -340,11 +340,7 @@ class TMatrix
 
             for ( int i = 0; i < N*N; ++i )
             {
-#ifdef MATH_USE_FUZZY_EQUALS
-                if ( m[i] != 0.0f )
-#else
-                if ( FUZZY_EQUALS( m[i], 0.0f ) == false )
-#endif
+                if (! Math::isZero<T>( m[i] ) )
                 {
                     status = false;
                     break;
@@ -364,7 +360,7 @@ class TMatrix
 
             for ( int i = 0; i < N; ++i )
             {
-                if (! equals_close( m[index(i,i)], static_cast<T>(1.0) ) )
+                if (! Math::equalsClose( m[index(i,i)], static_cast<T>(1.0) ) )
                 {
                     status = false;
                     break;
@@ -406,6 +402,10 @@ class TMatrix
             return c * N + r;
         }
 
+        template<typename U, int V>
+        friend std::ostream& operator << ( std::ostream& os,
+                                           const TMatrix<U,V>& mat );
+
     protected:
         /**
          * The matrix cells
@@ -416,6 +416,44 @@ class TMatrix
 /////////////////////////////////////////////////////////////////////////////
 // TMatrix<T,N> operators
 /////////////////////////////////////////////////////////////////////////////
+template<typename T, int N>
+std::ostream& operator << ( std::ostream& os, const TMatrix<T,N>& mat )
+{
+    os << "[ ";
+
+    for ( int r = 0; r < N; ++r )
+    {
+        os << "[";
+
+        for ( int c = 0; c < N; ++c )
+        {
+            if ( c == N-1 )
+            {
+                os << mat.at( r, c );
+            }
+            else
+            {
+                os << mat.at( r, c ) << ", ";
+            }
+        }
+
+        os << "]";
+
+        if ( r == N-1 )
+        {
+            os << " ";
+        }
+        else
+        {
+            os << "; ";
+        }
+    }
+
+    os << " ]";
+
+    return os;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // TMatrix<T,N> utility / friend methods
