@@ -12,9 +12,6 @@
 
 namespace Math
 {
-    static const float  ZeroEpsilonF  = 0.00001f;
-    static const double ZeroEpsilonD = 0.000000001;
-
     /**
      * Checks if two numeric values of the same type have identical values.
      * For imprecise floating point values, this method will check if they
@@ -82,7 +79,7 @@ namespace Math
      * for near equality
      */
     template<typename T>
-    inline bool isNotZero( T a )
+    inline bool notZero( T a )
     {
         return ( a != 0 );
     }
@@ -91,7 +88,7 @@ namespace Math
      * Checks if single precision floating point value is not zero
      */
     template<>
-    inline bool isNotZero<float>( float a )
+    inline bool notZero<float>( float a )
     {
         return a > ZeroEpsilonF || a < -ZeroEpsilonF;
     }
@@ -100,7 +97,7 @@ namespace Math
      * Checks if double precision floating point value is not zero
      */
     template<>
-    inline bool isNotZero<double>( double a )
+    inline bool notZero<double>( double a )
     {
         return a > ZeroEpsilonD || a < -ZeroEpsilonD;
     }
@@ -266,7 +263,7 @@ namespace Math
      * TODO Verify this works correctly on 64bit platforms for values
      * larger than a 32bit int
      */
-    static inline int nextPowerOfTwo( int v )
+    inline int nextPowerOfTwo( int v )
     {
         v--;
         v |= v >> 1;

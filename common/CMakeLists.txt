@@ -80,7 +80,6 @@ set(mathlib_incs
         include/math/constants.h
         include/math/conversion.h
         include/math/defs.h
-        include/math/io.h
         include/math/matrix.h
         include/math/interpolation.h
         include/math/random.h

@@ -37,8 +37,8 @@ namespace Math
 {
     // Zero delta
     const Scalar ZeroEpsilon  = 1e-8;
-    const float  ZeroEpsilonF = 1e-8;
-    const double ZeroEpsilonD = 1e-14;
+    const float  ZeroEpsilonF = 1e-5;
+    const double ZeroEpsilonD = 1e-9;
 
     // Pi
     const Scalar Pi     = 3.141592653589793238462f;

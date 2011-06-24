@@ -103,7 +103,10 @@ std::string wordWrap( const std::string& input, int maxLineLen=80 );
  */
 size_t wordCount( const std::string& input );
 
-std::string pad( const std::string& text, size_t len, char pad=' ' );
+std::string pad( const std::string& text,
+                 size_t padLeft,
+                 size_t padRight,
+                 char fillchar=' ' );
 
 /**
  * Returns the input string reversed, so that each character is in the
@@ -138,6 +141,17 @@ std::string toUpper( const std::string& input );
  * modify non-alphabetic characters
  */
 std::string toLower( const std::string& input );
+
+/**
+ * Repeats the given string as many times as requested, and returns the
+ * result
+ */
+std::string repeat( const std::string& input, size_t times );
+
+/**
+ * Finds the number of times 'needle' appears in 'haystack'
+ */
+size_t substrCount( const std::string& input );
 
 /**
  * Replace searches the input string for all occurences of 'findWhat',
@@ -348,10 +362,18 @@ size_t wordCount( const std::string& input )
     return input.size();
 }
 
-std::string pad( const std::string& text, size_t len, char pad )
+std::string pad( const std::string& text,
+                 size_t padLeft,
+                 size_t padRight,
+                 char fillchar )
 {
-    len = len; pad = pad;
-    return text;
+    // create a new string filled with fillchar
+    std::string output( fillchar, padLeft + padRight + text.size() );
+
+    // copy the result string in
+    std::copy( text.begin(), text.end(), output.begin() + padLeft );
+
+    return output;
 }
 
 std::string reverse( const std::string& input )
@@ -521,6 +543,84 @@ std::string toLower( const std::string& input )
 
     return output;
 }
+
+std::string repeat( const std::string& input, size_t times )
+{
+    std::string output( ' ', input.size() * times );
+
+    // copy the input string as many times as requested
+    for ( size_t i = 0; i < times; ++i )
+    {
+        std::copy( input.begin(),
+                   input.end(),
+                   output.begin() + ( input.size() * times ) );
+    }
+
+    return output;
+}
+
+
+size_t substrCount( const std::string& haystack, const std::string& needle )
+{
+    // find the number of occurrences of 'findWhat'
+    size_t end   = std::string::npos;
+    size_t pos   = 0;
+    size_t times = 0;
+
+    while ( end != (pos = haystack.find(needle, pos) ) )
+    {
+        times++;
+    }
+
+    return times;
+}
+
+/**
+ * Replace searches the input string for all occurences of 'findWhat',
+ * and will replace each one with 'replaceWith'. It will do this up to
+ * 'limit' times.
+ */
+/*std::string replace( const std::string& input,
+                     const std::string& findWhat,
+                     const std::string& replaceWith,
+                           size_t limit )
+{
+    // find the number of occurrences of 'findWhat'
+    size_t occurrences = substrCount( input, findWhat );
+
+    // calculate how large of a reduction that is, and how big the
+    // replacement will have to be
+    size_t findWhatLen    = occurrences * findWhat.size();
+    size_t replaceWithLen = occurrences * replaceWith.size();
+    size_t newSize        = input.size() - findWhatLen + replaceWithLen;
+
+    // now build the new string by scanning input for the start of each
+    // findWhat occurrence. Copy everything in input until that point, and
+    // copy replaceWith immediately after that. Keep going until we hit the
+    // end
+    size_t end      = std::string::npos;
+    size_t oldpos   = 0;
+    size_t pos      = 0;
+    size_t times    = 0;
+    size_t inputPos = 0;
+
+    while ( std::string::npos != (pos = haystack.find(needle, pos) ) )
+    {
+        // refuse to copy zero sized input
+        if ( oldpos == pos ) { continue; }
+
+        // copy input chunk
+
+        // keep track of last position
+        oldpos = pos;
+    }
+
+    // need to finish copying
+
+    return std::string("harrow");
+}*/
+
+
 
 const char* nth( long number )
 {
