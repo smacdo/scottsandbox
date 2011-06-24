@@ -21,6 +21,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 ### Core common lib
 #########################################################################
 set(commonlib_incs
+        include/common/delete.h
         include/common/color.h
         include/common/noncopyable.h
         include/common/singleton.h
@@ -33,6 +34,7 @@ set(commonlib_srcs
         src/common/time.cpp)
 
 set(commonlib_tests
+        tests/common/test_delete.cpp
         tests/common/test_color.cpp)
 
 #########################################################################
