@@ -29,8 +29,8 @@
 
 #include <iostream>
 
-const int N 624;
-const int M 397;
+const int N = 624;
+const int M = 397;
 const int MATRIX_A = 0x9908b0df;    // constant vector A
 const int UPPER_MASK = 0x80000000;  // most significant w-r bits
 const int LOWER_MASK = 0x7fffffff;  // least significant r bits
@@ -57,4 +57,7 @@ void init_by_array( unsigned long init_key[], int key_length )
 
     init_genrand( 19650218UL );
 
+    // temp to kill warnings
+    k = i = j;
+    init_key[0] = 0;
 }

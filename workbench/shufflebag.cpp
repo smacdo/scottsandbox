@@ -1,10 +1,26 @@
+#include <cstddef>
+#include <vector>
 
 template<typename T>
 class ShuffleBag
 {
 public:
+    ShuffleBag();
+    ShuffleBag( const ShuffleBag& bag );
+
     void add( const T& object );
     void add( const T& object, size_t weight );
+
+    template<typename Container>
+    void addMany( const Container& input )
+    {
+        typename Container::const_iterator itr = input.begin();
+
+        for ( itr = input.begin(); itr != input.end(); ++itr )
+        {
+            m_values.push_back( *itr );
+        }
+    }
 
     /**
      * Returns the number of elements stored in the shuffle bag
@@ -27,38 +43,27 @@ private:
 };
 
 template<typename T>
-ShuffleBag::ShuffleBag()
+ShuffleBag<T>::ShuffleBag()
     : m_values(),
       m_cursor( 0 )
 {
 }
 
 template<typename T>
-ShuffleBag::ShuffleBag( const ShuffleBag<T>& bag )
+ShuffleBag<T>::ShuffleBag( const ShuffleBag<T>& bag )
     : m_values( bag.m_values ),
       m_cursor( 0 )
 {
 }
 
 template<typename T>
-void ShuffleBag::add( const T& object )
+void ShuffleBag<T>::add( const T& object )
 {
     m_values.push_back( object );
 }
 
-template<typename T, typename Container>
-void ShuffleBag::addMany( const Container& input )
-{
-    typedef Container::const_iterator itr = input.begin();
-
-    for ( itr = input.begin(); itr != input.end(); ++itr )
-    {
-        m_values.push_back( *itr );
-    }
-}
-
 template<typename T>
-void ShuffleBag::add( const T& object, size_t weight )
+void ShuffleBag<T>::add( const T& object, size_t weight )
 {
     // Add it many times
     for ( size_t i = 0; i < weight; ++i )
@@ -68,19 +73,19 @@ void ShuffleBag::add( const T& object, size_t weight )
 }
 
 template<typename T>
-void ShuffleBag::reshuffle()
+void ShuffleBag<T>::reshuffle()
 {
 }
 
 template<typename T>
-size_t ShuffleBag::count()
+size_t ShuffleBag<T>::count() const
 {
     return m_values.size();
 }
 
 
 template<typename T>
-T ShuffleBag::takeOne()
+T ShuffleBag<T>::takeOne()
 {
     assert( m_values.size() > 0 );
 
@@ -94,9 +99,9 @@ T ShuffleBag::takeOne()
 }
 
 template<typename T>
-std::vector<T> ShuffleBag::takeMany( size_t picks )
+std::vector<T> ShuffleBag<T>::takeMany( size_t picks )
 {
-    typedef std::vector<T> results;
+    typename std::vector<T> results;
 
     for ( size_t i = 0; i < picks; ++i )
     {

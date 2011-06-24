@@ -1,4 +1,7 @@
 #include <iostream>
+#include <cassert>
+#include <cstddef>
+#include <vector>
 
 /**
  * 3d bitfield volume. Allows you to represent a 3d volume (one bit data)
@@ -8,12 +11,14 @@ class Volume
 public:
     Volume( size_t dim )
         : m_dim( dim ),
-          m_volume( new uint8_t[ dim * dim * dim / 8 ] );
+          m_volume( new uint8_t[ dim * dim * dim / 8 ] )
     {
         assert( dim >= 4 );
-        assert( Math::isPowerOfTwo( dim ) );
+//        assert( Math::isPowerOfTwo( dim ) );
 
-        memset( &m_volume, 0, sizeof( uint8_t ) * (dim*dim*dim/8) );
+        std::fill( m_volume,
+                   m_volume + ((dim * dim * dim / 8)),
+                   0 );
     }
 
     ~Volume()
@@ -26,28 +31,28 @@ public:
         return m_volume[ offset(x,y,z) ];
     }
 
-    void set( bool flag=true )
+    void set( size_t x, size_t y, size_t z, bool flag=true )
     {
-        return m_volume[ offset(x,y,z) ] = flag;
+        m_volume[ offset(x,y,z) ] = flag;
     }
 
-    void clear()
+    void clear( size_t x, size_t y, size_t z )
     {
-        return m_volume[ offset(x,y,z) ] = flag;
+        m_volume[ offset(x,y,z) ] = 0;
     }
 
 private:
-    inline size_t offset( size_t x, size_t y, size_t z )
+    inline size_t offset( size_t x, size_t y, size_t z ) const
     {
         return x + y * m_dim + z * m_dim * m_dim;
     }
 
     size_t  m_dim;
-    uint8_t m_volume;
+    uint8_t * m_volume;
 };
 
 template<typename T>
-class ChunkMananger
+class ChunkManager
 {
 public:
     ChunkManager( size_t width, size_t height, size_t depth )
@@ -59,7 +64,7 @@ public:
     {
     }
 
-    ~ChunkMananger()
+    ~ChunkManager()
     {
         DeletePointerContainer( m_chunks );
     }
@@ -153,13 +158,13 @@ private:
     /**
      * 3 dimensional chunk storage volume
      */
-    std::vector<T*> m_chunks;
+    typename std::vector<T*> m_chunks;
 };
 
 class CubeData
 {
 private:
-    CubeType m_type;
+    int m_type;
     
 };
 
@@ -167,8 +172,9 @@ class CubeStorageVolume
 {
 public:
     CubeStorageVolume( size_t chunkDim,
-                       size_t worldWidth, size_t worldHeight,
-                       size_t worldHeight );
+                       size_t worldWidth,
+                       size_t worldHeight,
+                       size_t worldDepth );
 
     ~CubeStorageVolume();
 
@@ -179,8 +185,8 @@ public:
     CubeData getCubeAt( size_t x, size_t y, size_t z );
     bool setCube( const CubeData& cube, size_t x, size_t y, size_t z );
 
-    CubeChunk getChunk( size_t chunkId );
+//    CubeChunk getChunk( size_t chunkId );
 
 private:
-    ChunkManager<CubeChunk> m_chunkstore;
+ //   ChunkManager<CubeChunk> m_chunkstore;
 };
