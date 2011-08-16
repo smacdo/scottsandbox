@@ -1,0 +1,95 @@
+Error messages from compilers should look like this:
+
+source-file-name:lineno: message
+
+If you want to mention the column number, use one of these formats:
+
+source-file-name:lineno:column: message
+source-file-name:lineno.column: message
+
+Versions
+==========
+--version
+
+The standard --version option should direct the program to print
+information about its name, version, origin and legal status, all on
+standard output, and then exit successfully. Other options and arguments
+should be ignored once this is seen, and the program should not perform its
+normal function.
+
+The first line is meant to be easy for a program to parse; the version
+number proper starts after the last space. In addition, it contains the
+canonical name for this program, in this format:
+
+GNU Emacs 19.30
+
+The program.s name should be a constant string; don.t compute it from
+argv[0]. The idea is to state the standard or canonical name for the
+program, not its file name. There are other ways to find out the precise
+file name where a command is found in PATH. 
+
+The following line, after the version number line or lines, should be a
+copyright notice. If more than one copyright notice is called for, put each
+on a separate line.
+
+Next should follow a line stating the license, preferably using one of
+abbrevations below, and a brief statement that the program is free software,
+and that users are free to copy and change it. Also mention that there is no
+warranty, to the extent permitted by law. See recommended wording below.
+
+It is ok to finish the output with a list of the major authors of the
+program, as a way of giving credit.
+
+Here.s an example of output that follows these rules:
+
+GNU hello 2.3
+Copyright (C) 2007 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+You should adapt this to your program, of course, filling in the proper year,
+copyright holder, name of program, and the references to distribution terms,
+and changing the rest of the wording as necessary.
+
+This copyright notice only needs to mention the most recent year in which
+changes were made.there.s no need to list the years for previous versions.
+changes. You don.t have to mention the name of the program in these notices,
+if that is inconvenient, since it appeared in the first line. (The rules are
+different for copyright notices in source files; see Copyright Notices in
+Information for GNU Maintainers.) 
+
+
+
+Help
+=================
+The standard --help option should output brief documentation for how to
+invoke the program, on standard output, then exit successfully. Other
+options and arguments should be ignored once this is seen, and the program
+should not perform its normal function.
+
+Near the end of the .--help. option.s output, please place lines giving the
+email address for bug reports, the package.s home page (normally
+<http://www.gnu.org/software/pkg>, and the general page for help using GNU
+programs. The format should be like this:
+
+Report bugs to: mailing-address
+pkg home page: <http://www.gnu.org/software/pkg/>
+General help using GNU software: <http://www.gnu.org/gethelp/>
+
+It is ok to mention other appropriate mailing lists and web pages. 
+
+Table of Long Options
+=====================
+--all -a
+--ascii
+--archive
+--basename
+--quiet
+--silent
+--strict
+
+Standard Files
+=====================
+NEWS
+Changes

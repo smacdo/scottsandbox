@@ -1,0 +1,9 @@
+$ ./COMMAND --help
+Usage: command [options] [input]
+
+If no source file is given the program will work in interactive mode.
+
+Options:
+    -h, --help      Show this help message and exit
+    -d, --debug     Show debugging output
+    -v, --version   Output version information and exit
