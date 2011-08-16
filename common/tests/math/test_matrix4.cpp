@@ -7,13 +7,13 @@
 
 const float DELTA = 0.00001;
 
-TEST(Matrix4, NoValueCtor)
+TEST(Math,Matrix_4x4_NoValueCtor)
 {
     Mat4 m();
     EXPECT_TRUE( true );   // no checks, just here to make sure compile
 }
 
-TEST(Matrix4, ValueCtor)
+TEST(Math,Matrix_4x4_ValueCtor)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
@@ -45,7 +45,7 @@ TEST(Matrix4, ValueCtor)
     EXPECT_FLOAT_EQ( 8.8, m.at(3,3) );
 }
 
-TEST(Matrix4, ValuePtrCtor)
+TEST(Math,Matrix_4x4_ValuePtrCtor)
 {
     float va[16] = { 2.0, 1.2, 9.5, 2.8,
                      4.0, 3.0, 1.5, 9.8,
@@ -79,7 +79,7 @@ TEST(Matrix4, ValuePtrCtor)
     EXPECT_FLOAT_EQ( 8.8, m.at(3,3) );
 }
 
-TEST(Matrix4, CopyCtor)
+TEST(Math,Matrix_4x4_CopyCtor)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
@@ -91,7 +91,7 @@ TEST(Matrix4, CopyCtor)
     EXPECT_EQ( m, r );
 }
 
-TEST(Matrix4, Assignment)
+TEST(Math,Matrix_4x4_Assignment)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
@@ -107,7 +107,7 @@ TEST(Matrix4, Assignment)
     EXPECT_EQ( m, r );
 }
 
-TEST(Matrix4, Addition)
+TEST(Math,Matrix_4x4_Addition)
 {
     Mat4 a(  3.2, -0.0, 4.0, 2.0,
             -1.0,  2.0, 1.2, 0.0,
@@ -129,7 +129,7 @@ TEST(Matrix4, Addition)
     EXPECT_EQ( v, r );
 }
 
-TEST(Matrix4, SelfAddition)
+TEST(Math,Matrix_4x4_SelfAddition)
 {
     Mat4 a(  3.2, -0.0, 4.0, 2.0,
             -1.0,  2.0, 1.2, 0.0,
@@ -153,7 +153,7 @@ TEST(Matrix4, SelfAddition)
     EXPECT_NE( a, b );
 }
 
-TEST(Matrix4, Subtraction)
+TEST(Math,Matrix_4x4_Subtraction)
 {
     Mat4 a(  3.2, -0.0, 4.0, 2.0,
             -1.0,  2.0, 1.2, 0.0,
@@ -175,7 +175,7 @@ TEST(Matrix4, Subtraction)
     EXPECT_EQ( v, r );
 }
 
-TEST(Matrix4, SelfSubtraction)
+TEST(Math,Matrix_4x4_SelfSubtraction)
 {
     Mat4 a(  3.2, -0.0, 4.0, 2.0,
             -1.0,  2.0, 1.2, 0.0,
@@ -198,7 +198,7 @@ TEST(Matrix4, SelfSubtraction)
     EXPECT_NE( b, v );
 }
 
-TEST(Matrix4, Multiplication)
+TEST(Math,Matrix_4x4_Multiplication)
 {
     Mat4 a( 0.0, 1.0, 3.0, 5.0,
             2.0, 3.0, 8.0, 9.0,
@@ -218,7 +218,7 @@ TEST(Matrix4, Multiplication)
     EXPECT_EQ( v, a * b );
 }
 
-TEST(Matrix4, Multiplication2)
+TEST(Math,Matrix_4x4_Multiplication2)
 {
         Mat4 a(  0.2,  1.0,  0.5, -1.2,
                  0.6, -1.4,  0.0, -2.0,
@@ -238,7 +238,7 @@ TEST(Matrix4, Multiplication2)
         EXPECT_EQ( v, a * b );
 }
 
-TEST(Matrix4, Transpose)
+TEST(Math,Matrix_4x4_Transpose)
 {
     Mat4 a(  1,  2,  3,  4,
              5,  6,  7,  8,
@@ -253,14 +253,14 @@ TEST(Matrix4, Transpose)
     EXPECT_EQ( v, a );
 }
 
-TEST(Matrix4, SelfEquality)
+TEST(Math,Matrix_4x4_SelfEquality)
 {
     Mat4 a;
 
     EXPECT_EQ( a, a );
 }
 
-TEST(Matrix4, Equality)
+TEST(Math,Matrix_4x4_Equality)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
@@ -282,14 +282,14 @@ TEST(Matrix4, Equality)
 }
 
 
-TEST(Matrix4, SelfInequalityFalse)
+TEST(Math,Matrix_4x4_SelfInequalityFalse)
 {
     Mat4 m;
 
     EXPECT_FALSE( m != m );
 }
 
-TEST(Matrix4, Inequality)
+TEST(Math,Matrix_4x4_Inequality)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
@@ -309,7 +309,7 @@ TEST(Matrix4, Inequality)
     EXPECT_NE( m, n );
 }
 
-TEST(Matrix4, ZeroMatrix)
+TEST(Math,Matrix_4x4_ZeroMatrix)
 {
     Mat4 m( 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0,
@@ -323,7 +323,7 @@ TEST(Matrix4, ZeroMatrix)
     EXPECT_TRUE( n.isZeroMatrix() );
 }
 
-TEST(Matrix4, MakeIdentityMatrix)
+TEST(Math,Matrix_4x4_MakeIdentityMatrix)
 {
     Mat4 a( 1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
@@ -335,7 +335,7 @@ TEST(Matrix4, MakeIdentityMatrix)
     EXPECT_TRUE( a.isIdentityMatrix() );
 }
 
-TEST(Matrix4, IsIdentityMatrix)
+TEST(Math,Matrix_4x4_IsIdentityMatrix)
 {
     Mat4 a( 1.0, 1.0, 1.0, 1.0,
             1.0, 1.0, 1.0, 1.0,
@@ -350,7 +350,7 @@ TEST(Matrix4, IsIdentityMatrix)
     EXPECT_TRUE(  b.isIdentityMatrix() );
 }
 
-TEST(Matrix4, SwapMatrix)
+TEST(Math,Matrix_4x4_SwapMatrix)
 {
     Mat4 a( 1.0, 2.0, 3.0, 4.0,
             5.0, 6.0, 7.0, 8.0,

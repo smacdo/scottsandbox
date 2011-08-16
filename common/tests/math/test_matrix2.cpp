@@ -6,13 +6,13 @@
 
 const float DELTA = 0.00001;
 
-TEST(Matrix2, NoValueCtor)
+TEST(Math,Matrix_2x2_NoValueCtor)
 {
     Mat2 m();
     EXPECT_TRUE( true );    // no checks, just here to make sure compile
 }
 
-TEST(Matrix2, ValueCtor)
+TEST(Math,Matrix_2x2_ValueCtor)
 {
     Mat2 m( 2.0, 4.0, 
             1.2, 3.0 );
@@ -23,7 +23,7 @@ TEST(Matrix2, ValueCtor)
     EXPECT_FLOAT_EQ( 3.0, m.at(1,1) );
 }
 
-TEST(Matrix2, ArrayCtor)
+TEST(Math,Matrix_2x2_ArrayCtor)
 {
     float vals[] = { 2.0, 1.2, 4.0, 3.0 };
 
@@ -35,7 +35,7 @@ TEST(Matrix2, ArrayCtor)
     EXPECT_FLOAT_EQ( 3.0, m.at(1,1) );
 }
 
-TEST(Matrix2, CopyCtor)
+TEST(Math,Matrix_2x2_CopyCtor)
 {
     Mat2 m( -42.0, 35.0,
                 34.0, 1.2 );
@@ -44,7 +44,7 @@ TEST(Matrix2, CopyCtor)
     EXPECT_EQ( m, c );
 }
 
-TEST(Matrix2, Assignment)
+TEST(Math,Matrix_2x2_Assignment)
 {
     Mat2 m( 2.0, 4.0, 
             1.2, 3.0 );
@@ -57,7 +57,7 @@ TEST(Matrix2, Assignment)
     EXPECT_EQ( b, m );
 }
 
-TEST(Matrix2, Addition)
+TEST(Math,Matrix_2x2_Addition)
 {
     Mat2 a(  3.2, -0.0,
             -1.0,  2.0 );
@@ -69,7 +69,7 @@ TEST(Matrix2, Addition)
     EXPECT_EQ( v, (a+b) );
 }
 
-TEST(Matrix2, SelfAddition)
+TEST(Math,Matrix_2x2_SelfAddition)
 {
     Mat2 a(  3.2, -0.0,
             -1.0,  2.0 );
@@ -85,7 +85,7 @@ TEST(Matrix2, SelfAddition)
     EXPECT_NE( a, b );
 }
 
-TEST(Matrix2, Subtraction)
+TEST(Math,Matrix_2x2_Subtraction)
 {
     Mat2 a(  3.2, -2.0,
             -1.0,  2.0 );
@@ -97,7 +97,7 @@ TEST(Matrix2, Subtraction)
     EXPECT_EQ( (a-b), v );
 }
 
-TEST(Matrix2, SelfSubtraction)
+TEST(Math,Matrix_2x2_SelfSubtraction)
 {
     Mat2 a(  3.2, -2.0,
             -1.0,  2.0 );
@@ -113,14 +113,14 @@ TEST(Matrix2, SelfSubtraction)
     EXPECT_NE( v, b );
 }
 
-TEST(Matrix2, SelfEquality)
+TEST(Math,Matrix_2x2_SelfEquality)
 {
     Mat2 a;
 
     EXPECT_EQ( a, a );
 }
 
-TEST(Matrix2, Equality)
+TEST(Math,Matrix_2x2_Equality)
 {
     Mat2 m( 2.0, 4.0, 
             1.2, 3.0 );
@@ -135,14 +135,14 @@ TEST(Matrix2, Equality)
     EXPECT_FALSE( m == n );
 }
 
-TEST(Matrix2, SelfInequalityFalse)
+TEST(Math,Matrix_2x2_SelfInequalityFalse)
 {
     Mat2 m;
 
     EXPECT_FALSE( m != m );
 }
 
-TEST(Matrix2, Inequality)
+TEST(Math,Matrix_2x2_Inequality)
 {
     Mat2 m( 2.0, 4.0, 
             1.2, 3.0 );
@@ -157,7 +157,7 @@ TEST(Matrix2, Inequality)
     EXPECT_TRUE( m != n );
 }
 
-TEST(Matrix2, ZeroMatrix)
+TEST(Math,Matrix_2x2_Zero)
 {
     Mat2 m( 0.0, 0.0,
             0.0, 0.0 );
@@ -165,7 +165,7 @@ TEST(Matrix2, ZeroMatrix)
     EXPECT_TRUE( m.isZeroMatrix() );
 }
 
-TEST(Matrix2, IsIdentityMatrix)
+TEST(Math,Matrix_2x2_IsIdentity)
 {
     Mat2 a( 1.0, 1.0,
             1.0, 0.0 );
@@ -176,7 +176,7 @@ TEST(Matrix2, IsIdentityMatrix)
     EXPECT_TRUE(  b.isIdentityMatrix() );
 }
 
-TEST(Matrix2, SwapMatrix)
+TEST(Math,Matrix_2x2_Swap)
 {
     Mat2 a( 1.0, 2.0,
             3.0, 4.0 );
