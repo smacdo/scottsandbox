@@ -255,6 +255,9 @@ __builtin_popcount( .. );       // number of 1s
 
 
 
+const std::string LOWER_CASE_ALPHABET =
+
+
 
 #ifndef SEQUENCE_LISTER_H
 #define SEQUENCE_LISTER_H
