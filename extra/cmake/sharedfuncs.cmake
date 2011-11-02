@@ -58,6 +58,7 @@ function(add_program name)
     add_standard_targets(${name})   
 endfunction()
 
+
 ###
 ### Creates an application with the provided name, libraries, include
 ### directories and flags. If you are providing a list of libraries, be
@@ -111,3 +112,7 @@ function(add_simple_oneoff name)
     add_program(${name} ${name}.cpp)
 endfunction()
 
+
+function(add_oneoff name libs includes flags)
+    add_program_with( ${name} ${libs} ${includes} ${flags} ${name}.cpp)
+endfunction()

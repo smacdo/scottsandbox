@@ -22,6 +22,6 @@ set(CXX_FLAGS "")
 add_simple_oneoff(template_compiler_spec)
 set(CXX_FLAGS "${SAVED_CXX_FLAGS}")
 
-# add_simple_oneoff(gameworld)
 # add_oneoff(googletest)
-# add_oneoff(sdlfonts)
+add_oneoff( filesystem "-lboost_filesystem-mt" " " " " )
+add_oneoff( pathfinding " " " " "-std=c++0x" )

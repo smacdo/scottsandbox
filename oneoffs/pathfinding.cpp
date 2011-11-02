@@ -2,9 +2,11 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <algorithm>
 
 class Tilemap;
 const size_t NODE_COUNT = 9;
+const int MOVEMENT_COST = 2;
 
 struct Point
 {
@@ -13,128 +15,365 @@ struct Point
     {
     }
 
+    bool operator == ( const Point& rhs ) const
+    {
+        return x == rhs.x && y == rhs.y;
+    }
+
+    bool operator != ( const Point& rhs ) const
+    {
+        return x != rhs.x || y != rhs.y;
+    }
+
     int x;
     int y;
 };
 
-struct PathNode
+class PathNode
 {
-    Point pos;
-    size_t cost;
+public:
+    /**
+     * Origin path node constructor.
+     */
+    PathNode( const Point& origin )
+        : mPos( origin ),
+          mPrevPos( origin ),
+          mMovementCost( 0 ),
+          mEstimatedCost( 0 )
+    {
+    }
+
+    /**
+     * Non-origin path node constructor
+     */
+    PathNode( const Point& pt,
+              const Point& prevPt,
+              int movementCost, 
+              int estimatedCost )
+        : mPos( pt ),
+          mPrevPos( prevPt ),
+          mMovementCost( movementCost ),
+          mEstimatedCost( estimatedCost )
+    {
+        assert( movementCost > 0 );
+        assert( estimatedCost > 0 );
+        assert( prevPt.x >= 0 && prevPt.y >= 0 );
+    }
+
+    Point position() const
+    {
+        return mPos;
+    }
+
+    int totalCost() const
+    {
+        return mMovementCost + mEstimatedCost;
+    }
+
+    int movementCost() const
+    {
+        return mMovementCost;
+    }
+
+    int estimatedCost() const
+    {
+        return mEstimatedCost;
+    }
+
+private:
+    Point mPos;
+    Point mPrevPos;
+    int mMovementCost;
+    int mEstimatedCost;
 };
 
+struct TotalCostComparator
+{
+    bool operator() ( const PathNode& lhs, const PathNode& rhs ) const
+    {
+        return lhs.totalCost() < rhs.totalCost();
+    }
+};
+
+struct PathNodePositionPred
+{
+    PathNodePositionPred( const PathNode& compareTo )
+        : mCompareTo( compareTo )
+    {
+    }
+
+    bool operator() ( const PathNode& node ) const
+    {
+        return node.position() == mCompareTo.position();
+    }
+
+    const PathNode& mCompareTo;
+};
+
+/**
+ * Pathfinder is a configurable A* path finding class
+ */
 class PathFinder
 {
 public:
-    PathFinder( const Tilemap& map, const Point& start, const Point& end )
-        : mMap( map ),
-          mStart( start ),
-          mEnd( end )
+    /**
+     * Path finder constructor
+     */
+    PathFinder( const Tilemap& map )
+        : mMap( map )
     {
-        mOpenTiles.push_back( start );
     }
 
-    std::vector<Point> findPath()
+    /**
+     * Using A*, this method attempts to find the shortest path between
+     * the original starting location and the requested destination location.
+     *
+     * This method will make a good faith attempt to discover a path to the
+     * destination, but if it cannot it will return false.
+     */
+    std::vector<Point> findPath( const Point& start, const Point& dest ) const
     {
-        bool didFindAPath = false;
+        std::vector<PathNode> openNodes;
+        std::vector<PathNode> closedNodes;
         std::vector<Point> neighbors;
 
-        // keep searching until we find the destination, or until we 
-        // fail to path to the destination
-        while ( didFindAPath )
+        // Kick the search off by inserting the starting point
+        openNodes.push_back( PathNode( start ) );
+
+        //
+        // Now start the iterative path finding operation by continually
+        // trying to find a path to the destination
+        //
+        bool keepSearching = true;
+
+        while ( keepSearching )
         {
-            // Get the lowest cost open tile
-            Point point = getLowestCost( mOpenTiles );
-
-            // Make sure it gets added to the list of already visited tiles
-            // so we don't path across this tile again
-            mCloseTiles.push_back( point );
-
-            // Who will be our neighbor?
-            generateNeighbors( point, neighbors );
-
-            // Calculate the cost of each neighbor, and so long as its
-            // greater than one and hasn't already been considered push
-            // it into the list of open tiles
-            for ( size_t i = 0; i < neighbors.size(); ++i )
-            {
-                const Point& neighborPt = neighbors[i];
-                int pointCost           = findCost( neighborPt) ;
-
-                if ( neighborPt == point )
-                {
-                    // we found the destination!
-                }
-                else if ( false = wasAlreadyVisited( neighborPt ) )
-                {
-                    mOpenTiles.push_back( PathNode( neighborPt,
-                                                    pointCost ) );
-                }
-            }
-
-            // Clear out the list of neighbor tiles before considering
-            // the next open square
-            neighbors.clear();
+            // Perform the next a* step
+            keepSearching = findPathStep( dest,
+                                          openNodes,
+                                          closedNodes );
         }
 
-        // Grab the next tile
-        Point pt = getNextOpenTile();
+        //
+        // Generate the back path
+        //
+        std::vector<Point> path;
+
+        return path;
     }
 
-
 private:
-    int findCost( const Point& pt ) const
+    bool findPathStep( const Point& dest,
+                       std::vector<PathNode>& openNodes,
+                       std::vector<PathNode>& closedNodes ) const
     {
-        if ( pt.x < 0 || pt.x >= mWidth ||
-             pt.y < 0 || pt.y >= mHeight )
+        std::vector<Point> neighbors;
+
+        // What is the next available and lowest cost tile to consider?
+        PathNode currentNode = pickNextCheapestNode( openNodes );
+
+        // Make sure the tile is marked as closed to prevent revisits
+        closedNodes.push_back( currentNode );
+
+        // Is this the destination tile? If so, we're done!
+        if ( currentNode.position() == dest )
         {
-            return -1;
+            return false;
+        }
+
+        // Who will be our neighbors? Will they be our friends?
+        generateNeighbors( currentNode.position(), neighbors );
+
+        // Consider each generated neighbor. If the tile is both a valid
+        // walkable tile, is in bounds and has not been visited yet then
+        // calculate its cost and add it to the list of open tiles
+        for ( size_t i = 0; i < neighbors.size(); ++i )
+        {
+            // Calculate the costs of moving to this node, and the
+            // estimated cost of getting to the destination
+            int movementCost = findMovementCost( neighbors[i],  currentNode );
+            int estimateCost = findEstimatedCost( neighbors[i], dest );
+
+            // Double check that this node is pathable. If the movement
+            // score is less than zero, we cannot reach this node
+            if ( movementCost < 0 )
+            {
+                continue;
+            }
+
+            // Generate a node structure
+            PathNode nNode( neighbors[i],
+                            currentNode.position(),
+                            movementCost,
+                            estimateCost );
+
+            // Now is this node already listed on the open list? Search the
+            // list of open nodes, and see if we find a match
+            PathNodePositionPred pred( nNode );
+
+            auto existingNode = std::find_if( openNodes.begin(),
+                                              openNodes.end(),
+                                              pred
+            );
+
+            if ( existingNode != openNodes.end() ) 
+            {
+                // The node is already in the list of open tiles. Do we have
+                // a better movement score than the already stored node?
+                if ( movementCost < existingNode->movementCost() )
+                {
+                    *existingNode = nNode;
+                }
+            }
+            else
+            {
+                // Its not listed in the open list. Add it!
+                openNodes.push_back( nNode );
+            }
+        }
+
+        // Done with the iteration of a*. Looks like we haven't found
+        // the destination node yet
+        return true;
+    }
+
+    /**
+     * Calculates the estimated cost for moving from the given current tile
+     * location to the destination tile location. This is a conservative
+     * cost estimator that attempts to never over estimate the actual cost,
+     * and is needed for accurate a* path finding
+     *
+     * \param  baseCost  The cost accumulated for getting to the current tile
+     * \param  current   The current tile we are estimating cost for
+     * \param  dest      Destination tile we are trying to reach
+     * \return The estimated cost of moving from current to destination
+     */
+    int findEstimatedCost( const Point& current, const Point& dest ) const
+    {
+        return std::abs( current.x - dest.x ) +
+               std::abs( current.y - dest.y );
+    }
+
+    /**
+     * Calculates the (exact) cost of moving from the starting path node
+     * to this node, using the path that the current node followed from the
+     * start
+     */
+    int findMovementCost( const Point& currentPt,
+                          const PathNode& parent ) const
+    {
+        const int INVALID_MOVE  = -1;
+        const int MOVE_STRAIGHT = 10;
+        const int MOVE_DIAGONAL = 14;
+    
+        int movementCost = 0;
+        Point prevPt     = parent.position();
+
+        // Is this node pathable?
+        if (! isPathable( currentPt ) )
+        {
+            return INVALID_MOVE;
+        }
+
+        // IS the path from this node to its parent a straight one, or
+        // a diagonal one?
+        assert( currentPt != prevPt );
+
+        if ( currentPt.x == prevPt.x || currentPt.y == prevPt.y )
+        {
+            movementCost += MOVE_STRAIGHT;
         }
         else
         {
-            return 1;
+            movementCost += MOVE_DIAGONAL;
+        }
+    
+        // Factor in any additional movement costs
+        movementCost += 0;
+
+        // All done
+        return movementCost;
+    }
+
+    /**
+     * Given a list of nodes to consider, this method will return the node
+     * with the lowest non-negative score in the list. If there is a tie
+     * between two or more elements, the node with the greatest index will
+     * be used.
+     *
+     * \param  elements  An array of open tiles to consider
+     * \return The tile location with the lowest estimated cost
+     */
+    PathNode pickNextCheapestNode( std::vector<PathNode>& nodes ) const
+    {
+        assert( nodes.size() > 0 );  // otherwise this makes no sense
+        TotalCostComparator comparator;
+
+        return *std::min_element( nodes.begin(), nodes.end(), comparator );
+    }
+
+    /**
+     * Checks if the given position is listed as a closed node
+     */
+    bool isClosed( const Point& pos, const std::vector<PathNode>& nodes ) const
+    {
+        PathNodePositionPred pred( nNode );
+
+        auto existingNode = std::find_if( openNodes.begin(),
+                                            openNodes.end(),
+                                            pred
+        );
+    }
+
+    /**
+     * Generates a list of all potentially valid points located adjacent
+     * to the requested point 'pt', and stores them into the candidates
+     * array. Note that the list of neighbors may not out of bounds, or
+     * unwalkable so it is up to the caller to test and discard these incorrect
+     * locations
+     *
+     * \param  pt          The point to generate neighbors for
+     * \param  candidates  An array to place the neighbor positions into
+     */
+    void generateNeighbors( const PathNode& baseNode,
+                            std::vector<Point>& output ) const
+    {
+        const size_t MAX_NEIGHBOR_TILES = 4;
+        const int NEIGHBOR_OFFSETS[MAX_NEIGHBOR_TILES][2] =
+        {
+            {  0, -1 },     // north
+            {  1,  0 },     // east
+            {  0,  1 },     // south
+            { -1,  0 }      // west
+        };
+
+        // Consider all the potential neighbor offsets, and generate
+        // new pathnode candidates for any that are in bounds and pathable
+        for ( size_t i = 0; i < MAX_NEIGHBOR_TILES; ++i )
+        {
+            Point basePt = baseNode.position();
+            Point nPoint( basePt.x + NEIGHBOR_OFFSETS[i][0],
+                          basePt.y + NEIGHBOR_OFFSETS[i][1] );
+
+            if ( nPoint.x >= 0 && nPoint.x < mMap.width()  &&
+                 nPoint.y >= 0 && nPoint.y < mMap.height() &&
+                 isPathable( nPoint ) )
+            {
+                output.push_back( nPoint );
+            }
         }
     }
 
-    Point getLowestPoint( std::vector<Point>& elements ) const
+    /**
+     * Checks if the given position allows someone to path to it
+     */
+    bool isPathable( const Point& pt ) const
     {
-        
-    }
-
-    void generateNeighbors( const Point& pt,
-                            std::vector<Point>& candidates ) const
-    {
-        // north
-        if ( pt.y > 0 )
-        {
-            candidates.push_back( Point( pt.x, pt.y - 1 ) );
-        }
-
-        // east
-        if ( pt.x + 1 < mWidth )
-        {
-            candidates.push_back( Point( pt.x + 1, pt.y ) );
-        }
-
-        // south
-        if ( pt.y + 1 < mHeight )
-        {
-            candidates.push_back( Point( pt.x, pt.y + 1 ) );
-        }
-
-        // north
-        if ( pt.x > 0 )
-        {
-            candidates.push_back( Point( pt.x - 1, pt.y ) );
-        }
+        return true;
     }
 
 private:
     const Tilemap& mMap;
-    const Point& mStart;
-    const Point& mEnd;
-    std::vector<Point> mOpenTiles;
-    std::vector<Point> mClosedTiles;
 };
 
 void carvePath( const Point& start, const Point& end )
