@@ -71,7 +71,9 @@ function(add_program_with name libs includes flags)
     include_directories(${includes})
 
     foreach (lib ${libs})
-        target_link_libraries(${name} ${lib})
+        if ( lib MATCHES "[A-Za-z0-9]+" )
+            target_link_libraries(${name} ${lib})
+        endif()
     endforeach()
 
     # Enable standard flags
@@ -114,5 +116,5 @@ endfunction()
 
 
 function(add_oneoff name libs includes flags)
-    add_program_with( ${name} ${libs} ${includes} ${flags} ${name}.cpp)
+    add_program_with( "${name}" "${libs}" "${includes}" "${flags}" "${name}.cpp")
 endfunction()
