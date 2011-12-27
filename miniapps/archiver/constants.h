@@ -1,0 +1,6 @@
+#ifndef SCOTT_ARCHIVE_CONSTANTS_H
+#define SCOTT_ARCHIVE_CONSTANTS_H
+
+const size_t MAX_FILENAME_LENGTH = 64;
+
+#endif

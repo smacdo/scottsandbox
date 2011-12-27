@@ -1,0 +1,23 @@
+Feature List
+    * Command line tool that is as useful as commandline zip
+        * create archive
+        * show archive information
+        * list files in archive
+        * add files to archive
+        * remove files from archive
+        * update files in archive
+        * extract files from archive
+    * Individual file entries can be compressed and should be decompressed
+      when the application loads the file
+    * Supports delay loading (make this default eventually) which means it
+      is only loaded from disk when the individual file is requested
+    * File in archive can override delay load which means they are loaded
+      as soon as the archive is read in, and not unloaded until archive is
+      closed
+    * Entire archive can be compressed, but this forces the package to be
+      read entirely into memory
+    * Files have crc fields to detect errors
+    * Archive can be hashed with SHA to check for tampering
+    * Archive can rely on other archive files
+    * Archive can be unloaded by the progrma to free up memory
+    * Files has created date, last modified date and archive add date

@@ -1,0 +1,9 @@
+    - Convert open method to first write to in memory buffer like save
+        - Opens the path to SHA-2 verification
+    - Finish integrating SHA-2
+        - Calculate in save, write out
+        - Re-calculate on load, verify
+    - Add per file compression ability
+    - Add whole archive compression
+    - Finish command line tool
+    

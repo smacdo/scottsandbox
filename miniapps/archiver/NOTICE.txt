@@ -1,0 +1,6 @@
+Hailstorm Content Packaging Tool
+Copyright (c) 2011 Scott MacDonald
+
+This product contains a SHA-2 implementation that was written by
+Aaron D. Gifford - http://www.aarongifford.com/
+Copyright (c) 2000-2001, Aaron D. Gifford
