@@ -10,20 +10,52 @@
 #include <numeric>
 #include <stddef.h>
 
-// CLASS
+/**
+ * INSERT DESCRIPTION HERE PLZ
+ */
 template<typename T>
-class MovingAverageCounter : boost::noncopyable
+class MovingAverageCounter
 {
 public:
+    /**
+     * Moving average constructor
+     *
+     * \param  period  Number of data points to keep track of
+     */
     MovingAverageCounter( size_t period )
         : mWindow( period ),
           mPeriod( period ),
           mIndex( 0 ),
           mSampleCount( 0 )
-          mCachedSum( 0 )
+    {
+        assert( period > 0 );
+    }
+
+    /**
+     * Copy constructor
+     */
+    MovingAverageCounter( const MovingAverageCounter& rhs )
+        : mWindow( rhs.mWindow ),
+          mPeriod( rhs.mPeriod ),
+          mIndex( rhs.mIndex ),
+          mSampleCount( rhs.mSampleCount ),
     {
     }
 
+    /**
+     * Assignment operator
+     */
+    MovingAverageCounter& operator = ( const MovingAverageCounter& rhs )
+    {
+        mWindow      = rhs.mWindow;
+        mPeriod      = rhs.mPeriod;
+        mIndex       = rhs.mIndex;
+        mSampleCount = rhs.mSampleCount;
+    }
+
+    /**
+     * Add a value to the set of sample points
+     */
     void add( T value )
     {
         // Store the sample value
@@ -51,7 +83,7 @@ public:
             T sum = std::accumulate( mWindow.begin(),
                                      mWindow.begin() + mSampleCount,
                                      0 );
-            avg   = sum / mSampleCount;
+            avg   = static_cast<double>(sum) / mSampleCount;
         }
 
         return avg;
@@ -77,6 +109,8 @@ public:
 
             sdev = std::sqrt( numerator / mSampleCount );
         }
+
+        return sdev;
     }
 
     /**
@@ -113,6 +147,16 @@ public:
         }
 
         return maxValue;
+    }
+
+    size_t sampleCount() const
+    {
+        return mSampleCount;
+    }
+
+    bool filled() const
+    {
+        return mSampleCount == mPeriod;
     }
 
 private:
