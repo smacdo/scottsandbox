@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2010 Scott MacDonald. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,15 @@
 /**
  * Information representing a sphere in 3d space
  */
-struct Sphere
+class Sphere
 {
     /**
      * Sphere constructor that creates a new sphere from a vector representing
      * the sphere's center, and a scalar representing the sphere's radius
      */
     Sphere( const Vec3& center, const Scalar& radius )
-        : center( center ),
-          radius( radius )
+        : mCenter( center ),
+          mRadius( radius )
     {
     }
 
@@ -53,20 +53,31 @@ struct Sphere
      */
     Sphere( const Scalar& x, const Scalar& y, const Scalar& z,
             const Scalar& radius )
-        : center( Vec3( x, y, z ) ),
-          radius( radius )
+        : mCenter( Vec3( x, y, z ) ),
+          mRadius( radius )
     {
     }
+
+    Sphere translate( const Vec3& distance ) const;
+    Sphere scale( Scalar amount ) const;
+    Sphere rotate( const Vec3& axis, Scalar amount ) const;
+
+    bool intersects( const Ray& ray ) const;
+
+    Vec3 center() const;
+    Scalar radius() const;
+
+private:
 
     /**
      * The center of the sphere
      */
-    Vec3   center;
+    Vec3 mCenter;
 
     /**
      * Radius of the sphere
      */
-    Scalar radius;
+    Scalar mRadius;
 };
 
 #endif

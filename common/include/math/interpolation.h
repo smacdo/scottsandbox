@@ -6,6 +6,12 @@
 namespace Math
 {
 
+template<typename T, class Func>
+float easeIn( float time )
+{
+    return Func::easeIn( time );
+}
+
 /**
  * Performs a linear interpolation on the range [x,y] using s as the
  * linear interpolation value.

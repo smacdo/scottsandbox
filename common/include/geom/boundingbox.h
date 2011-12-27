@@ -44,6 +44,9 @@ struct BoundingBox
     {
     }
 
+    bool intersects( const BoundingBox& other ) const;
+    bool intersects( const Sphere& sphere ) const;
+
     /**
      * The smallest of the six points describing the axis aligned bounding box.
      * This is the point closest the origin.
