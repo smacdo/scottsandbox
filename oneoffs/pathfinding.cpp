@@ -4,6 +4,8 @@
 #include <cassert>
 #include <algorithm>
 
+#include <queue>
+
 class Tilemap;
 const size_t NODE_COUNT = 9;
 const int MOVEMENT_COST = 2;
@@ -29,62 +31,30 @@ struct Point
     int y;
 };
 
-class PathNode
+std::ostream& operator << ( std::ostream& ss, const Point& p )
+{
+    ss << "<" << p.x << ", " << p.y << ">";
+    return ss;
+}
+
+struct PathNode
 {
 public:
-    /**
-     * Origin path node constructor.
-     */
-    PathNode( const Point& origin )
-        : mPos( origin ),
-          mPrevPos( origin ),
+    PathNode()
+        : mPrevPos( 0, 0 ),
           mMovementCost( 0 ),
           mEstimatedCost( 0 )
     {
     }
-
-    /**
-     * Non-origin path node constructor
-     */
-    PathNode( const Point& pt,
-              const Point& prevPt,
-              int movementCost, 
-              int estimatedCost )
-        : mPos( pt ),
-          mPrevPos( prevPt ),
-          mMovementCost( movementCost ),
-          mEstimatedCost( estimatedCost )
+        
+    bool operator < ( const PathNode& rhs ) const
     {
-        assert( movementCost > 0 );
-        assert( estimatedCost > 0 );
-        assert( prevPt.x >= 0 && prevPt.y >= 0 );
+        return totalCost() < rhs.totalCost();
     }
 
-    Point position() const
-    {
-        return mPos;
-    }
-
-    int totalCost() const
-    {
-        return mMovementCost + mEstimatedCost;
-    }
-
-    int movementCost() const
-    {
-        return mMovementCost;
-    }
-
-    int estimatedCost() const
-    {
-        return mEstimatedCost;
-    }
-
-private:
-    Point mPos;
-    Point mPrevPos;
-    int mMovementCost;
-    int mEstimatedCost;
+    Point prevPos;
+    int movementCost;
+    int estimatedCost;
 };
 
 struct TotalCostComparator
@@ -110,6 +80,71 @@ struct PathNodePositionPred
     const PathNode& mCompareTo;
 };
 
+class Tilemap
+{
+public:
+    Tilemap( size_t width, size_t height )
+        : mWidth( width ),
+          mHeight( height ),
+          mTiles( height * width )
+    {
+        fill( '.' );
+    }
+
+    void print() const
+    {
+        for ( size_t y = 0; y < mHeight; ++y )
+        {
+            for ( size_t x = 0; x < mWidth; ++x )
+            {
+                std::cout << get( Point(x,y) );
+            }
+
+            std::cout << std::endl;
+        }
+    }
+
+    void set( const Point& p, char c )
+    {
+        assert( p.x < static_cast<int>(mWidth) &&
+                p.y < static_cast<int>(mHeight) );
+        mTiles[ p.y * mWidth + p.x ] = c;
+    }
+
+    char get( const Point& p ) const
+    {
+        assert( p.x < static_cast<int>(mWidth) &&
+                p.y < static_cast<int>(mHeight) );
+        return mTiles[ p.y * mWidth + p.x ];
+    }
+
+    void fill( char c )
+    {
+        for ( size_t y = 0; y < mHeight; ++y )
+        {
+            for ( size_t x = 0; x < mWidth; ++x )
+            {
+                set( Point(x, y), c );
+            }
+        }
+    }
+
+    size_t width() const
+    {
+        return mWidth;
+    }
+
+    size_t height() const
+    {
+        return mHeight;
+    }
+
+private:
+    size_t mWidth;
+    size_t mHeight;
+    std::vector<char> mTiles;
+};
+
 /**
  * Pathfinder is a configurable A* path finding class
  */
@@ -120,7 +155,9 @@ public:
      * Path finder constructor
      */
     PathFinder( const Tilemap& map )
-        : mMap( map )
+        : mMap( map ),
+          mOpenClosedState( map.width() * map.height() ),
+          mOpenNodeStore( map.width() * map.height() / 4 )
     {
     }
 
@@ -131,14 +168,20 @@ public:
      * This method will make a good faith attempt to discover a path to the
      * destination, but if it cannot it will return false.
      */
-    std::vector<Point> findPath( const Point& start, const Point& dest ) const
+    std::vector<Point> findPath( const Point& start, const Point& dest )
     {
-        std::vector<PathNode> openNodes;
-        std::vector<PathNode> closedNodes;
+        reset();
+
+        std::priority_queue<PathNode> openNodes;
         std::vector<Point> neighbors;
 
         // Kick the search off by inserting the starting point
-        openNodes.push_back( PathNode( start ) );
+        openNodes.push( start );
+
+        std::cout << "Starting findpath... start: "
+                  << start << ", end: "
+                  << dest
+                  << std::endl;
 
         //
         // Now start the iterative path finding operation by continually
@@ -146,12 +189,10 @@ public:
         //
         bool keepSearching = true;
 
-        while ( keepSearching )
+        for ( size_t count = 0; count < 25 && keepSearching; ++count )
         {
             // Perform the next a* step
-            keepSearching = findPathStep( dest,
-                                          openNodes,
-                                          closedNodes );
+            keepSearching = findPathStep( dest, openNodes )
         }
 
         //
@@ -164,25 +205,30 @@ public:
 
 private:
     bool findPathStep( const Point& dest,
-                       std::vector<PathNode>& openNodes,
-                       std::vector<PathNode>& closedNodes ) const
+                       std::priority_queue<PathNode>& openNodes )
     {
+        std::cout << " " << std::endl;
+        std::cout << "______________________________________" << std::endl;
         std::vector<Point> neighbors;
 
         // What is the next available and lowest cost tile to consider?
-        PathNode currentNode = pickNextCheapestNode( openNodes );
+        Point currentPos = openNodes.top();
+        openNodes.pop();
+
+        std::cout << "picked: " << currentPos << std::endl;
 
         // Make sure the tile is marked as closed to prevent revisits
-        closedNodes.push_back( currentNode );
+        markClosed( currentPos );
 
         // Is this the destination tile? If so, we're done!
-        if ( currentNode.position() == dest )
+        if ( currentPos == dest )
         {
+            std::cout << "found dest: " << currentPos << std::endl;
             return false;
         }
 
         // Who will be our neighbors? Will they be our friends?
-        generateNeighbors( currentNode.position(), neighbors );
+        generateNeighbors( currentPos, neighbors );
 
         // Consider each generated neighbor. If the tile is both a valid
         // walkable tile, is in bounds and has not been visited yet then
@@ -191,12 +237,18 @@ private:
         {
             // Calculate the costs of moving to this node, and the
             // estimated cost of getting to the destination
-            int movementCost = findMovementCost( neighbors[i],  currentNode );
+            int movementCost = findMovementCost( neighbors[i], currentPos );
             int estimateCost = findEstimatedCost( neighbors[i], dest );
 
             // Double check that this node is pathable. If the movement
             // score is less than zero, we cannot reach this node
             if ( movementCost < 0 )
+            {
+                continue;
+            }
+
+            // If its in the list of closed nodes, don't bother adding it
+            if ( isClosed( neighbors[i] ) )
             {
                 continue;
             }
@@ -216,7 +268,7 @@ private:
                                               pred
             );
 
-            if ( existingNode != openNodes.end() ) 
+            if ( isOpen( neighbors[i] ) ) 
             {
                 // The node is already in the list of open tiles. Do we have
                 // a better movement score than the already stored node?
@@ -228,7 +280,7 @@ private:
             else
             {
                 // Its not listed in the open list. Add it!
-                openNodes.push_back( nNode );
+                openNodes.push( nNode );
             }
         }
 
@@ -259,15 +311,13 @@ private:
      * to this node, using the path that the current node followed from the
      * start
      */
-    int findMovementCost( const Point& currentPt,
-                          const PathNode& parent ) const
+    int findMovementCost( const Point& currentPt, const Point& prevPoint ) const
     {
         const int INVALID_MOVE  = -1;
         const int MOVE_STRAIGHT = 10;
         const int MOVE_DIAGONAL = 14;
     
         int movementCost = 0;
-        Point prevPt     = parent.position();
 
         // Is this node pathable?
         if (! isPathable( currentPt ) )
@@ -309,20 +359,15 @@ private:
         assert( nodes.size() > 0 );  // otherwise this makes no sense
         TotalCostComparator comparator;
 
-        return *std::min_element( nodes.begin(), nodes.end(), comparator );
-    }
+        // Find the lowest cost element in the list
+        auto itr = std::min_element( nodes.begin(),
+                                     nodes.end(),
+                                     comparator );
+        PathNode node = *itr;
 
-    /**
-     * Checks if the given position is listed as a closed node
-     */
-    bool isClosed( const Point& pos, const std::vector<PathNode>& nodes ) const
-    {
-        PathNodePositionPred pred( nNode );
-
-        auto existingNode = std::find_if( openNodes.begin(),
-                                            openNodes.end(),
-                                            pred
-        );
+        // Now remove that element from the list before returning it
+        nodes.erase( itr );
+        return node;
     }
 
     /**
@@ -349,113 +394,62 @@ private:
 
         // Consider all the potential neighbor offsets, and generate
         // new pathnode candidates for any that are in bounds and pathable
+        int mapWidth  = static_cast<int>( mMap.width() );
+        int mapHeight = static_cast<int>( mMap.height() );
+
         for ( size_t i = 0; i < MAX_NEIGHBOR_TILES; ++i )
         {
             Point basePt = baseNode.position();
             Point nPoint( basePt.x + NEIGHBOR_OFFSETS[i][0],
                           basePt.y + NEIGHBOR_OFFSETS[i][1] );
 
-            if ( nPoint.x >= 0 && nPoint.x < mMap.width()  &&
-                 nPoint.y >= 0 && nPoint.y < mMap.height() &&
-                 isPathable( nPoint ) )
+            if ( nPoint.x >= 0 && nPoint.x < mapWidth  &&
+                 nPoint.y >= 0 && nPoint.y < mapHeight && isPathable( nPoint ))
             {
                 output.push_back( nPoint );
             }
         }
     }
 
+    void reset()
+    {
+        // Reset the open/closed state tracking
+        std::fill( mOpenClosedState.begin(), mOpenClosedState.end(), 0 );
+    }
+
     /**
      * Checks if the given position allows someone to path to it
      */
-    bool isPathable( const Point& pt ) const
+    bool isPathable( const Point& ) const
     {
         return true;
     }
 
 private:
     const Tilemap& mMap;
+    std::vector<PathNode> mNodeMap;
+    std::vector<Point> mOpenStore;
 };
 
-void carvePath( const Point& start, const Point& end )
+void carvePath( Tilemap& map, const Point& start, const Point& end )
 {
-//    assert( fromId < NODE_COUNT );
-//    assert( toId < NODE_COUNT );
+    PathFinder pathfinder( map );
 
-    // Data
- //   bool didFindPath = false;
-//    std::vector<Point> openSquares;
-//    std::vector<Point> closedSquares;
+    // Find the path
+    std::vector<Point> path = pathfinder.findPath( start, end );
+    assert( path.size() > 0 );
 
-    // Create points
-//    Point startPt( GNodes[fromId][0], GNodes[fromId][1] );
-//    Point endPt(   GNodes[toId][0],   GNodes[toId][1] );
-
-    // Insert the starting point before starting the pathfinding
-//    openSquares.push_back( startPt );
-
-    // Now perform the path finding operation
-  //  while ( didFindPath == false )
-  //  {
-  //  }
+    // Now carve that path
+    for ( size_t i = 0; i < path.size(); ++i )
+    {
+        map.set( path[i], '*' );
+    }
 }
 
-class Tilemap
-{
-public:
-    Tilemap( size_t width, size_t height )
-        : mWidth( width ),
-          mHeight( height ),
-          mTiles( height * width )
-    {
-        fill( '.' );
-    }
-
-    void print() const
-    {
-        for ( size_t y = 0; y < mHeight; ++y )
-        {
-            for ( size_t x = 0; x < mWidth; ++x )
-            {
-                std::cout << get( Point(x,y) );
-            }
-
-            std::cout << std::endl;
-        }
-    }
-
-    void set( const Point& p, char c )
-    {
-        assert( p.x < mWidth && p.y < mHeight );
-        mTiles[ p.y * mWidth + p.x ] = c;
-    }
-
-    char get( const Point& p ) const
-    {
-        assert( p.x < mWidth && p.y < mHeight );
-        return mTiles[ p.y * mWidth + p.x ];
-    }
-
-    void fill( char c )
-    {
-        for ( size_t y = 0; y < mHeight; ++y )
-        {
-            for ( size_t x = 0; x < mWidth; ++x )
-            {
-                set( Point(x, y), c );
-            }
-        }
-    }
-
-private:
-    size_t mWidth;
-    size_t mHeight;
-    std::vector<char> mTiles;
-};
-
-int main( int argc, char* argv[] )
+int main( int, char*[] )
 {
     Tilemap map( 78, 20 );
-    carvePath( Point( 5, 10 ), Point( 60, 15 ) );
+    carvePath( map, Point( 5, 10 ), Point( 8, 11 ) );
 
     map.print();
 
