@@ -125,25 +125,18 @@ bool checkFilenameSetMatches( const std::string& filename,
         setIndex        = atoi( num.c_str() );
     }
 
-/*    std::cout << "match data" << std::endl;
-    std::cout << " filename  '" << filename << "'" << std::endl
-              << " matchname '" << matchname << "'"
-              << "(" << nameMatches << ")" << std::endl
-              << " matchext  '" << matchext  << "'"
-              << "(" << extMatches << ")" << std::endl
-              << " hasnumber '" << numberMatches << "'" << std::endl
-              << " setindex  '" << setIndex  << "'" << std::endl
-              << " result    '" << result    << "'" << std::endl
-              << std::endl;*/
-
     return result;
 }
 
-std::string findNextAvailableFilename( const std::string& dirpath,
+std::string findNextAvailableFilename( const std::string& dirpathname,
                                        const std::string& filename,
                                        const std::string& fileext,
                                        int digits )
 {
+    fs::path dirpath = dirpathname;
+
+    
+
     //
     // Open the requested directory, and iterate all of the files
     // in it
