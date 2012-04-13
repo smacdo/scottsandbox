@@ -536,7 +536,7 @@ TEST(TCubeGrid,TestCellsArePlacedCorrectly)
 TEST(TCubeGrid,TCubeGridNodeCreatesNoChildrenByDefault)
 {
     TCubeGridNode<int> on;
-    EXPECT_EQ( NULL, on.children );
+    EXPECT_EQ( 0u, on.children );
 }
 
 TEST(TCubeGrid,TCubeGridNodeAddData)

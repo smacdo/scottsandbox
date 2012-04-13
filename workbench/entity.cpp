@@ -161,21 +161,21 @@ struct Health : public Component
         : hp(0)
     {
         std::cout << "health default ctor, this="
-            << (uint32_t)(this) << std::endl;
+            << (size_t)(this) << std::endl;
     }
 
     Health( size_t hp_ )
         : hp( hp_ )
     {
         std::cout << "health value ctor, this="
-            << (uint32_t)(this) << std::endl;
+            << (size_t)(this) << std::endl;
     }
 
     Health( const Health& h )
         : hp( h.hp )
     {
         std::cout << "health copy ctor, this="
-            << (uint32_t)(this) << ", other=" << (uint32_t)(&h) << std::endl;
+            << (size_t)(this) << ", other=" << (size_t)(&h) << std::endl;
     }
 
     const Health& operator = ( const Health& h )
@@ -247,7 +247,7 @@ void EntityManager::clear()
 
         for ( ; inner != itr->second.end(); ++inner )
         {
-            std::cout << "Deleting " << (uint32_t)(inner->second) << std::endl;
+            std::cout << "Deleting " << (size_t)(inner->second) << std::endl;
             delete inner->second;
             instances++;
         }

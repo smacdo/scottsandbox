@@ -274,6 +274,7 @@ StringArray findInDirectory( const std::string& path,
 {
     path == path; pattern == pattern;
     recurse = ignoreFiles = ignoreDirs = ignoreSymlinks = ignoreSpecials;
+    recurse = recurse;
     return StringArray();
 }
 
