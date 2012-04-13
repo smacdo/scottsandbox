@@ -4,10 +4,18 @@
 #include <cassert>
 #include <stdint.h>
 
-void printHex( std::ostream& stream, const uint8_t *ptr, size_t len )
+std::ostream& printHex( std::ostream& stream,
+                        const uint8_t *ptr,
+                        size_t len )
 {
-    assert( ptr != NULL && "Data ptr cannot be null" );
     const char * CHARS = "0123456789ABCDEF";
+
+    // bail out of the pointer is null
+    if ( ptr == NULL )
+    {
+        stream << "(null)" << std::endl;
+        return stream;
+    }
 
     // print the hex header
     stream << "0x";
@@ -18,11 +26,20 @@ void printHex( std::ostream& stream, const uint8_t *ptr, size_t len )
         stream << CHARS[ ptr[i] >> 4    ]
                << CHARS[ ptr[i]  & 0x0F ];
     }
+
+    return stream;
 }
 
-void printBinary( std::ostream& stream, const uint8_t *ptr, size_t len )
+std::ostream& printBinary( std::ostream& stream,
+                           const uint8_t *ptr,
+                           size_t len )
 {
-    assert( ptr != NULL && "Data ptr cannot be null" );
+    // Bail out if the pointer is null
+    if ( ptr == NULL )
+    {
+        stream << "(null";
+        return stream;
+    }
 
     // print the binary header
     stream << "0b";
@@ -40,7 +57,13 @@ void printBinary( std::ostream& stream, const uint8_t *ptr, size_t len )
                << ((v >> 3) & 0x1)
                << ((v >> 2) & 0x1)
                << ((v >> 1) & 0x1)
-               << ((v     ) & 0x1)
-               << " ";      // bug!
+               << ((v     ) & 0x1);
+
+        if ( i == len - 1 )
+        {
+            stream << " ";
+        }
     }
+
+    return stream;
 }

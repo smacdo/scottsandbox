@@ -41,11 +41,7 @@ struct Ray
      * Ray constructor. Create a ray from a vector representing the ray's
      * origin and direction
      */
-    Ray( const Vec3& origin, const Vec3& direction )
-        : origin( origin ),
-          direction( direction )
-    {
-    }
+    Ray( const Vec3& origin, const Vec3& direction );
 
     /**
      * Location in 3d sapce in which the ray originates
@@ -58,10 +54,6 @@ struct Ray
     Vec3   direction;
 };
 
-std::ostream& operator << ( std::ostream& os, const Ray& ray )
-{
-    os << "{ray;o=" << ray.origin << ",d=" << ray.direction << "}";
-    return os;
-}
+std::ostream& operator << ( std::ostream& os, const Ray& ray );
 
 #endif

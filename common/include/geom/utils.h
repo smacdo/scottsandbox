@@ -46,7 +46,7 @@ TVector3<T> CalculateSurfaceNormal( const TVector3<T>& p0,
                                     const TVector3<T>& p2 )
 {
     TVector3<T> u = p1 - p0;
-    TVector3<T> y = p2 - p0;
+    TVector3<T> v = p2 - p0;
 
     return TVector3<T>( u.Y() * v.Z() - u.Z() * v.Y(),
                         u.Z() * v.X() - u.X() * v.Z(),

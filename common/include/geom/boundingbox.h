@@ -35,14 +35,7 @@
  */
 struct BoundingBox
 {
-    /**
-     * Axis aligned bounding box. The constructor takes two points that represent
-     * the smallest point and the largest point on the axis aligned bounding box.
-     */
-    BoundingBox( const Vec3& minPt, const Vec3& maxPt )
-        : minPoint( minPt ), maxPoint( maxPt )
-    {
-    }
+    BoundingBox( const Vec3& minPt, const Vec3& maxPt );
 
     bool intersects( const BoundingBox& other ) const;
     bool intersects( const Sphere& sphere ) const;

@@ -15,6 +15,11 @@ float easeIn( float time )
 /**
  * Performs a linear interpolation on the range [x,y] using s as the
  * linear interpolation value.
+ *
+ * \param  x  Starting value
+ * \param  y  Ending value
+ * \param  s  Interpolation factor (ranges [0,1])
+ * \return    Interpolated value in the range [x,y] biased by s
  */
 template<typename T,typename U>
 T lerp( const T& x, const T& y, const U& s )
@@ -26,6 +31,11 @@ T lerp( const T& x, const T& y, const U& s )
  * Smoothstep performs a smoother version of a linear interpolation
  * between two values. This implementation uses an improved version
  * proposed by Ken Perlin
+ *
+ * \param  x  Starting value
+ * \param  y  Ending value
+ * \param  s  Interpolation factor [0,1]
+ * \return    Interpolated value in the range [x,y] biased by s
  *
  * s(t) = 6t^5 - 15t^4 + 10t^3
  */

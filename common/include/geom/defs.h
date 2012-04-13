@@ -30,15 +30,15 @@
 
 enum ERotation
 {
-    ROT_PITCH,
-    ROT_YAW,
-    ROT_ROLL
+    EROTATION_PITCH,
+    EROTATION_YAW,
+    EROTATION_ROLL
 };
 
 enum EWinding
 {
-    WIND_CLOCKWISE,
-    WIND_COUNTERCLOCKWISE
+    EWINDING_CW,
+    EWINDING_CCW
 };
 
 #endif

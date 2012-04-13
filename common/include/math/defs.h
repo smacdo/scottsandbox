@@ -29,6 +29,7 @@
 #define SCOTT_COMMON_MATH_DEFS_H
 
 #define MATHLIB_COMMON_TYPEDEFS 1
+#define MATH_USE_FUZZY_EQUALS 1
 
 /**
  * Defines the Scalar type, which is used by the math library to determine
