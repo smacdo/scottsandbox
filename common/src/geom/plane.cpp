@@ -1,5 +1,5 @@
-/**
- * Copyright 2010 Scott MacDonald. All rights reserved.
+/*
+ * Copyright 2010-2012 Scott MacDonald. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,4 +25,42 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
+#include <geom/intersection.h>
+#include <geom/plane.h>
+#include <geom/ray.h>
+#include <limits>
+
+Plane::Plane( const Vec3& normal, const Scalar& distance )
+    : normal( normal ),
+      distance( distance )
+{
+}
+
+Plane::Plane( const Scalar& nX, const Scalar& nY, const Scalar& nZ,
+              const Scalar& distance )
+    : normal( Vec3( nX, nY, nZ ) ),
+      distance( distance )
+{
+}
+
+bool Plane::intersects( const Ray& ray ) const
+{
+    Scalar d2 = dot( normal, ray.direction );
+
+    if ( d2 > -Math::ZeroEpsilonF ) 
+    {
+        return false;     // ray is parallel to plane, or ray hits wrong side
+    }
+
+    Scalar d1 = -( dot( normal, ray.origin ) + distance );
+    Scalar  t = d1 / d2;
+    
+    if ( t < Math::ZeroEpsilonF )
+    {
+        return false;     // ray intersects behind plane origin
+    }
+
+    Vec3 intersectPt = ray.origin + ray.direction * t;
+    return true;
+}
 

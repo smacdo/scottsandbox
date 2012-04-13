@@ -1,5 +1,5 @@
-/**
- * Copyright 2010 Scott MacDonald. All rights reserved.
+/*
+ * Copyright 2010 - 2012 Scott MacDonald. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,4 +25,30 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
+#include <geom/intersection.h>
+#include <geom/plane.h>
+#include <geom/ray.h>
+#include <geom/sphere.h>
 
+#include <limits>
+
+IntersectResult::IntersectResult()
+    : point(Vec3(  0.0f, 0.0f, 0.0f )),
+      normal(Vec3( 0.0f, 0.0f, 0.0f )),
+      distance( std::numeric_limits<Scalar>::infinity() )
+{
+}
+
+IntersectResult::IntersectResult( const Vec3& pt,
+                                  const Vec3& n,
+                                  Scalar dist )
+    : point( pt ),
+      normal( n ),
+      distance( dist )
+{
+}
+
+bool IntersectResult::didHit() const
+{
+    return distance != std::numeric_limits<Scalar>::infinity();
+}
