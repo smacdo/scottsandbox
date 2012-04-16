@@ -50,14 +50,16 @@ template<typename T> class TVector3;
 template<typename T> class TVector2;
 
 template<typename T> T dot( const TVector3<T>& lhs, const TVector3<T>& rhs );
-template<typename T> T dot( const TVector4<T>& lhs, const TVector3<T>& rhs );
 template<typename T> TVector3<T> cross( const TVector3<T>& lhs, const TVector3<T>& rhs );
-template<typename T> T length( const TVector3<T>& v );
 template<typename T> T length( const TVector4<T>& v );
-template<typename T> T lengthSquared( const TVector3<T>& v );
+template<typename T> T length( const TVector3<T>& v );
+template<typename T> T length( const TVector2<T>& v );
 template<typename T> T lengthSquared( const TVector4<T>& v );
-template<typename T> TVector3<T> normalized( const TVector3<T>& v );
+template<typename T> T lengthSquared( const TVector3<T>& v );
+template<typename T> T lengthSquared( const TVector2<T>& v );
 template<typename T> TVector4<T> normalized( const TVector4<T>& v );
+template<typename T> TVector3<T> normalized( const TVector3<T>& v );
+template<typename T> TVector2<T> normalized( const TVector2<T>& v );
 template<typename T> TVector3<T> rotateAroundX( const TVector3<T>& v, T angle );
 template<typename T> TVector3<T> rotateAroundY( const TVector3<T>& v, T angle );
 template<typename T> TVector3<T> rotateAroundZ( const TVector3<T>& v, T angle );
@@ -778,6 +780,307 @@ private:
 	};
 };
 
+/**
+ * Generic templated vector2 class. Stores two values that are packed together
+ * in memory as XY with no extra padding.
+ *
+ * Vector2 contains all basic operators expected of a Vector2 class, and
+ * contains non-member functions for performing operations on the class. All of
+ * these methods and functions conform to expected mathematical rules regarding
+ * vector math.
+ */
+template<typename T>
+class TVector2
+{
+public:
+    // Type traits
+    typedef T value_type;
+    typedef value_type const const_value_type;
+    typedef value_type& reference;
+    typedef const_value_type& const_reference;
+    typedef value_type* pointer;
+    typedef const_value_type* const_pointer;
+    typedef std::size_t size_type;
+    typedef std::ptrdiff_t difference_type;
+
+    // Defines how many values are stored in a vector2 instance
+    enum { NUM_COMPONENTS = 2 };
+
+    /**
+     * Standard vector constructor. Follows C++ standards of not
+     * initializing basic value types, so do not assume the vector
+     * is created with values set to zero.
+     *
+     * If you need a zero vector, call the static method ::ZeroVector()
+     */
+    TVector2()
+#ifdef VECTOR_DEBUG_MODE
+        : mX( std::numeric_limits<T>::signaling_NaN() ),
+          mY( std::numeric_limits<T>::signaling_NaN() ),
+#endif
+    {
+    }
+
+    /**
+     * Copy-initialize vector from a pointer to an array of values.
+     * This constructor expects that the passed array contains at 
+     * least four values, but there is nothing to check this constraint
+     */
+    explicit TVector2( const_pointer pVals )
+        : mX( pVals[0] ), mY( pVals[1] )
+    {
+    }
+
+    /**
+     * Vector x/y constructor. Takes the provided x/y values and
+     * assigns it to the newly constructed vector.
+     */
+    TVector2( value_type x, value_type y )
+        : mX( x ), mY( y )
+    {
+    }
+
+    /**
+     * Copy constructor
+     */
+    TVector2( const TVector2<T>& v )
+        : mX( v.mX ), mY( v.mY )
+    {
+    }
+
+    /**
+     * Read-only index operator, used to read one of the vector's three
+     * cardinal axis values
+     *
+     * \param  index  The vector's component index (0 to 1)
+     * \return        Value of the component in the vector
+     */
+    const_reference operator [] ( unsigned int index ) const
+    {
+        math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
+        return v[index];
+    }
+
+    /**
+     * Vector index operator, used to read one of the vector's three
+     * cardinal axis values
+     *
+     * \param  index  The vector's component index (0 to 1)
+     * \return        Value of the component in the vector
+     */
+    reference operator [] ( unsigned int index )
+    {
+        math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
+        return v[index];
+    }
+
+    /**
+     * Returns a pointer to the first element in the vector. Useful for
+     * when a legacy API takes a 2D vector as a T*
+     */
+    pointer ptr()
+    {
+        return &mX;
+    }
+
+    /**
+     * Returns a constant pointer to the first element in the vector. Useful
+     * for when a legacy API takes a 2D vector as a const T*
+     */
+    const_pointer ptr() const
+    {
+        return &mX;
+    }
+
+    /**
+     * Returns a constant pointer to the first element in the vector. Useful
+     * for when a legacy API takes a 2D vector as a const T*
+     */
+    const_pointer const_ptr() const
+    {
+        return &mX;
+    }
+
+    /**
+     * Assignment operator. Copy values from the right hand side and assign
+     * it to this vector
+     */
+    TVector2<T>& operator = ( const TVector2<T>& rhs )
+    {
+        mX = rhs.mX;
+        mY = rhs.mY;
+
+        return *this;
+    }
+
+    /**
+     * Equality operator
+     */
+    bool operator == ( const TVector2<T>& rhs ) const
+    {
+#ifdef MATH_USE_FUZZY_EQUALS
+    return ( Math::equalsClose( mX, rhs.mX ) &&
+             Math::equalsClose( mY, rhs.mY ) );
+#else
+    return ( mX == rhs.mX && mY == rhs.mY );
+#endif
+    }
+
+    /**
+     * Inequality operator
+     */
+    bool operator != ( const TVector2<T>& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    /**
+     * Unary negation operator. Negates all components of the value, which is
+     * the same as multiplying all components by -1.0.
+     */
+    friend TVector2<T> operator - ( const TVector2<T>& rhs )
+    {
+        return TVector2( -rhs.mX, -rhs.mY );
+    }
+
+    /**
+     * Component wise addition operator
+     */
+    friend TVector2<T> operator + ( const TVector2<T>& lhs,
+                                    const TVector2<T>& rhs )
+    {
+        return TVector2( lhs.mX + rhs.mX,
+                         lhs.mY + rhs.mY );
+    }
+
+    /**
+     * Component wise subtraction operator
+     */
+    friend TVector2<T> operator - ( const TVector2<T>& lhs,
+                                    const TVector2<T>& rhs )
+    {
+        return TVector2<T>( lhs.mX - rhs.mX,
+                            lhs.mY - rhs.mY );
+    }
+
+    /**
+     * Vector multiplication operator. Scales the vector by the given scalar,
+     * which is identical to multiplying all of the vector's components by the
+     * scalar.
+     */
+    friend TVector2<T> operator * ( const TVector2<T>& lhs, 
+                                    value_type scalar )
+    {
+        return TVector2( lhs.mX * scalar, 
+                         lhs.mY * scalar );
+    }
+
+    /**
+     * Vector division operator. Scales the vector by the inverse of the given
+     * scalar, which is identical to dividing all of the vector's components by
+     * the scalar.
+     */
+    friend TVector2<T> operator / ( const TVector2<T>& lhs,
+                                    value_type scalar )
+
+    {
+        return TVector2( lhs.mX / scalar,
+                         lhs.mY / scalar );
+    }
+
+
+    /**
+     * Component wise self addition operator
+     */
+    TVector2<T>& operator += ( const TVector2<T>& rhs )
+    {
+        mX += rhs.mX;
+        mY += rhs.mY;
+
+        return *this;
+    }
+
+    /**
+     * Component wise self subtraction operator
+     */
+    TVector2<T>& operator -= ( const TVector2<T>& rhs )
+    {
+        mX -= rhs.mX;
+        mY -= rhs.mY;
+
+        return *this;
+    }
+
+    /**
+     * Component wise scalar self multiplication operator
+     */
+    TVector2<T>& operator *= ( value_type rhs )
+    {
+        mX *= rhs;
+        mY *= rhs;
+
+        return *this;
+    }
+
+    /**
+     * Component wise scalar self division operator
+     */
+    TVector2<T>& operator /= ( value_type rhs )
+    {
+        mX /= rhs;
+        mY /= rhs;
+
+        return *this;
+    }
+
+    /**
+     * Return the value of the vector's X component
+     */
+    inline value_type x() const
+    {
+        return mX;
+    }
+
+    /**
+     * Return the value of the vector's Y component
+     */
+    inline value_type y() const
+    {
+        return mY;
+    }
+
+    /**
+     * Returns a vector containing entirely zero
+     */
+    static TVector2<T> ZeroVector()
+    {
+        return TVector2<T>( static_cast<T>(0), 
+                            static_cast<T>(0) );
+    }
+
+    /**
+     * Returns the length (magnitude) of this vector.
+     */
+    friend value_type length<>( const TVector2<T>& v );
+
+    /**
+     * Returns the length squared of the vector (no sqrt)
+     */
+    friend value_type lengthSquared<>( const TVector2<T>& v );
+
+    /**
+     * Returns a normalized version of this vector
+     */
+    friend TVector2<T> normalized<>( const TVector2<T>& v );
+
+private:
+    union
+	{
+		struct { value_type mX, mY; };
+		struct { value_type v[NUM_COMPONENTS]; };
+	};
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // Templated vector method definitions
 /////////////////////////////////////////////////////////////////////////////
@@ -799,11 +1102,20 @@ T dot ( const TVector3<T>& lhs, const TVector3<T>& rhs )
 template<typename T> T angleBetween( const TVector3<T>& lhs, const TVector3<T>& rhs );
 template<> float angleBetween( const TVector3<float>& lhs, const TVector3<float>& rhs );
 
-template<typename T> T length( const TVector3<T>& v );  // must specialize
+template<typename T> T length( const TVector4<T>& v );  // must specialize
+template<> float length( const TVector4<float>& v );
+
+template<typename T> T length( const TVector3<T>& v ); // must specialize
 template<> float length( const TVector3<float>& v );
 
-template<typename T> T length( const TVector4<T>& v );
-template<> float length( const TVector4<float>& v );
+template<typename T> T length( const TVector2<T>& v );  // must specialize
+template<> float length( const TVector2<float>& v );
+
+template<typename T>
+T lengthSquared( const TVector4<T>& v )
+{
+    return v.mX * v.mX + v.mY * v.mY + v.mZ * v.mZ + v.mW * v.mW;
+}
 
 template<typename T>
 T lengthSquared( const TVector3<T>& v )
@@ -812,16 +1124,19 @@ T lengthSquared( const TVector3<T>& v )
 }
 
 template<typename T>
-T lengthSquared( const TVector4<T>& v )
+T lengthSquared( const TVector2<T>& v )
 {
-    return v.mX * v.mX + v.mY * v.mY + v.mZ * v.mZ + v.mW * v.mW;
+    return v.mX * v.mX + v.mY * v.mY;
 }
+
+template<typename T> TVector4<T> normalized( const TVector4<T>& v );
+template<> TVector4<float> normalized( const TVector4<float>& v );
 
 template<typename T> TVector3<T> normalized( const TVector3<T>& v );
 template<> TVector3<float> normalized( const TVector3<float>& v );
 
-template<typename T> TVector4<T> normalized( const TVector4<T>& v );
-template<> TVector4<float> normalized( const TVector4<float>& v );
+template<typename T> TVector2<T> normalized( const TVector2<T>& v );
+template<> TVector2<float> normalized( const TVector2<float>& v );
 
 template<typename T> TVector3<T> rotateAroundX( const TVector3<T>& v, T angle );
 template<> TVector3<float> rotateAroundX( const TVector3<float>& v, float angle );
@@ -840,13 +1155,6 @@ template<> TVector3<float> rotateAround( const TVector3<float>& v,
                                          float angle );
 
 template<typename T>
-std::ostream& operator << ( std::ostream& os, const TVector3<T>& v )
-{
-    os << "<" << v.x() << ", " << v.y() << ", " << v.z() << ">";
-    return os;
-}
-
-template<typename T>
 std::ostream& operator << ( std::ostream& os, const TVector4<T>& v )
 {
     os << "<"
@@ -855,14 +1163,34 @@ std::ostream& operator << ( std::ostream& os, const TVector4<T>& v )
     return os;
 }
 
+
+template<typename T>
+std::ostream& operator << ( std::ostream& os, const TVector3<T>& v )
+{
+    os << "<" << v.x() << ", " << v.y() << ", " << v.z() << ">";
+    return os;
+}
+
+template<typename T>
+std::ostream& operator << ( std::ostream& os, const TVector2<T>& v )
+{
+    os << "<"
+       << v.x() << ", " << v.y()
+       << ">";
+    return os;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Vector typedefs - typedef common vector types
 /////////////////////////////////////////////////////////////////////////////
+typedef TVector4<float> Vec4;
+typedef TVector4<float> Vec4f;
+
 typedef TVector3<long>   IVec;
 typedef TVector3<float>  Vec3;
 typedef TVector3<float>  Vec3f;
 
-typedef TVector4<float> Vec4;
-typedef TVector4<float> Vec4f;
+typedef TVector2<float> Vec2;
+typedef TVector2<float> Vec2f;
 
 #endif

@@ -3,13 +3,19 @@
 #include <cmath>
 
 template<>
+float length( const TVector4<float>& v )
+{
+    return sqrtf( lengthSquared( v ) );
+}
+
+template<>
 float length( const TVector3<float>& v )
 {
     return sqrtf( lengthSquared( v ) );
 }
 
 template<>
-float length( const TVector4<float>& v )
+float length( const TVector2<float>& v )
 {
     return sqrtf( lengthSquared( v ) );
 }
@@ -20,6 +26,24 @@ float angleBetween( const TVector3<float>& lhs,
 {
     float a = acos( dot( lhs, rhs ) / ( length( lhs ) * length( rhs ) ) );
     return a * 180.0f / Math::Pi;
+}
+
+template<>
+TVector4<float> normalized( const TVector4<float>& v )
+{
+    float len = length( v );
+    math_assert( len > 0.0f );
+
+    // If the vector is already normalizd (length is one), then simply return
+    // the vector without renormalizing it
+    if ( Math::equalsClose( len, 1.0f ) )
+    {
+        return TVector4<float>( v.mX, v.mY, v.mZ, v.mW );
+    }
+    else
+    {
+        return TVector4<float>( v.mX / len, v.mY / len, v.mZ / len, v.mW / len );
+    }
 }
 
 template<>
@@ -41,7 +65,7 @@ TVector3<float> normalized( const TVector3<float>& v )
 }
 
 template<>
-TVector4<float> normalized( const TVector4<float>& v )
+TVector2<float> normalized( const TVector2<float>& v )
 {
     float len = length( v );
     math_assert( len > 0.0f );
@@ -50,11 +74,11 @@ TVector4<float> normalized( const TVector4<float>& v )
     // the vector without renormalizing it
     if ( Math::equalsClose( len, 1.0f ) )
     {
-        return TVector4<float>( v.mX, v.mY, v.mZ, v.mW );
+        return TVector2<float>( v.mX, v.mY );
     }
     else
     {
-        return TVector4<float>( v.mX / len, v.mY / len, v.mZ / len, v.mW / len );
+        return TVector2<float>( v.mX / len, v.mY / len );
     }
 }
 

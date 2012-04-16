@@ -11,6 +11,34 @@ TEST(Math, Vector3_DefaultContructor)
     EXPECT_TRUE( true );      // test here just to make sure it compiles
 }
 
+TEST(Math, Vector3_SizeTest)
+{
+    const Vec3 v( 1.0, 2.0, 3.0 );
+    EXPECT_EQ( sizeof(float) * 3, sizeof(v) );
+}
+
+TEST(Math, Vector3_MemoryArrayTest)
+{
+    // Makes sure that a vector is laid out linearly in memory
+    Vec3 v[3];
+
+    v[0] = Vec3( 1.0, 2.0, 3.0 );
+    v[1] = Vec3( 4.0, 5.0, 6.0 );
+    v[2] = Vec3( 7.0, 8.0, 9.0 );
+
+    const float * pVals = v[0].const_ptr();
+
+    EXPECT_EQ( 1.0, *(pVals + 0) );
+    EXPECT_EQ( 2.0, *(pVals + 1) );
+    EXPECT_EQ( 3.0, *(pVals + 2) );
+    EXPECT_EQ( 4.0, *(pVals + 3) );
+    EXPECT_EQ( 5.0, *(pVals + 4) );
+    EXPECT_EQ( 6.0, *(pVals + 5) );
+    EXPECT_EQ( 7.0, *(pVals + 6) );
+    EXPECT_EQ( 8.0, *(pVals + 7) );
+    EXPECT_EQ( 9.0, *(pVals + 8) );
+}
+
 TEST(Math, Vector3_PointerConstructor)
 {
     float values[5] = { 3.0, 2.0, 5.0, -3.0, 6.0 };

@@ -103,8 +103,10 @@ set(mathlib_tests
         tests/math/test_matrix4.cpp
         tests/math/test_point.cpp
         tests/math/test_utils.cpp
+        tests/math/test_vector4.cpp
         tests/math/test_vector3.cpp
-        tests/math/test_vector4.cpp)
+        tests/math/test_vector2.cpp
+)
 
 #########################################################################
 ### String common lib                                                 ###
