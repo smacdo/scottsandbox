@@ -68,6 +68,15 @@ template<typename T> TVector3<T> rotateAround( const TVector3<T>& v,
 template<typename T> T angleBetween( const TVector3<T>& lhs,
                                      const TVector3<T>& rhs );
 
+/**
+ * Generic templated vector4 class. Stores four values that are packed together
+ * in memory as XYZW with no extra padding.
+ *
+ * Vector4 contains all basic operators expected of a Vector4 class, and
+ * contains non-member functions for performing operations on the class. All of
+ * these methods and functions conform to expected mathematical rules regarding
+ * vector math.
+ */
 template<typename T>
 class TVector4
 {
@@ -400,12 +409,6 @@ private:
 	};
 };
 
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Generic templated 3d graphics vector class. Implements all commonly
- * used functionality, including vector rotations and projections.
- */
 /**
  * Generic templated vector3 class. Contains three values that are packed
  * together in memory, and an array of vectors should store these component
@@ -776,7 +779,7 @@ private:
 };
 
 /////////////////////////////////////////////////////////////////////////////
-// Vector operations
+// Templated vector method definitions
 /////////////////////////////////////////////////////////////////////////////
 template<typename T>
 TVector3<T> cross ( const TVector3<T>& lhs,
