@@ -31,8 +31,6 @@
 #include <math/defs.h>
 #include <math/util.h>
 #include <math/constants.h>
-#include <cmath>
-
 #include <ostream>
 
 #if MATH_DEBUG_MODE == 1
@@ -84,7 +82,7 @@ public:
     typedef std::size_t size_type;
     typedef std::ptrdiff_t difference_type;
 
-    // Constants
+    // Defines how many values are stored in a vector4 instance
     enum { NUM_COMPONENTS = 4 };
 
     /**
@@ -141,7 +139,7 @@ public:
     const_reference operator [] ( unsigned int index ) const
     {
         math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
-        return *(&mX + index);
+        return v[index];
     }
 
     /**
@@ -154,7 +152,7 @@ public:
     reference operator [] ( unsigned int index )
     {
         math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
-        return *(&mX + index);
+        return v[index];
     }
 
     /**
@@ -231,20 +229,6 @@ public:
     }
 
     /**
-     * Vector multiplication operator. Scales the vector by the given vector,
-     * which is identical to multiplying all of the vectors components by the
-     * scalar.
-     */
-    friend TVector4<T> operator * ( const TVector4<T>& rhs, 
-                                    value_type scalar )
-    {
-        return TVector4( rhs.mX * scalar, 
-                         rhs.mY * scalar, 
-                         rhs.mZ * scalar,
-                         rhs.mW * scalar );
-    }
-
-    /**
      * Component wise addition operator
      */
     friend TVector4<T> operator + ( const TVector4<T>& lhs,
@@ -267,6 +251,36 @@ public:
                             lhs.mZ - rhs.mZ,
                             lhs.mW - rhs.mW );
     }
+
+    /**
+     * Vector multiplication operator. Scales the vector by the given scalar,
+     * which is identical to multiplying all of the vector's components by the
+     * scalar.
+     */
+    friend TVector4<T> operator * ( const TVector4<T>& lhs, 
+                                    value_type scalar )
+    {
+        return TVector4( lhs.mX * scalar, 
+                         lhs.mY * scalar, 
+                         lhs.mZ * scalar,
+                         lhs.mW * scalar );
+    }
+
+    /**
+     * Vector division operator. Scales the vector by the inverse of the given
+     * scalar, which is identical to dividing all of the vector's components by
+     * the scalar.
+     */
+    friend TVector4<T> operator / ( const TVector4<T>& lhs,
+                                    value_type scalar )
+
+    {
+        return TVector4( lhs.mX / scalar,
+                         lhs.mY / scalar,
+                         lhs.mZ / scalar,
+                         lhs.mW / scalar );
+    }
+
 
     /**
      * Component wise self addition operator
@@ -303,6 +317,19 @@ public:
         mY *= rhs;
         mZ *= rhs;
         mW *= rhs;
+
+        return *this;
+    }
+
+    /**
+     * Component wise scalar self division operator
+     */
+    TVector4<T>& operator /= ( value_type rhs )
+    {
+        mX /= rhs;
+        mY /= rhs;
+        mZ /= rhs;
+        mW /= rhs;
 
         return *this;
     }
@@ -379,6 +406,16 @@ private:
  * Generic templated 3d graphics vector class. Implements all commonly
  * used functionality, including vector rotations and projections.
  */
+/**
+ * Generic templated vector3 class. Contains three values that are packed
+ * together in memory, and an array of vectors should store these component
+ * values linearly in memory with no extra padding.
+ *
+ * Vector3 contains all basic operators expected of a Vector3 class, and
+ * contains non-member functions for performing operations on the class. All of
+ * these methods and functions conform to expected mathematical rules regarding
+ * vector math.
+ */
 template<typename T>
 class TVector3
 {
@@ -393,7 +430,7 @@ public:
     typedef std::size_t size_type;
     typedef std::ptrdiff_t difference_type;
 
-    // Constants
+    /// Defines how many values are stored in a vector3 instance
     enum { NUM_COMPONENTS = 3 };
 
     /**
@@ -449,7 +486,7 @@ public:
     const_reference operator [] ( unsigned int index ) const
     {
         math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
-        return *(&mX + index);
+        return v[index];
     }
 
     /**
@@ -462,7 +499,7 @@ public:
     reference operator [] ( unsigned int index )
     {
         math_assert( index < NUM_COMPONENTS && "Vector operator[] out of range" );
-        return *(&mX + index);
+        return v[index];
     }
 
     /**
@@ -536,19 +573,6 @@ public:
     }
 
     /**
-     * Vector multiplication operator. Scales the vector by the given vector,
-     * which is identical to multiplying all of the vectors components by the
-     * scalar.
-     */
-    friend TVector3<T> operator * ( const TVector3<T>& rhs, 
-                                    value_type scalar )
-    {
-        return TVector3( rhs.mX * scalar, 
-                         rhs.mY * scalar, 
-                         rhs.mZ * scalar );
-    }
-
-    /**
      * Component wise addition operator
      */
     friend TVector3<T> operator + ( const TVector3<T>& lhs,
@@ -568,6 +592,33 @@ public:
         return TVector3<T>( lhs.mX - rhs.mX,
                             lhs.mY - rhs.mY,
                             lhs.mZ - rhs.mZ );
+    }
+
+    /**
+     * Vector multiplication operator. Scales the vector by the given scalar,
+     * which is identical to multiplying all of the vector's components by the
+     * scalar value.
+     */
+    friend TVector3<T> operator * ( const TVector3<T>& lhs, 
+                                    value_type scalar )
+    {
+        return TVector3( lhs.mX * scalar, 
+                         lhs.mY * scalar, 
+                         lhs.mZ * scalar );
+    }
+
+    /**
+     * Vector division operator. Scales the vector by the inverse of the given
+     * scalar, which is identical to dividing all of the vector's components by
+     * the scalar value.
+     */
+    friend TVector3<T> operator / ( const TVector3<T>& lhs,
+                                    value_type scalar )
+
+    {
+        return TVector3( lhs.mX / scalar,
+                         lhs.mY / scalar,
+                         lhs.mZ / scalar );
     }
 
     /**
@@ -602,6 +653,18 @@ public:
         mX *= rhs;
         mY *= rhs;
         mZ *= rhs;
+
+        return *this;
+    }
+
+    /**
+     * Component wise scalar self division operator
+     */
+    TVector3<T>& operator /= ( value_type rhs )
+    {
+        mX /= rhs;
+        mY /= rhs;
+        mZ /= rhs;
 
         return *this;
     }
@@ -719,9 +782,9 @@ template<typename T>
 TVector3<T> cross ( const TVector3<T>& lhs,
                     const TVector3<T>& rhs )
 {
-    return TVector3<T>( lhs.mY * rhs.mZ - rhs.mY * lhs.mZ,
-                        lhs.mZ * rhs.mX - rhs.mZ * lhs.mX,
-                        lhs.mX * rhs.mY - rhs.mX * lhs.mY );
+    return TVector3<T>( lhs.mY * rhs.mZ - lhs.mZ * rhs.mY,
+                        lhs.mZ * rhs.mX - lhs.mX * rhs.mZ,
+                        lhs.mX * rhs.mY - lhs.mY * rhs.mX );
 }
 
 template<typename T>
@@ -780,11 +843,23 @@ std::ostream& operator << ( std::ostream& os, const TVector3<T>& v )
     return os;
 }
 
+template<typename T>
+std::ostream& operator << ( std::ostream& os, const TVector4<T>& v )
+{
+    os << "<"
+       << v.x() << ", " << v.y() << ", " << v.z() << ", " << v.w()
+       << ">";
+    return os;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Vector typedefs - typedef common vector types
 /////////////////////////////////////////////////////////////////////////////
 typedef TVector3<long>   IVec;
 typedef TVector3<float>  Vec3;
 typedef TVector3<float>  Vec3f;
+
+typedef TVector4<float> Vec4;
+typedef TVector4<float> Vec4f;
 
 #endif

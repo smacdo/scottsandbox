@@ -1,10 +1,9 @@
 /**
- * Unit tests for template 3d vector class
+ * Unit tests for templated vector3 class. These tests use float32 for the
+ * numeric type, but can be adjusted to double precision.
  */
 #include <googletest/googletest.h>
 #include <math/vector.h>
-
-// NOTES: Const is used to make sure const methods are actually const
 
 TEST(Math, Vector3_DefaultContructor)
 {
@@ -12,23 +11,23 @@ TEST(Math, Vector3_DefaultContructor)
     EXPECT_TRUE( true );      // test here just to make sure it compiles
 }
 
+TEST(Math, Vector3_PointerConstructor)
+{
+    float values[5] = { 3.0, 2.0, 5.0, -3.0, 6.0 };
+    Vec3 v( &values[1] );
+
+    EXPECT_FLOAT_EQ(  2.0, v[0] );
+    EXPECT_FLOAT_EQ(  5.0, v[1] );
+    EXPECT_FLOAT_EQ( -3.0, v[2] );
+}
+
 TEST(Math, Vector3_ValueConstructor)
 {
     const Vec3 v( 1.0, -2.0, 0.2 );
 
-    EXPECT_FLOAT_EQ(  1.0, v.x() );
-    EXPECT_FLOAT_EQ( -2.0, v.y() );
-    EXPECT_FLOAT_EQ(  0.2, v.z() );
-}
-
-TEST(Math, Vector3_ConstructByPointerConstructor)
-{
-    float values[3] = { 2.0, 5.0, -3.0 };
-    Vec3 v( (float*) values );
-
-    EXPECT_EQ( v[0], 2.0 );
-    EXPECT_EQ( v[1], 5.0 );
-    EXPECT_EQ( v[2],-3.0 );
+    EXPECT_FLOAT_EQ(  1.0, v[0] );
+    EXPECT_FLOAT_EQ( -2.0, v[1] );
+    EXPECT_FLOAT_EQ(  0.2, v[2] );
 }
 
 TEST(Math, Vector3_CopyConstructor)
@@ -36,18 +35,18 @@ TEST(Math, Vector3_CopyConstructor)
     const Vec3 a( 1.0, -2.0, 0.2 );
     const Vec3 b( a );
 
-    EXPECT_FLOAT_EQ( b[0], 1.0 );
-    EXPECT_FLOAT_EQ( b[1], -2.0 );
-    EXPECT_FLOAT_EQ( b[2], 0.2 );
+    EXPECT_FLOAT_EQ(  1.0, b[0] );
+    EXPECT_FLOAT_EQ( -2.0, b[1] );
+    EXPECT_FLOAT_EQ(  0.2, b[2] );
 }
 
-TEST(Math, Vector3_IndexOperatorRead)
+TEST(Math, Vector3_ConstIndexOperatorRead)
 {
     const Vec3 v( 1.0, -2.0, 0.2 );
 
-    EXPECT_FLOAT_EQ( v[0], 1.0 );
-    EXPECT_FLOAT_EQ( v[1], -2.0 );
-    EXPECT_FLOAT_EQ( v[2], 0.2 );
+    EXPECT_FLOAT_EQ(  1.0, v[0] );
+    EXPECT_FLOAT_EQ( -2.0, v[1] );
+    EXPECT_FLOAT_EQ(  0.2, v[2] );
 }
 
 TEST(Math, Vector3_IndexOperatorWrite)
@@ -61,29 +60,32 @@ TEST(Math, Vector3_IndexOperatorWrite)
     EXPECT_EQ( Vec3( 2.0, 0.2, -1.0 ), v );
 }
 
-TEST(Math, Vector3_AxisAccessors)
+TEST(Math, Vector3_ConstPointerAccess)
 {
-    const Vec3 v( 5.0, 6.0, 1.0 );
+    Vec3 v( 1.0, 2.0, 3.0 );
+    const float * ptr = v.ptr();
 
-    EXPECT_EQ( v.x(), 5.0 );
-    EXPECT_EQ( v.y(), 6.0 );
-    EXPECT_EQ( v.z(), 1.0 );
+    EXPECT_FLOAT_EQ( 1.0, ptr[0] );
+    EXPECT_FLOAT_EQ( 2.0, ptr[1] );
+    EXPECT_FLOAT_EQ( 3.0, ptr[2] );
 }
 
-TEST(Math, Vector3_PointerAccess)
+TEST(Math, Vector3_ConstConstPointerAccess)
 {
-    const Vec3 v( 1.0, 2.0, 3.0 );
+    Vec3 v( 1.0, 2.0, 3.0 );
     const float * ptr = v.const_ptr();
 
-    EXPECT_EQ( ptr[0], 1.0 );
-    EXPECT_EQ( ptr[1], 2.0 );
-    EXPECT_EQ( ptr[2], 3.0 );
+    EXPECT_FLOAT_EQ( 1.0, ptr[0] );
+    EXPECT_FLOAT_EQ( 2.0, ptr[1] );
+    EXPECT_FLOAT_EQ( 3.0, ptr[2] );
 }
 
-TEST(Math, Vector3_PointerWrites)
+TEST(Math, Vector3_NonConstPointerReadAndWrite)
 {
     Vec3 v( 1.0, 2.0, 3.0 );
     float * ptr = v.ptr();
+
+    EXPECT_EQ( Vec3( 1.0, 2.0, 3.0 ), v );
 
     ptr[0] = 5.0;
     ptr[1] = 6.0;
@@ -97,38 +99,67 @@ TEST(Math, Vector3_Assignment)
     Vec3 a( 1.0, 2.0, 3.0 );
     const Vec3 b( 3.0, 4.0, 5.0 );
     
-    EXPECT_NE( a, b );
-
     a = b;
+
+    EXPECT_NE( Vec3( 1.0, 2.0, 3.0 ), a );
+    EXPECT_EQ( Vec3( 3.0, 4.0, 5.0 ), a );
+}
+
+TEST(Math, Vector3_EqualityOperator)
+{
+    const Vec3 a( 1.5, -0.2, 0.0 );
+    const Vec3 b( 1.5,  0.2, 0.0 );
+    const Vec3 c( 1.5, -0.2, 0.1 );
+    const Vec3 d( 1.5,  0.0,-0.2 );
+    const Vec3 e( 0.0,  1.5,-0.2 );
+    const Vec3 f( 1.5, -0.2, 0.0 );
+
+    EXPECT_EQ( a, f );
+    EXPECT_EQ( a, a );
+    EXPECT_FALSE( a == b );
+    EXPECT_FALSE( a == c );
+    EXPECT_FALSE( a == d );
+    EXPECT_FALSE( a == e );
+    EXPECT_TRUE( a == f );
+    EXPECT_TRUE( a == a );
+}
+
+TEST(Math, Vector3_EqualityOperatorPrecision)
+{
+    const Vec3 a( 2.2, -0.333, 1.5 );
+    const Vec3 b( 4.4/2.0, -0.999/3.0, 0.5 * 3.0 );
 
     EXPECT_EQ( a, b );
 }
 
+TEST(Math, Vector3_InequalityOperator)
+{
+    const Vec3 a( 1.5, -0.2, 0.0 );
+    const Vec3 b( 1.5,  0.2, 0.0 );
+    const Vec3 c( 1.5, -0.2, 0.1 );
+    const Vec3 d( 1.5,  0.0,-0.2 );
+    const Vec3 e( 0.0,  1.5,-0.2 );
+    const Vec3 f( 1.5, -0.2, 0.0 );
+
+    EXPECT_TRUE( a != b );
+    EXPECT_TRUE( a != c );
+    EXPECT_TRUE( a != d );
+    EXPECT_TRUE( a != e );
+    EXPECT_FALSE( a != f );
+    EXPECT_FALSE( a != a );
+}
+
+
 TEST(Math, Vector3_Negation)
 {
-    Vec3 a( 2.0, 5.0, -1.0 );
+    Vec3 a( 2.0, 0.0, -1.0 );
     a = -a;
 
-    EXPECT_EQ( Vec3( -2.0, -5.0, 1.0 ), a );
+    EXPECT_EQ( Vec3( -2.0, -0.0, 1.0 ), a );
+    EXPECT_EQ( Vec3( -2.0,  0.0, 1.0 ), a );    // close
 }
 
-TEST(Math, Vector3_Scaling)
-{
-    const Vec3 a( 3.0, 5.0, 9.0 );
-    const Vec3 b = a * 2.0;
-
-    EXPECT_EQ( Vec3( 6.0, 10.0, 18.0 ), b );
-}
-
-TEST(Math, Vector3_SelfScaling)
-{
-    Vec3 a( 3.0, 5.0, 9.0 );
-    a *= 2.0;
-
-    EXPECT_EQ( Vec3( 6.0, 10.0, 18.0 ), a );
-}
-
-TEST(Math, Vector3_Addition)
+TEST(Math, Vector3_AdditionOperator)
 {
     const Vec3 a( 3.0, 5.0, 9.0 );
     const Vec3 b(-4.0, 6.0, 3.0 );
@@ -136,7 +167,7 @@ TEST(Math, Vector3_Addition)
     EXPECT_EQ( Vec3( -1.0, 11.0, 12.0 ), a + b );
 }
 
-TEST(Math, Vector3_SelfAdditon)
+TEST(Math, Vector3_SelfAdditionOperator)
 {
           Vec3 a( 3.0, 5.0, 9.0 );
     const Vec3 b(-4.0, 6.0, 3.0 );
@@ -146,7 +177,7 @@ TEST(Math, Vector3_SelfAdditon)
     EXPECT_EQ( Vec3( -1.0, 11.0, 12.0 ), a );
 }
 
-TEST(Math, Vector3_Subtraction)
+TEST(Math, Vector3_SubtractionOperator)
 {
     const Vec3 a( 5.0, 2.0, -4.0 );
     const Vec3 b(-1.0, 3.0,  8.0 );
@@ -157,7 +188,7 @@ TEST(Math, Vector3_Subtraction)
     EXPECT_EQ( -12.0, c[2] );
 }
 
-TEST(Math, Vector3_SelfSubtraction)
+TEST(Math, Vector3_SelfSubtractionOperator)
 {
     Vec3       a( 5.0, 2.0, -4.0 );
     const Vec3 b(-1.0, 3.0,  8.0 );
@@ -166,6 +197,96 @@ TEST(Math, Vector3_SelfSubtraction)
     EXPECT_EQ(   6.0, a[0] );
     EXPECT_EQ(  -1.0, a[1] );
     EXPECT_EQ( -12.0, a[2] );
+}
+
+TEST(Math, Vector3_MultiplyOperator)
+{
+    const Vec3 a( 3.0, 5.0, 9.0 );
+    const Vec3 b = a * 2.0;
+
+    EXPECT_EQ( Vec3( 6.0, 10.0, 18.0 ), b );
+}
+
+TEST(Math, Vector3_SelfMultiplyOperator)
+{
+    Vec3 a( 3.0, 5.0, 9.0 );
+    a *= 2.0;
+
+    EXPECT_EQ( Vec3( 6.0, 10.0, 18.0 ), a );
+}
+
+TEST(Math, Vector3_DivisionOperator)
+{
+    const Vec3 a( 3.0, 5.0, 9.0 );
+    const Vec3 b = a / 2.0;
+
+    EXPECT_EQ( Vec3( 1.5, 2.5, 4.5 ), b );
+}
+
+TEST(Math, Vector3_SelfDivisionOperator)
+{
+    Vec3 a( 3.0, 5.0, 9.0 );
+    a /= 2.0;
+
+    EXPECT_EQ( Vec3( 1.5, 2.5, 4.5 ), a );
+}
+
+TEST(Math, Vector3_XAccessor)
+{
+    Vec3 a( 1.0, 2.0, 3.0 );
+    Vec3 b( 6.0, 5.0, 4.0 );
+
+    EXPECT_EQ( 1.0, a.x() );
+    EXPECT_EQ( 6.0, b.x() );
+}
+
+TEST(Math, Vector3_YAccessor)
+{
+    Vec3 a( 1.0, 2.0, 3.0 );
+    Vec3 b( 6.0, 5.0, 4.0 );
+
+    EXPECT_EQ( 2.0, a.y() );
+    EXPECT_EQ( 5.0, b.y() );
+}
+
+TEST(Math, Vector3_ZAccessor)
+{
+    Vec3 a( 1.0, 2.0, 3.0 );
+    Vec3 b( 6.0, 5.0, 4.0 );
+
+    EXPECT_EQ( 3.0, a.z() );
+    EXPECT_EQ( 4.0, b.z() );
+}
+
+TEST(Math, Vector3_ZeroVector)
+{
+    const Vec3 a = Vec3::ZeroVector();
+
+    EXPECT_EQ( a[0], 0.0 );
+    EXPECT_EQ( a[1], 0.0 );
+    EXPECT_EQ( a[2], 0.0 );
+}
+
+TEST(Math, Vector3_ZeroVectorIsZeroValueConstructed)
+{
+    const Vec3 a( 0.0, 0.0, 0.0 );
+    const Vec3 z = Vec3::ZeroVector();
+
+    EXPECT_EQ( a, z );
+}
+
+TEST(Math, Vector3_CrossProductZero)
+{
+    EXPECT_EQ( Vec3::ZeroVector(), cross( Vec3::ZeroVector(), Vec3( 1.0, 2.0, 3.0 ) ) );
+}
+
+TEST(Math, Vector3_CrossProduct)
+{
+    const Vec3 a( 1.0, 3.0, -4.0 );
+    const Vec3 b( 2.0, -5.0, 8.0 );
+    const Vec3 r( 4.0, -16.0, -11.0 );
+
+    EXPECT_EQ( r, cross( a, b ) );
 }
 
 TEST(Math, Vector3_SimpleDotProduct2D)
@@ -245,14 +366,6 @@ TEST(Math, Vector3_AngleBetween)
     Vec3 b( 1.0, -2.0, 4.0 );
 
     EXPECT_FLOAT_EQ( 63.679333f, angleBetween( a, b ) );
-}
-
-TEST(Math, Vector3_ZeroVector)
-{
-    const Vec3 a( 0.0, 0.0, 0.0 );
-    const Vec3 z = Vec3::ZeroVector();
-
-    EXPECT_TRUE( a == z );
 }
 
 TEST(Math, Vector3_Normalization)
