@@ -87,6 +87,7 @@ set(mathlib_incs
         include/math/conversion.h
         include/math/defs.h
         include/math/matrix.h
+        include/math/tmatrix.h
         include/math/interpolation.h
         include/math/random.h
         include/math/point.h
