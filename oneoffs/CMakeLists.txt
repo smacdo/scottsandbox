@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 ###
 ### Build projects
 ###
-add_simple_oneoff(findnextfile)
+#add_simple_oneoff(findnextfile)
 add_simple_oneoff(mkcrctable)
 add_simple_oneoff(stdequalstest)
 add_simple_oneoff(string_to_ints)
@@ -20,5 +20,4 @@ set(CXX_FLAGS "")
 add_simple_oneoff(template_compiler_spec)
 set(CXX_FLAGS "${SAVED_CXX_FLAGS}")
 
-add_oneoff( filesystem  "boost_filesystem-mt" " " " " )
-add_oneoff( pathfinding " " " " "-std=c++0x" )
+#add_oneoff( filesystem  "boost_filesystem-mt" " " " " )

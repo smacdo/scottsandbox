@@ -68,6 +68,10 @@ set(geomlib_incs
 
 set(geomlib_srcs
         src/geom/geoms.cpp
+        src/geom/ray.cpp
+        src/geom/intersectresult.cpp
+        src/geom/plane.cpp
+        src/geom/utils.cpp
         src/geom/frustum.cpp)
 
 set(geomlib_tests
@@ -90,6 +94,7 @@ set(mathlib_incs
         include/math/vector.h)
 
 set(mathlib_srcs
+        src/math/vector.cpp
         src/math/utils.cpp)
 
 set(mathlib_tests
@@ -104,6 +109,7 @@ set(mathlib_tests
 ### String common lib                                                 ###
 #########################################################################
 set(stringlib_incs
+        include/string/crc.h
         include/string/tokenizer.h
         include/string/stringbuffer.h
         include/string/makestring.h
@@ -111,12 +117,14 @@ set(stringlib_incs
         include/string/util.h)
 
 set(stringlib_srcs
+        src/string/crc.cpp
         src/string/tokenizer.cpp
         src/string/replace.cpp
         src/string/loadfile.cpp
         src/string/streamprint.cpp)
 
 set(stringlib_tests
+        tests/string/test_crc.cpp
         tests/string/test_tokenizer.cpp
         tests/string/test_streamprint.cpp
         tests/string/test_replace.cpp)
