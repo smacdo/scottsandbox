@@ -1,32 +1,20 @@
-/**
- * Copyright 2010 Scott MacDonald. All rights reserved.
+/*
+ * Copyright 2010-2012 Scott MacDonald
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  1. Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- * 
- * THIS SOFTWARE IS PROVIDED BY SCOTT MACDONALD ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL SCOTT MACDONALD OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * The views and conclusions contained in the software and documentation are
- * those of the authors and should not be interpreted as representing official
- * policies, either expressed or implied, of Scott MacDonald.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-#ifndef SCOTT_MATHLIB_MATRIX_H
-#define SCOTT_MATHLIB_MATRIX_H
+#ifndef SCOTT_COMMON_MATH_MATRIX_H
+#define SCOTT_COMMON_MATH_MATRIX_H
 
 #include <algorithm>
 #include <functional>
@@ -37,11 +25,20 @@
 #   include <cassert>
 #   include <limits>
 #   define MATRIX_DEBUG_MODE 1
-#   define matrix_assert(x) assert(x)
-#   define INIT_MATRIX_TO_ZERO 1
-#else
-#   define matrix_assert(x)
+#   define MATRIX_DV std::numeric_limits<T>::signaling_NaN()
 #endif
+
+#define M_OFFSET(R,C) ((C) * NUM_ROWS + (R))
+
+
+//
+// Forward decalarations
+//
+template<typename T> class TMatrix4;
+
+template<typename T> bool isZeroMatrix( const TMatrix4<T>& );
+template<typename T> bool isIdentityMatrix( const TMatrix4<T>& );
+template<typename T> TMatrix4<T> transpose( const TMatrix4<T>& );
 
 /**
  * A templated, size-indepdent column major matrix. This templated matrix can
@@ -78,9 +75,9 @@
  *
  * Even though the matrix stores the values like: [ A D G B E H C F I ]. The
  * only time you need concern yourself with this storage information is when:
- *    A) You call a TMatrix<T,N>( T* ) constructor that takes a pointer to a
+ *    A) You call a TMatrix4<T>( T* ) constructor that takes a pointer to a
  *       1d array
- *    B) You call TMatrix<T,N>::ptr() that returns a pointer to a 1d array
+ *    B) You call TMatrix4<T>::ptr() that returns a pointer to a 1d array
  *
  *
  *
@@ -90,405 +87,43 @@
  * helper methods. See method documentation for more information on individual
  * methods, or see the unit tests for examples on how they are used.
  */
-template<typename T, int N>
-class TMatrix
-{
-    public:
-        /**
-         * Default fast constructor - When created, the matrix 
-         * is initially uninitialized.
-         */
-        TMatrix()
-        {
-#ifdef INIT_MATRIX_TO_ZERO
-            std::fill( m, m + N*N, T() );
-#endif
-        }
-
-        /**
-         * Construct a matrix from an array of values. The 
-         * constructor assumes the values are listed in column-major
-         * rather than row-major format.
-         *
-         * IMPORTANT NOTE: This constructor expects the array in
-         * column-major format!!! Not row major like the value constructors
-         *
-         * eg [ m11 m21 m23 m21 m22 ... ] rather than [ m11 m21 ... ]
-         */
-        explicit TMatrix( const T * vals )
-        {
-            matrix_assert( NULL != vals );
-            std::copy( vals, vals + N*N, m );
-        }
-
-        /**
-         * Copy constructor for matrix. Initialize this matrix to the 
-         * value of the provided matrix.
-         */
-        TMatrix( const TMatrix<T,N>& mat )
-        {
-            std::copy( mat.m, mat.m + (N*N), m );
-        }
-
-        /**
-         * Constant pointer to matrix structure. Lets the user cast this
-         * class to const T*
-         */
-        const T* ptr() const
-        {
-            return m;
-        }
-
-        /**
-         * Pointer to matrix's underlying data store. Lets the user cast
-         * this class to T*
-         */
-        T* ptr()
-        {
-            return m;
-        }
-
-        /**
-         * Index operator - Allows user to access the matrix's underlying
-         * data array. Note that the matrix stores its value in column
-         * major order
-         */
-        const T& operator[] ( int offset ) const
-        {
-            matrix_assert( offset < N*N && "Index on matrix out of range" );
-            return m[offset];
-        }
-
-        T& operator[] ( int offset )
-        {
-            matrix_assert( offset < N*N && "Index on matrix out of range" );
-            return m[offset];
-        }
-
-        /**
-         * Assignment operator. Makes this matrix equal the value of the
-         * given matrix on the right hand side.
-         */
-        const TMatrix<T,N>& operator = ( const TMatrix<T,N>& rhs )
-        {
-            std::copy( rhs.m, rhs.m + N*N, m );
-            return *this;
-        }
-
-        /**
-         * Addition operator - adds this matrix and another matrix together,
-         * and returns the result of this operation as a new matrix.
-         */
-        const TMatrix<T,N> operator + ( const TMatrix<T,N>& rhs ) const
-        {
-            TMatrix<T,N> r( *this );
-
-            std::transform( m, m + N*N, r.m,
-                            r.m,
-                            std::plus<T>()
-            );
-
-            return r;
-        }
-
-        /**
-         * Self addition operator - adds the matrix on the right hand
-         * side to this matrix.
-         */
-        void operator += ( const TMatrix<T,N>& rhs )
-        {
-            std::transform( m, m + N*N, rhs.m,
-                            m,
-                            std::plus<T>()
-            );
-        }
-
-        /**
-         * Subtraction operator - subtract the matrix on the right hand
-         * side from this matrix, and return the result of this operation
-         * as a new matrix.
-         */
-        const TMatrix<T,N> operator - ( const TMatrix<T,N>& rhs ) const
-        {
-            TMatrix<T,N> r( *this );
-
-            std::transform( m, m + N*N, r.m,
-                            r.m,
-                            std::minus<T>()
-            );
-
-            return r;
-        }
-
-        /**
-         * Self subtraction operator - subtract the provided right hand
-         * matrix from ourself.
-         */
-        const TMatrix<T,N> operator -= ( const TMatrix<T,N>& rhs )
-        {
-            std::transform( m, m + N*N, rhs.m,
-                            m,
-                            std::plus<T>()
-            );
-        }
-
-        /**
-         * Matrix scaling operator
-         */
-        const TMatrix<T,N> operator * ( const T& c ) const
-        {
-            TMatrix<T,N> r( *this );
-
-            std::transform( m, m + N*N,
-                            r.m,
-                            std::bind2nd( std::multiplies<T>(), c )
-            );
-
-            return r;
-        }
-
-        /**
-         * Matrix self-scaling operator
-         */
-        const TMatrix<T,N> operator *= ( const T& c ) const
-        {
-            std::transform( m, m + N*N,
-                            m,
-                            std::bind2nd( std::multiplies<T>(), c )
-            );
-        }
-
-        /**
-         * Matrix multiplication
-         */
-        const TMatrix<T,N> operator * ( const TMatrix<T,N>& rhs ) const
-        {
-            // not implemented yet
-            return TMatrix<T,N>();
-        }
-
-        /**
-         * The equality operator will check if two matrices have equal
-         * values. Depending on compile time constants, this method will
-         * either use a strict equality check, or a slightly more relaxed
-         * fuzzy equals. (Fuzzy equals is the default).
-         */
-        bool operator == ( const TMatrix<T,N>& rhs ) const
-        {
-#ifdef MATH_USE_FUZZY_EQUALS
-            return std::equal( m, m + N*N, rhs.m, Math::equalsClose<T> );
-#else
-            return std::equal( m, m + N*N, rhs.m );
-#endif
-        }
-
-       /**
-        * The inequality operator. Simply checks if two matrices
-        * are not equivilant.
-        */
-        bool operator != ( const TMatrix<T,N>& rhs ) const
-        {
-            return !( *this == rhs );
-        }
-
-        /**
-         * Strict equality operator. This method will check if the values
-         * of two matrices matches exactly.
-         */
-        bool equalsEact( const TMatrix<T,N>& rhs ) const
-        {
-            return std::equal( m, m + N*N, rhs.m );
-        }
-
-        /**
-         * Fuzzy equals equality operator. This version of the equality
-         * method checks to see if two matrices are identical, to a
-         * relatively high precision ( +/- 0.00001 ).
-         *
-         * You normally want to use a fuzzy equals due to the nature
-         * imprecise nature of floating point math. Overtime two identical
-         * values will be begin to diverge as differing operations are
-         * applied and imprecision issues come into play.
-         */
-        bool equalsClose( const TMatrix<T,N>& rhs ) const
-        {
-            return std::equal( m, m + N*N, rhs.m, Math::equalsClose<T> );
-        }
-
-        /**
-         * Returns the value at the given (r,c) matrix cell.
-         *
-         * \param r The row of the matrix
-         * \param c The column of the matrix
-         * \return  The value of the matrix cell
-         */
-        T at( int r, int c ) const
-        {
-            matrix_assert( r >= 0 && r < N && "Row must be valid offset");
-            matrix_assert( c >= 0 && c < N && "Col must be valid offset");
-
-            return m[index(r,c)];
-        }
-
-        /**
-         * Checks if the matrix is zeroed (eg, all the matrix cells
-         * are equal to zero).
-         */
-        bool isZeroMatrix() const
-        {
-            bool status = true;
-
-            for ( int i = 0; i < N*N; ++i )
-            {
-                if (! Math::isZero<T>( m[i] ) )
-                {
-                    status = false;
-                    break;
-                }
-            }
-
-            return status;
-        }
-
-        /**
-         * Checks if the matrix is an identity matrix (1s down the
-         * diagonal)
-         */
-        bool isIdentityMatrix() const
-        {
-            bool status = true;
-
-            for ( int i = 0; i < N; ++i )
-            {
-                if (! Math::equalsClose( m[index(i,i)], static_cast<T>(1.0) ) )
-                {
-                    status = false;
-                    break;
-                }
-            }
-
-            return status;
-        }
-
-        /**
-         * Returns the transpose of this matrix
-         */
-        TMatrix<T,N>& transpose() const
-        {
-            TMatrix<T,N> ret;
-    
-            // not implemented yet
-            return ret;
-        }
-
-        /**
-         * Swaps this matrix with another matrix of the same size of type
-         */
-        template<typename U, int V>
-        friend void swap( TMatrix<U,V>& lhs, TMatrix<U,V>& rhs );
-
-    protected:
-        /**
-         * Given a row and column index, returns an offset into the
-         * matrix's array.
-         *
-         * (This assumes the matrix stores its value in column major order)
-         */
-        int index( int r, int c ) const
-        {
-            matrix_assert( r >= 0 && r < N && "Row must be valid offset");
-            matrix_assert( c >= 0 && c < N && "Col must be valid offset");
-
-            return c * N + r;
-        }
-
-        template<typename U, int V>
-        friend std::ostream& operator << ( std::ostream& os,
-                                           const TMatrix<U,V>& mat );
-
-    protected:
-        /**
-         * The matrix cells
-         */
-        T m[N*N];
-};
-
-/////////////////////////////////////////////////////////////////////////////
-// TMatrix<T,N> operators
-/////////////////////////////////////////////////////////////////////////////
-template<typename T, int N>
-std::ostream& operator << ( std::ostream& os, const TMatrix<T,N>& mat )
-{
-    os << "[ ";
-
-    for ( int r = 0; r < N; ++r )
-    {
-        os << "[";
-
-        for ( int c = 0; c < N; ++c )
-        {
-            if ( c == N-1 )
-            {
-                os << mat.at( r, c );
-            }
-            else
-            {
-                os << mat.at( r, c ) << ", ";
-            }
-        }
-
-        os << "]";
-
-        if ( r == N-1 )
-        {
-            os << " ";
-        }
-        else
-        {
-            os << "; ";
-        }
-    }
-
-    os << " ]";
-
-    return os;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-// TMatrix<T,N> utility / friend methods
-/////////////////////////////////////////////////////////////////////////////
-template<typename T, int N>
-void swap( TMatrix<T,N>& lhs, TMatrix<T,N>& rhs )
-{
-    T t;
-
-    for ( int i = 0; i < N*N; ++i )
-    {
-        t        = lhs.m[i];
-        lhs.m[i] = rhs.m[i];
-        rhs.m[i] = t;
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// A 4x4 column major format that inherits from TMatrix<T,N> and adds
-// additional useful constructors / helper methods.
-/////////////////////////////////////////////////////////////////////////////
 template<typename T>
-class TMatrix4 : public TMatrix<T,4>
+class TMatrix4
 {
-    using TMatrix<T,4>::m;
-
 public:
+    // Type traits
+    typedef T value_type;
+    typedef value_type const const_value_type;
+    typedef value_type& reference;
+    typedef const_value_type& const_reference;
+    typedef value_type* pointer;
+    typedef const_value_type* const_pointer;
+    typedef std::size_t size_type;
+    typedef std::ptrdiff_t difference_type;
+
+    /// Defines how many rows are in an instance of TMatrix4
+    enum { NUM_ROWS = 4 };
+
+    /// Defines how many cols are in an instance of TMatrix4
+    enum { NUM_COLS = 4 };
+
+    /// Defines how many total cells are in an instance of TMatrix4
+    enum { NUM_VALUES = 16 };
+
     /**
-     * Empty matrix constructor - Creates a new, uninitialized
-     * 4x4 matrix
+     * Default constructor. Creates a new 4x4 matrix, but does not
+     * initialize any of its values
      */
     TMatrix4()
-        : TMatrix<T,4>()
+#ifdef MATRIX_DEBUG_MODE
+        : m11( MATRIX_DV ), m12( MATRIX_DV ), m13( MATRIX_DV ), m14( MATRIX_DV ),
+          m21( MATRIX_DV ), m22( MATRIX_DV ), m23( MATRIX_DV ), m24( MATRIX_DV ),
+          m31( MATRIX_DV ), m32( MATRIX_DV ), m33( MATRIX_DV ), m34( MATRIX_DV ),
+          m41( MATRIX_DV ), m42( MATRIX_DV ), m43( MATRIX_DV ), m44( MATRIX_DV )
+#endif
     {
     }
+
 
     /**
      * 4x4 matrix constructor. Arguments to the constructor are
@@ -510,191 +145,402 @@ public:
      *  [ a, e, i, m, b, f, j, n, c, g, k, o, d, h, l, p ]
      * 
      */
-    TMatrix4( const T& m11, const T& m12, const T& m13, const T& m14,
-              const T& m21, const T& m22, const T& m23, const T& m24,
-              const T& m31, const T& m32, const T& m33, const T& m34,
-              const T& m41, const T& m42, const T& m43, const T& m44 )
-    {
-        m[0]  = m11; m[1]  = m21; m[2]  = m31; m[3]  = m41;
-        m[4]  = m12; m[5]  = m22; m[6]  = m32; m[7]  = m42;
-        m[8]  = m13; m[9]  = m23; m[10] = m33; m[11] = m43;
-        m[12] = m14; m[13] = m24; m[14] = m34; m[15] = m44;
-    }
-
-    /**
-     * Construct the 4x4 matrix with values from the provided pointer. The
-     * provided array must be in column major format, and must contain at
-     * least 16 values
-     */
-    TMatrix4( const T* vals )
-        : TMatrix<T,4>( vals )
+    TMatrix4( value_type m11, value_type m21, value_type m31, value_type m41,
+              value_type m12, value_type m22, value_type m32, value_type m42,
+              value_type m13, value_type m23, value_type m33, value_type m43,
+              value_type m14, value_type m24, value_type m34, value_type m44 )
+        : m11(m11), m12(m21), m13(m31), m14(m41),
+          m21(m12), m22(m22), m23(m32), m24(m42),
+          m31(m13), m32(m23), m33(m33), m34(m43),
+          m41(m14), m42(m24), m43(m34), m44(m44)
     {
     }
 
     /**
-     * Copy constructor
+     * Construct a matrix from an array of values. The 
+     * constructor assumes the values are listed in column-major
+     * rather than row-major format.
+     *
+     * IMPORTANT NOTE: This constructor expects the array in
+     * column-major format!!! Not row major like the value constructors
+     *
+     * eg [ m11 m21 m23 m21 m22 ... ] rather than [ m11 m21 ... ]
      */
-    TMatrix4( const TMatrix<T,4>& mat )
-        : TMatrix<T,4>( mat )
+    explicit TMatrix4( const_pointer pVals )
+        : m11( pVals[0]  ), m12( pVals[1]  ), m13( pVals[2]   ), m14( pVals[3]  ),
+          m21( pVals[4]  ), m22( pVals[5]  ), m23( pVals[6]   ), m24( pVals[7]  ),
+          m31( pVals[8]  ), m32( pVals[9]  ), m33( pVals[10] ),  m34( pVals[11] ),
+          m41( pVals[12] ), m42( pVals[13] ), m43( pVals[14] ),  m44( pVals[15] )    
+    {
+        math_assert( pVals != NULL && "Cannot construct from null pointer" );
+    }
+
+    /**
+     * Matrix copy constructor
+     */
+    TMatrix4( const TMatrix4<T>& m )
+         : m11( m.m11 ), m12( m.m12 ), m13( m.m13 ), m14( m.m14 ),
+           m21( m.m21 ), m22( m.m22 ), m23( m.m23 ), m24( m.m24 ),
+           m31( m.m31 ), m32( m.m32 ), m33( m.m33 ), m34( m.m34 ),
+           m41( m.m41 ), m42( m.m42 ), m43( m.m43 ), m44( m.m44 )
     {
     }
 
     /**
-     * Creates and returns a 4x4 identity matrix
+     * Constant pointer to this matrix instance's underyling value array
      */
-    static TMatrix4 IdentityMatrix()
+    const_pointer const_ptr()
     {
-        return TMatrix4( 1.0, 0.0, 0.0, 0.0,
-                         0.0, 1.0, 0.0, 0.0,
-                         0.0, 0.0, 1.0, 0.0,
-                         0.0, 0.0, 0.0, 1.0 );
+        return m;
     }
 
     /**
-     * Creates and returns a 4x4 zero matrix
+     * Constant pointer to this matrix instance's underyling value array
      */
-    static TMatrix4 ZeroMatrix()
+    const_pointer ptr() const
     {
-        return TMatrix4( 0.0, 0.0, 0.0, 0.0,
-                         0.0, 0.0, 0.0, 0.0,
-                         0.0, 0.0, 0.0, 0.0,
-                         0.0, 0.0, 0.0, 0.0 );
+        return m;
     }
 
     /**
-     * Creates and returns a homogeneous 4x4 translation matrix
+     * Pointer to this matrix instance's underyling value array
      */
-    static TMatrix4 makeTranslationMatrix( const T& x,
-                                           const T& y,
-                                           const T& z )
+    pointer ptr() 
     {
-        return TMatrix4( 1.0, 0.0, 0.0, x,
-                         0.0, 1.0, 0.0, y,
-                         0.0, 0.0, 1.0, z,
-                         0.0, 0.0, 0.0, 1.0 );
+        return m;
     }
 
     /**
-     * Creates and returns a homogeneous 4x4 scaling matrix
+     * Index operator. Use this to directly read one of the matrix's values.
+     * Note that the index is different depending on if the matrix is column
+     * major or row major!
      */
-    static TMatrix4 makeScalingMatrix( const T& x,
-                                       const T& y,
-                                       const T& z )
+    const_reference operator[] ( size_t offset ) const
     {
-        return TMatrix4(   x, 0.0, 0.0, 0.0,
-                         0.0,   y, 0.0, 0.0,
-                         0.0, 0.0,   z, 0.0,
-                         0.0, 0.0, 0.0, 1.0 );
+        math_assert( NUM_VALUES && "Matrix4 operator[] out of range" );
+        return m[offset];
     }
 
     /**
-     * Creates and returns a homogenous 4x4 x-axis rotation matrix
+     * Index operator. Use this to directly read one of the matrix's values.
+     * Note that the index is different depending on if the matrix is column
+     * major or row major!
      */
-    static TMatrix4 makeXRotationMatrix( const T& a )
+    reference operator[] ( size_t offset )
     {
-        return TMatrix4( 1.0,     0.0,    0.0, 0.0,
-                         0.0,  cos(a), sin(a), 0.0,
-                         0.0, -sin(a), cos(a), 0.0,
-                         0.0,     0.0,    0.0, 1.0 );
+        math_assert( NUM_VALUES && "Matrix4 operator[] out of range" );
+        return m[offset];
     }
 
     /**
-     * Creates and returns a homogenous 4x4 y-axis rotation matrix
+     * Assignment operator
      */
-    static TMatrix4 makeYRotationMatrix( const T& a )
+    TMatrix4<T>& operator = ( const TMatrix4<T>& rhs )
     {
-        return TMatrix4( cos(a), 0.0, -sin(a), 0.0,
-                         0.0,    1.0,  0.0,    0.0,
-                         sin(a), 0.0,  cos(a), 0.0,
-                         0.0,    0.0,  0.0,    1.0 );
+        m11 = rhs.m11; m12 = rhs.m12; m13 = rhs.m13; m14 = rhs.m14;
+        m21 = rhs.m21; m22 = rhs.m22; m23 = rhs.m23; m24 = rhs.m24;
+        m31 = rhs.m31; m32 = rhs.m32; m33 = rhs.m33; m34 = rhs.m34;
+        m41 = rhs.m41; m42 = rhs.m42; m43 = rhs.m43; m44 = rhs.m44;
+
+        return *this;
     }
 
     /**
-     * Creates and returns a homogenous 4x4 z-axis rotation matrix
+     * Matrix addition operator
      */
-    static TMatrix4 makeZRotationMatrix( const T& a )
+    TMatrix4<T> operator + ( const TMatrix4<T>& rhs ) const
     {
-        return TMatrix4(  cos(a), sin(a), 0.0, 0.0,
-                         -sin(a), cos(a), 0.0, 0.0,
-                          0.0,    0.0,    1.0, 0.0,
-                          0.0,    0.0,    0.0, 1.0 );
+        return TMatrix4(
+                m11 + rhs.m11, m12 + rhs.m12, m13 + rhs.m13, m14 + rhs.m14,
+                m21 + rhs.m21, m22 + rhs.m22, m23 + rhs.m23, m24 + rhs.m24,
+                m31 + rhs.m31, m32 + rhs.m32, m33 + rhs.m33, m34 + rhs.m34,
+                m41 + rhs.m41, m42 + rhs.m42, m43 + rhs.m43, m44 + rhs.m44
+        );
     }
-};
 
-/////////////////////////////////////////////////////////////////////////////
-// A templated 2x2 matrix class that derives from TMatrixT,N> and implements
-// useful constructors
-/////////////////////////////////////////////////////////////////////////////
-template<typename T>
-class TMatrix2 : public TMatrix<T,2>
-{
-    using TMatrix<T,2>::m;      // yay bizzare lookup rules
+    /**
+     * Matrix self addition operator
+     */
+    TMatrix4<T>& operator += ( const TMatrix4<T>& rhs )
+    {
+        m11 += rhs.m11; m12 += rhs.m12; m13 += rhs.m13; m14 += rhs.m14;
+        m21 += rhs.m21; m22 += rhs.m22; m23 += rhs.m23; m24 += rhs.m24;
+        m31 += rhs.m31; m32 += rhs.m32; m33 += rhs.m33; m34 += rhs.m34;
+        m41 += rhs.m41; m42 += rhs.m42; m43 += rhs.m43; m44 += rhs.m44;
+
+        return *this;
+    }
+    
+    /**
+     * Matrix subtraction operator
+     */
+    TMatrix4<T> operator - ( const TMatrix4<T>& rhs ) const
+    {
+        return TMatrix4(
+                m11 - rhs.m11, m12 - rhs.m12, m13 - rhs.m13, m14 - rhs.m14,
+                m21 - rhs.m21, m22 - rhs.m22, m23 - rhs.m23, m24 - rhs.m24,
+                m31 - rhs.m31, m32 - rhs.m32, m33 - rhs.m33, m34 - rhs.m34,
+                m41 - rhs.m41, m42 - rhs.m42, m43 - rhs.m43, m44 - rhs.m44
+        );
+    }
+
+    /**
+     * Matrix self subtraction operator
+     */
+    TMatrix4<T>& operator -= ( const TMatrix4<T>& rhs )
+    {
+        m11 -= rhs.m11; m12 -= rhs.m12; m13 -= rhs.m13; m14 -= rhs.m14;
+        m21 -= rhs.m21; m22 -= rhs.m22; m23 -= rhs.m23; m24 -= rhs.m24;
+        m31 -= rhs.m31; m32 -= rhs.m32; m33 -= rhs.m33; m34 -= rhs.m34;
+        m41 -= rhs.m41; m42 -= rhs.m42; m43 -= rhs.m43; m44 -= rhs.m44;
+
+        return *this;
+    }
+
+    /**
+     * Matrix scalar multiplication operator
+     */
+    TMatrix4<T> operator * ( value_type rhs ) const
+    {
+        return TMatrix4(
+                m11 * rhs, m12 * rhs, m13 * rhs, m14 * rhs,
+                m21 * rhs, m22 * rhs, m23 * rhs, m24 * rhs,
+                m31 * rhs, m32 * rhs, m33 * rhs, m34 * rhs,
+                m41 * rhs, m42 * rhs, m43 * rhs, m44 * rhs
+        );
+    }
+
+    /**
+     * Matrix self scalar multiplication operator
+     */
+    TMatrix4<T>& operator *= ( value_type rhs )
+    {
+        m11 *= rhs; m12 *= rhs; m13 *= rhs; m14 *= rhs;
+        m21 *= rhs; m22 *= rhs; m23 *= rhs; m24 *= rhs;
+        m31 *= rhs; m32 *= rhs; m33 *= rhs; m34 *= rhs;
+        m41 *= rhs; m42 *= rhs; m43 *= rhs; m44 *= rhs;
+
+        return *this;
+    }
+
+    /**
+     * Matrix multiplcation operator
+     */
+    TMatrix4<T> operator * ( const TMatrix4<T>& rhs ) const
+    {
+        return *this;
+    }
+
+    /**
+     * Matrix self multiplication operator
+     */
+    TMatrix4<T>& operator *= ( const TMatrix4<T>& rhs )
+    {
+        return *this;
+    }
+
+    /**
+     * Marix equality operator
+     */
+    bool operator == ( const TMatrix4<T>& rhs ) const
+    {
+#ifdef MATH_USE_FUZZY_EQUALS
+        return std::equal( m, m + NUM_VALUES, rhs.m, Math::equalsClose<T> );
+#else
+        return std::equal( m, m + NUM_VALUES, rhs.m );
+#endif
+    }
+
+    /**
+     * Matrix inequality operator
+     */
+    bool operator != ( const TMatrix4<T>& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    /**
+     * Returns the value at the given (r,c) matrix cell.
+     */
+    value_type at( size_t r, size_t c ) const
+    {
+        math_assert( r < NUM_ROWS && "Matrix row out of range");
+        math_assert( c < NUM_COLS && "Matrix column out of range");
+
+        return m[ M_OFFSET(r,c) ];
+    }
+
+    /**
+     * Sets the value at the given (r,c) matrix cell.
+     */
+    void set( size_t r, size_t c, value_type v )
+    {
+        math_assert( r < NUM_ROWS && "Matrix row out of range");
+        math_assert( c < NUM_COLS && "Matrix column out of range");
+
+        m[ M_OFFSET(r,c) ] = v;
+    }
+
+    /**
+     * Checks if all the entries in the matrix are zero
+     */
+    friend bool isZeroMatrix<>( const TMatrix4<T>& );
+
+    /**
+     * Checks if the gien matrix is an identity matrix
+     */
+    friend bool isIdentityMatrix<>( const TMatrix4<T>& );
+        
+    /**
+     * Returns the transpose of this matrix
+     */
+    friend TMatrix4<T> transpose<>( const TMatrix4<T>& );
 
 public:
-    /**
-     * Empty constructor - creates a uninitialized 2x2 matrix
-     */
-    TMatrix2()
-        : TMatrix<T,2>()
-    {
-    }
+    static const TMatrix4<T> ZERO_MATRIX;
+    static const TMatrix4<T> IDENTITY;
 
-    /**
-     * Creates a 2x2 matrix specified by provided arguments
-     */
-    TMatrix2( const T& m11, const T& m12,
-              const T& m21, const T& m22 )
+protected:
+    /// The matrix's data
+    union
     {
-        m[0] = m11; m[1] = m21;
-        m[2] = m12; m[3] = m22;
-    }
-
-    TMatrix2( const T* vals )
-        : TMatrix<T,2>(vals)
-    {
-    }
-
-    TMatrix2( const TMatrix<T,2>& mat )
-        : TMatrix<T,2>(mat)
-    {
-    }
+        value_type m[NUM_VALUES];
+/*        struct
+        {
+            value_type m0,  m1,  m2,  m3;
+            value_type m4,  m5,  m6,  m7;
+            value_type m8,  m9,  m10, m11;
+            value_type m12, m13, m14, m15;
+        };*/
+        /*
+        struct // row major
+        {
+            value_type m11, m21, m31, m41;
+            value_type m12, m22, m32, m42;
+            value_type m13, m23, m33, m43;
+            value_type m14, m24, m34, m44;
+        };
+        */
+        struct // column major
+        {
+            value_type m11, m12, m13, m14;
+            value_type m21, m22, m23, m24;
+            value_type m31, m32, m33, m34;
+            value_type m41, m42, m43, m44;
+        };
+    };
 };
 
 /////////////////////////////////////////////////////////////////////////////
-// Typedefs for common types
+// TMatrix4 utility methods and functions
 /////////////////////////////////////////////////////////////////////////////
-#ifdef MATHLIB_COMMON_TYPEDEFS
-typedef TMatrix2<float> Mat2;
-typedef TMatrix<float,3> Mat3;
+template<typename T>
+bool isZeroMatrix( const TMatrix4<T>& m )
+{
+    bool status = true;
+
+    for ( unsigned int i = 0; i < TMatrix4<T>::NUM_VALUES && status; ++i )
+    {
+        if (! Math::isZero<T>( m.m[i] ) )
+        {
+            status = false;
+        }
+    }
+
+    return status;
+}
+
+template<typename T>
+bool isIdentityMatrix( const TMatrix4<T>& m )
+{
+    using namespace Math;
+    
+    T v = static_cast<T>( 1 );
+
+    return 
+        equalsClose( m.m11, v ) && isZero( m.m12 ) && isZero( m.m13 ) && isZero( m.m14 ) &&
+        isZero( m.m21 ) && equalsClose( m.m22, v ) && isZero( m.m23 ) && isZero( m.m24 ) &&
+        isZero( m.m31 ) && isZero( m.m32 ) && equalsClose( m.m33, v ) && isZero( m.m34 ) &&
+        isZero( m.m41 ) && isZero( m.m42 ) && isZero( m.m43 ) && equalsClose( m.m44, v );
+}
+
+template<typename T>
+TMatrix4<T> transpose( const TMatrix4<T>& m )
+{
+    TMatrix4<T> ret;
+    // TODO: Implement me
+    return ret;
+}
+
+template<typename T>
+std::ostream& operator << ( std::ostream& os, const TMatrix4<T>& mat )
+{
+    os << "[ ";
+
+    for ( unsigned int r = 0; r < TMatrix4<T>::NUM_ROWS; ++r )
+    {
+        os << "[";
+
+        for ( unsigned int c = 0; c < TMatrix4<T>::NUM_COLS; ++c )
+        {
+            if ( c == TMatrix4<T>::NUM_COLS - 1 )
+            {
+                os << mat.at( r, c );
+            }
+            else
+            {
+                os << mat.at( r, c ) << ", ";
+            }
+        }
+
+        os << "]";
+
+        if ( r == TMatrix4<T>::NUM_ROWS - 1 )
+        {
+            os << " ";
+        }
+        else
+        {
+            os << "; ";
+        }
+    }
+
+    os << " ]";
+    return os;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Static definitions
+/////////////////////////////////////////////////////////////////////////////
+template<typename T>
+const TMatrix4<T> TMatrix4<T>::ZERO_MATRIX = TMatrix4(
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0
+);
+
+template<typename T>
+const TMatrix4<T> TMatrix4<T>::IDENTITY = TMatrix4(
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1
+);
+
+/////////////////////////////////////////////////////////////////////////////
+// Common typedefs
+/////////////////////////////////////////////////////////////////////////////
 typedef TMatrix4<float> Mat4;
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
-// Prevent the compiler from instantiating common templates
-//  Matrix 4x4
+// Macro clean up
 /////////////////////////////////////////////////////////////////////////////
-#ifdef MATHLIB_EXTERN_TEMPLATES
-extern template class TMatrix4<float>;
-extern template class TMatrix4<double>;
-extern template class TMatrix4<int>;
-
-extern template void swap( TMatrix<float,4>&  lhs, TMatrix<float,4>&  rhs );
-extern template void swap( TMatrix<double,4>& lhs, TMatrix<double,4>& rhs );
-extern template void swap( TMatrix<int,4>&    lhs, TMatrix<int,4>&    rhs );
-
-//  Matrix 2x2
-extern template class TMatrix2<float>;
-extern template class TMatrix2<double>;
-extern template class TMatrix2<int>;
-
-extern template void swap( TMatrix<float,2>&  lhs, TMatrix<float,2>&  rhs );
-extern template void swap( TMatrix<double,2>& lhs, TMatrix<double,2>& rhs );
-extern template void swap( TMatrix<int,2>&    lhs, TMatrix<int,2>&    rhs );
-
-//  Matrix 3x3 (not implemeneted as a derieved class -- yet)
-extern template class TMatrix<float, 3>;
-extern template class TMatrix<double, 3>;
-extern template class TMatrix<int, 3>;
+#if MATH_DEBUG_MODE == 1
+#   undef MATRIX_DEBUG_MODE
+#   undef MATRIX_DV
 #endif
+
+#undef M_OFFSET
 
 #endif
