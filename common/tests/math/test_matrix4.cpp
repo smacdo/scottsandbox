@@ -7,20 +7,20 @@
 
 const float DELTA = 0.00001;
 
-TEST(Math,Matrix_4x4_NoValueCtor)
+TEST(Math,Matrix4_NoValueCtor)
 {
     Mat4 m();
     EXPECT_TRUE( true );   // no checks, just here to make sure compile
 }
 
-TEST(Math,Matrix_4x4_ValueCtor)
+TEST(Math,Matrix4_ValueCtor)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
             9.5, 1.5, 1.0, 0.0,
             2.8, 9.8, 6.6, 8.8 );
 
-    // first row [ 2, 4, 6, 9 ]
+    // first row [ 2.0, 4.0, 6.0, 9.0 ]
     EXPECT_FLOAT_EQ( 2.0, m.at(0,0) );
     EXPECT_FLOAT_EQ( 4.0, m.at(0,1) );
     EXPECT_FLOAT_EQ( 6.0, m.at(0,2) );
@@ -45,7 +45,7 @@ TEST(Math,Matrix_4x4_ValueCtor)
     EXPECT_FLOAT_EQ( 8.8, m.at(3,3) );
 }
 
-TEST(Math,Matrix_4x4_ValuePtrCtor)
+TEST(Math,Matrix4_ValuePtrCtor)
 {
     float va[16] = { 2.0, 1.2, 9.5, 2.8,
                      4.0, 3.0, 1.5, 9.8,
@@ -54,32 +54,32 @@ TEST(Math,Matrix_4x4_ValuePtrCtor)
 
     Mat4 m( (float*) va );
 
-    // first row [ 2, 4, 6, 9 ]
+    // first row
     EXPECT_FLOAT_EQ( 2.0, m.at(0,0) );
-    EXPECT_FLOAT_EQ( 4.0, m.at(0,1) );
-    EXPECT_FLOAT_EQ( 6.0, m.at(0,2) );
-    EXPECT_FLOAT_EQ( 9.0, m.at(0,3) );
+    EXPECT_FLOAT_EQ( 1.2, m.at(0,1) );
+    EXPECT_FLOAT_EQ( 9.5, m.at(0,2) );
+    EXPECT_FLOAT_EQ( 2.8, m.at(0,3) );
 
-    // second row [ 1.2, 3.0, 5.0, 7.0 ]
-    EXPECT_FLOAT_EQ( 1.2, m.at(1,0) );
+    // second row
+    EXPECT_FLOAT_EQ( 4.0, m.at(1,0) );
     EXPECT_FLOAT_EQ( 3.0, m.at(1,1) );
-    EXPECT_FLOAT_EQ( 5.0, m.at(1,2) );
-    EXPECT_FLOAT_EQ( 7.0, m.at(1,3) );
+    EXPECT_FLOAT_EQ( 1.5, m.at(1,2) );
+    EXPECT_FLOAT_EQ( 9.8, m.at(1,3) );
 
-    // third row [ 9.5, 1.5, 1.0, 0.0 ]
-    EXPECT_FLOAT_EQ( 9.5, m.at(2,0) );
-    EXPECT_FLOAT_EQ( 1.5, m.at(2,1) );
+    // third row
+    EXPECT_FLOAT_EQ( 6.0, m.at(2,0) );
+    EXPECT_FLOAT_EQ( 5.0, m.at(2,1) );
     EXPECT_FLOAT_EQ( 1.0, m.at(2,2) );
-    EXPECT_FLOAT_EQ( 0.0, m.at(2,3) );
+    EXPECT_FLOAT_EQ( 6.6, m.at(2,3) );
 
-    // fourth row [ 2.8, 9.8, 6.6, 8.8 ]
-    EXPECT_FLOAT_EQ( 2.8, m.at(3,0) );
-    EXPECT_FLOAT_EQ( 9.8, m.at(3,1) );
-    EXPECT_FLOAT_EQ( 6.6, m.at(3,2) );
+    // fourth row
+    EXPECT_FLOAT_EQ( 9.0, m.at(3,0) );
+    EXPECT_FLOAT_EQ( 7.0, m.at(3,1) );
+    EXPECT_FLOAT_EQ( 0.0, m.at(3,2) );
     EXPECT_FLOAT_EQ( 8.8, m.at(3,3) );
 }
 
-TEST(Math,Matrix_4x4_CopyCtor)
+TEST(Math,Matrix4_CopyCtor)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
@@ -91,7 +91,7 @@ TEST(Math,Matrix_4x4_CopyCtor)
     EXPECT_EQ( m, r );
 }
 
-TEST(Math,Matrix_4x4_Assignment)
+TEST(Math,Matrix4_Assignment)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
@@ -107,7 +107,7 @@ TEST(Math,Matrix_4x4_Assignment)
     EXPECT_EQ( m, r );
 }
 
-TEST(Math,Matrix_4x4_Addition)
+TEST(Math,Matrix4_Addition)
 {
     Mat4 a(  3.2, -0.0, 4.0, 2.0,
             -1.0,  2.0, 1.2, 0.0,
@@ -129,7 +129,7 @@ TEST(Math,Matrix_4x4_Addition)
     EXPECT_EQ( v, r );
 }
 
-TEST(Math,Matrix_4x4_SelfAddition)
+TEST(Math,Matrix4_SelfAddition)
 {
     Mat4 a(  3.2, -0.0, 4.0, 2.0,
             -1.0,  2.0, 1.2, 0.0,
@@ -153,7 +153,7 @@ TEST(Math,Matrix_4x4_SelfAddition)
     EXPECT_NE( a, b );
 }
 
-TEST(Math,Matrix_4x4_Subtraction)
+TEST(Math,Matrix4_Subtraction)
 {
     Mat4 a(  3.2, -0.0, 4.0, 2.0,
             -1.0,  2.0, 1.2, 0.0,
@@ -175,7 +175,7 @@ TEST(Math,Matrix_4x4_Subtraction)
     EXPECT_EQ( v, r );
 }
 
-TEST(Math,Matrix_4x4_SelfSubtraction)
+TEST(Math,Matrix4_SelfSubtraction)
 {
     Mat4 a(  3.2, -0.0, 4.0, 2.0,
             -1.0,  2.0, 1.2, 0.0,
@@ -198,7 +198,7 @@ TEST(Math,Matrix_4x4_SelfSubtraction)
     EXPECT_NE( b, v );
 }
 
-TEST(Math,Matrix_4x4_Multiplication)
+TEST(Math,Matrix4_Multiplication)
 {
     Mat4 a( 0.0, 1.0, 3.0, 5.0,
             2.0, 3.0, 8.0, 9.0,
@@ -218,7 +218,7 @@ TEST(Math,Matrix_4x4_Multiplication)
     EXPECT_EQ( v, a * b );
 }
 
-TEST(Math,Matrix_4x4_Multiplication2)
+TEST(Math,Matrix4_Multiplication2)
 {
         Mat4 a(  0.2,  1.0,  0.5, -1.2,
                  0.6, -1.4,  0.0, -2.0,
@@ -238,7 +238,7 @@ TEST(Math,Matrix_4x4_Multiplication2)
         EXPECT_EQ( v, a * b );
 }
 
-TEST(Math,Matrix_4x4_Transpose)
+TEST(Math,Matrix4_Transpose)
 {
     Mat4 a(  1,  2,  3,  4,
              5,  6,  7,  8,
@@ -250,17 +250,17 @@ TEST(Math,Matrix_4x4_Transpose)
              3,  7, 11, 15,
              4,  8, 12, 16 );
 
-    EXPECT_EQ( v, a );
+    EXPECT_EQ( v, transpose( a ) );
 }
 
-TEST(Math,Matrix_4x4_SelfEquality)
+TEST(Math,Matrix4_SelfEquality)
 {
     Mat4 a;
 
     EXPECT_EQ( a, a );
 }
 
-TEST(Math,Matrix_4x4_Equality)
+TEST(Math,Matrix4_Equality)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
@@ -282,14 +282,14 @@ TEST(Math,Matrix_4x4_Equality)
 }
 
 
-TEST(Math,Matrix_4x4_SelfInequalityFalse)
+TEST(Math,Matrix4_SelfInequalityFalse)
 {
     Mat4 m;
 
     EXPECT_FALSE( m != m );
 }
 
-TEST(Math,Matrix_4x4_Inequality)
+TEST(Math,Matrix4_Inequality)
 {
     Mat4 m( 2.0, 4.0, 6.0, 9.0, 
             1.2, 3.0, 5.0, 7.0,
@@ -309,33 +309,34 @@ TEST(Math,Matrix_4x4_Inequality)
     EXPECT_NE( m, n );
 }
 
-TEST(Math,Matrix_4x4_ZeroMatrix)
+TEST(Math,Matrix4_ZeroMatrix)
 {
     Mat4 m( 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0 );
-    Mat4 n = m.ZeroMatrix();
+
+    Mat4 n = Mat4::ZERO_MATRIX;
 
     EXPECT_EQ( m, n );
 
-    EXPECT_TRUE( m.isZeroMatrix() );
-    EXPECT_TRUE( n.isZeroMatrix() );
+    EXPECT_TRUE( isZeroMatrix( m ) );
+    EXPECT_TRUE( isZeroMatrix( m ) );
 }
 
-TEST(Math,Matrix_4x4_MakeIdentityMatrix)
+TEST(Math,Matrix4_MakeIdentityMatrix)
 {
     Mat4 a( 1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0 );
-    Mat4 b = Mat4::IdentityMatrix();
+    Mat4 b = Mat4::IDENTITY;
 
     EXPECT_EQ( a, b );
-    EXPECT_TRUE( a.isIdentityMatrix() );
+    EXPECT_TRUE( isIdentityMatrix( a ) );
 }
 
-TEST(Math,Matrix_4x4_IsIdentityMatrix)
+TEST(Math,Matrix4_IsIdentityMatrix)
 {
     Mat4 a( 1.0, 1.0, 1.0, 1.0,
             1.0, 1.0, 1.0, 1.0,
@@ -346,35 +347,8 @@ TEST(Math,Matrix_4x4_IsIdentityMatrix)
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0 );
 
-    EXPECT_TRUE(! a.isIdentityMatrix() );
-    EXPECT_TRUE(  b.isIdentityMatrix() );
+    EXPECT_TRUE(! isIdentityMatrix( a ) );
+    EXPECT_TRUE(  isIdentityMatrix( b ) );
 }
 
-TEST(Math,Matrix_4x4_SwapMatrix)
-{
-    Mat4 a( 1.0, 2.0, 3.0, 4.0,
-            5.0, 6.0, 7.0, 8.0,
-            9.0, 0.0,10.0,11.0,
-            12.0,13.0,14.0,15.0 );
-
-    Mat4 b(16.0,17.0,18.0,19.0,
-            20.0,21.0,22.0,23.0,
-            24.0,26.0,26.0,27.0,
-            28.0,29.0,30.0,31.0 );
-
-    Mat4 x( a );
-    Mat4 y( b );
-
-    // pre-condition (x==a, y==b, x!=y)
-    EXPECT_EQ( a, x );
-    EXPECT_EQ( b, y );
-    EXPECT_NE( x, y );
-
-    // swap and check post condition (x==b, y==a, x!=y)
-    swap( x, y );
-
-    EXPECT_EQ( b, x );
-    EXPECT_EQ( a, y );
-    EXPECT_NE( x, y );
-}
 
