@@ -35,129 +35,130 @@
  */
 class RectF
 {
-    RectF( const Vec2& m_topLeft, const Vec2& size )
-        : m_topLeft( topLeft ),
-          m_size( size )
+public:
+    RectF( const Vec2& topLeft, const Vec2& rectSize )
+        : mTopLeft( topLeft ),
+          mSize( rectSize )
     {
-        math_assert( m_size.X() > 0.0f && m_size.Y() > 0.0f );
+        math_assert( mSize.X() > 0.0f && mSize.Y() > 0.0f );
     }
 
     RectF( float topX, float topY, float width, float height )
-        : m_topLeft( topX, topY ),
-          m_size( width, height )
+        : mTopLeft( topX, topY ),
+          mSize( width, height )
     {
         math_assert( width > 0.0f && height > 0.0f );
     }
 
     RectF( const RectF& rect )
-        : m_topLeft( rect.m_topLeft ),
-          m_size( rect.m_size )
+        : mTopLeft( rect.mTopLeft ),
+          mSize( rect.mSize )
     {
     }
 
     RectF& operator = ( const RectF& rect )
     {
-        m_topLeft = rect.m_topLeft;
-        m_size    = rect.m_size;
+        mTopLeft = rect.mTopLeft;
+        mSize    = rect.mSize;
 
         return *this;
     }
 
     bool operator == ( const RectF& rect ) const
     {
-        return ( m_topLeft == rect.m_topLeft && m_size == rect.m_size );
+        return ( mTopLeft == rect.mTopLeft && mSize == rect.mSize );
     }
 
     bool operator != ( const RectF& rect ) const
     {
-        return !( m_topLeft == rect.m_topLeft && m_size == rect.m_size ); 
+        return !( mTopLeft == rect.mTopLeft && mSize == rect.mSize ); 
     }
 
     Vec2 position() const
     {
-        return m_topLeft;
+        return mTopLeft;
     }
 
     Vec2 topLeft() const
     {
-        return m_topLeft;
+        return mTopLeft;
     }
 
     Vec2 topRight() const
     {
-        return Vec2( m_topLeft.X() + m_size.X(), m_topLeft.Y() );
+        return Vec2( mTopLeft.x() + mSize.x(), mTopLeft.y() );
     }
 
     Vec2 bottomLeft() const
     {
-        return Vec2( m_topLeft.X(), m_topLeft.Y() + m_size.Y() );
+        return Vec2( mTopLeft.x(), mTopLeft.y() + mSize.y() );
     }
     
     Vec2 bottomRight() const
     {
-        return m_topLeft + m_size;
+        return mTopLeft + mSize;
     }
 
     Vec2 center() const
     {
-        return ( m_topLeft + m_size ) / 2.0f;
+        return ( mTopLeft + mSize ) / 2.0f;
     }
 
     Vec2 size() const
     {
-        return m_size;
+        return mSize;
     }
 
     float top() const
     {
-        return m_topLeft.Y();
+        return mTopLeft.y();
     }
 
     float left() const
     {
-        return m_topLeft.X();
+        return mTopLeft.x();
     }
 
     float right() const
     {
-        return m_topLeft.X() + size.X();
+        return mTopLeft.x() + mSize.x();
     }
 
     float bottom() const
     {
-        return m_topLeft.Y() + size.Y();
+        return mTopLeft.y() + mSize.y();
     }
 
     float width() const
     {
-        return m_size.X();
+        return mSize.x();
     }
 
     float height() const
     {
-        return m_size.Y();
+        return mSize.y();
     }
 
     void move( const Vec2& delta )
     {
-        m_topLeft += delta;
+        mTopLeft += delta;
     }
 
     void moveTo( const Vec2& position )
     {
-        m_topLeft = position;
+        mTopLeft = position;
     }
 
     void adjustSize( const Vec2& newSize )
     {
-        m_size += newSize;
-        math_assert( size.X() > 0.0f && size.Y() > 0.0f );
+        mSize += newSize;
+        math_assert( mSize.x() > 0.0f && mSize.y() > 0.0f );
     }
 
     void resize( const Vec2& newSize )
     {
-        math_assert( newSize.X() > 0.0f && newSize.Y() > 0.0f );
-        m_size = newSize;
+        math_assert( newSize.x() > 0.0f && newSize.y() > 0.0f );
+        mSize = newSize;
     }
 
     Vec2 resize( float width, float height )
@@ -167,10 +168,10 @@ class RectF
 
     bool contains( const Vec2& point ) const
     {
-        Vec2 pt = point - m_topLeft;
+        Vec2 pt = point - mTopLeft;
 
-        return ( pt.X() >= 0.0f && pt.X() <= m_size.X() &&
-                 pt.Y() >= 0.0f && pt.Y() <= m_size.Y() );
+        return ( pt.x() >= 0.0f && pt.x() <= mSize.x() &&
+                 pt.y() >= 0.0f && pt.y() <= mSize.y() );
     }
 
     bool contains( const RectF& rect ) const
@@ -184,8 +185,8 @@ class RectF
     }
 
 private:
-    Vec2 m_topLeft;
-    Vec2 m_size;
+    Vec2 mTopLeft;
+    Vec2 mSize;
 };
 
 #endif

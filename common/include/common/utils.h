@@ -12,6 +12,7 @@
 
 #ifndef TRACE
 #   define TRACE(x) std::cerr << #x << " = '" << (x) << "'" << std::endl
+#endif
 
 /**
  * Returns a pointer (also acts as a iterator) to the start of a static
@@ -31,19 +32,6 @@ template<typename T, std::size_t size>
 inline T* end( T (&array)[size] )
 {
     return array + size;
-}
-
-template<typename ContainerT>
-deletePtrContainer( ContainerT& input )
-{
-    typename ContainerT::iterator itr;
-
-    for ( itr = input.begin(); itr != itr.end(); ++itr )
-    {
-        delete *itr;
-    }
-
-    target.clear();
 }
 
 #endif

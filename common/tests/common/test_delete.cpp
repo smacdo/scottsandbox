@@ -3,56 +3,154 @@
  */
 #include <googletest/googletest.h>
 #include <common/delete.h>
+#include <ostream>
+#include <vector>
 
-class Widget
+#include "common/delete.h"
+
+class TestDummy
 {
 public:
-    Widget( size_t& counter )
-        : m_counter(counter)
+    TestDummy( size_t& totalCounter, size_t& selfCounter )
+        : mTotalCounter( totalCounter ),
+          mSelfCounter( selfCounter )
     {
-        m_counter++;
-    }
-    
-    ~Widget()
-    {
-        m_counter--;
+        mTotalCounter++;
+        mSelfCounter++;
     }
 
-private:
-    Widget( const Widget& );
-    Widget& operator = ( const Widget& );
-
-    size_t& m_counter;
-};
-
-class CommonTest : public testing::Test
-{
-protected:
-    virtual void SetUp()
+    ~TestDummy()
     {
-        m_objCounter = 0;
-    }
-
-    Widget* create()
-    {
-        return new Widget( m_objCounter );
-    }
-
-    size_t objCount() const
-    {
-        return m_objCounter;
+        mTotalCounter--;
+        mSelfCounter--;
     }
 
 private:
-    size_t m_objCounter;
+    size_t& mTotalCounter;
+    size_t& mSelfCounter;
 };
 
-TEST_F(CommonTest,DeleteCheckedWorks)
+TEST(UtilsTests,InternalTest_VerifyTestDummy)
 {
-    Widget* w = create();
-    EXPECT_EQ( 1, objCount() );
+    size_t total = 0;
+    size_t a     = 0;
+    size_t b     = 0;
 
-    CheckedDelete( w );
+    TestDummy *pA = new TestDummy( total, a );
+    EXPECT_EQ( 1u, total );
+    EXPECT_EQ( 1u, a );
+    EXPECT_EQ( 0u, b );
 
-    ASSERT_EQ( 0, objCount() );
+    TestDummy *pB = new TestDummy( total, b );
+    EXPECT_EQ( 2u, total );
+    EXPECT_EQ( 1u, a );
+    EXPECT_EQ( 1u, b );
+
+    delete pA;
+    EXPECT_EQ( 1u, total );
+    EXPECT_EQ( 0u, a );
+    EXPECT_EQ( 1u, b );
+
+    delete pB;
+    EXPECT_EQ( 0u, total );
+    EXPECT_EQ( 0u, a );
+    EXPECT_EQ( 0u, b );
+
 }
+
+TEST(UtilsTests,DeletePointer)
+{
+    size_t total = 0;
+    size_t a = 0;
+
+    TestDummy *pA = new TestDummy( total, a );
+    Delete( pA );
+
+    EXPECT_EQ( 0u, total );
+    EXPECT_EQ( 0u, a );
+
+    EXPECT_TRUE( pA == NULL );
+}
+
+TEST(UtilsTest,DeletePointerArray)
+{
+    size_t total = 0;
+    size_t a     = 0;
+
+    // TODO: Implement
+    EXPECT_TRUE( true );
+}
+
+TEST(UtilsTests,DeletePointerGenericContainerWhichIsAVector)
+{
+    size_t total = 0;
+    size_t a     = 0;
+    size_t b     = 0;
+    size_t c     = 0;
+
+    std::vector<TestDummy*> v;
+    v.push_back( new TestDummy( total, a ) );
+    v.push_back( new TestDummy( total, b ) );
+    v.push_back( new TestDummy( total, c ) );
+
+    EXPECT_EQ( 3u, total );
+    EXPECT_EQ( 1u, a );
+    EXPECT_EQ( 1u, b );
+    EXPECT_EQ( 1u, c );
+
+    EXPECT_EQ( 3u, DeletePointerContainer( v ) );
+    EXPECT_EQ( 0u, total );
+    EXPECT_EQ( 0u, a );
+    EXPECT_EQ( 0u, b );
+    EXPECT_EQ( 0u, c );
+}
+
+TEST(UtilsTests,DeleteVectorPointers)
+{
+    size_t total = 0;
+    size_t a     = 0;
+    size_t b     = 0;
+    size_t c     = 0;
+
+    std::vector<TestDummy*> v;
+    v.push_back( new TestDummy( total, a ) );
+    v.push_back( new TestDummy( total, b ) );
+    v.push_back( new TestDummy( total, c ) );
+
+    EXPECT_EQ( 3u, total );
+    EXPECT_EQ( 1u, a );
+    EXPECT_EQ( 1u, b );
+    EXPECT_EQ( 1u, c );
+
+    EXPECT_EQ( 3u, DeleteVectorPointers( v ) );
+    EXPECT_EQ( 0u, total );
+    EXPECT_EQ( 0u, a );
+    EXPECT_EQ( 0u, b );
+    EXPECT_EQ( 0u, c );
+}
+
+TEST(UtilsTests,DeleteMapPointers)
+{
+    size_t total = 0;
+    size_t a     = 0;
+    size_t b     = 0;
+    size_t c     = 0;
+
+    std::map<int, TestDummy*> v;
+    v.insert( std::pair<int, TestDummy*>( 0, new TestDummy( total, a ) ) );
+    v.insert( std::pair<int, TestDummy*>( 1, new TestDummy( total, b ) ) );
+    v.insert( std::pair<int, TestDummy*>( 2, new TestDummy( total, c ) ) );
+
+    EXPECT_EQ( 3u, total );
+    EXPECT_EQ( 1u, a );
+    EXPECT_EQ( 1u, b );
+    EXPECT_EQ( 1u, c );
+
+    EXPECT_EQ( 3u, DeleteMapPointers( v ) );
+    EXPECT_EQ( 0u, total );
+    EXPECT_EQ( 0u, a );
+    EXPECT_EQ( 0u, b );
+    EXPECT_EQ( 0u, c );
+}
+
+

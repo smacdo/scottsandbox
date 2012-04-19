@@ -36,7 +36,9 @@ set(commonlib_srcs
 
 set(commonlib_tests
         tests/common/test_delete.cpp
-        tests/common/test_color.cpp)
+        tests/common/test_deref.cpp
+        tests/common/test_color.cpp
+)
 
 #########################################################################
 ### Application common lib
@@ -130,6 +132,7 @@ set(mathlib_tests
         tests/math/test_angle.cpp
         tests/math/test_matrix4.cpp
         tests/math/test_point.cpp
+        tests/math/test_rect.cpp
         tests/math/test_utils.cpp
         tests/math/test_vector4.cpp
         tests/math/test_vector3.cpp
@@ -198,5 +201,5 @@ set(tests    ${commonlib_tests}
 add_program_with( testcommonlibs
                   "${testlibs};googletest"
                   "${PROJECT_SOURCE_DIR}/include"
-                  ""
+                  "-std=c++0x"
                   ${tests} ${GTEST_RUNNER_PATH} )
