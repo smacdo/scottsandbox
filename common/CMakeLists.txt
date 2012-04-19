@@ -26,6 +26,7 @@ set(commonlib_incs
         include/common/noncopyable.h
         include/common/singleton.h
         include/common/static_assert.h
+        include/common/macros.h
         include/common/nullptr.h
         include/common/time.h
         include/common/utils.h)
@@ -47,6 +48,7 @@ set(applib_incs
         include/app/logging_debugstreambuf.h
         include/app/logging_debugstreambuf.inl
         include/app/logging_stream.h
+        include/app/osplatform.h
         include/app/platform.h
         include/app/windowsinclude.h
 )
@@ -58,7 +60,21 @@ set(applib_srcs
         src/app/log.cpp
         src/app/logentry.cpp
         src/app/logstream.cpp
+        src/app/platform.cpp
+        src/app/platform_unix.cpp
 )
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    SET(applib_srcs ${applib_srcs} src/app/platform_darwin.cpp)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    SET(applib_srcs ${applib_srcs} src/app/platform_xp.cpp)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    SET(applib_srcs ${applib_srcs} src/app/platform_unix.cpp)
+endif()
 
 set(applib_tests
         )

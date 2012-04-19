@@ -1,47 +1,98 @@
+/*
+ * Copyright 2012 Scott MacDonald
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #ifndef SCOTT_COMMON_APP_PLATFORM_H
 #define SCOTT_COMMON_APP_PLATFORM_H
 
-#ifdef _WIN32
-#   define WINDOWS 1
-#   define PLATFORM_DETECTED 1
-    // Windows 32 or 64?
-#   ifdef _WIN64
-#       define PLATFORM_NAME "Windows 64"
-#   else
-#       define PLATFORM_NAME "Windows 32"
-#   endif
-#endif
+// Common includes
+#include "common/macros.h"
+#include "app/debug.h"
 
-#ifdef __APPLE__
-#   define MAC 1
-#   define OSX 1
-#   define POSIX 1
-#   define PLATFORM_DETECTED 1
+// System includes
+#include <string>
 
-#   define PLATFORM_NAME "Mac OSX"
-#endif
+/////////////////////////////////////////////////////////////////////////////
+// Platform enumerations
+/////////////////////////////////////////////////////////////////////////////
+enum EProgramStatus
+{
+    EPROGRAM_OK = 0,
+    EPROGRAM_ASSERT_FAILED = 2,
+    EPROGRAM_FATAL_ERROR   = 5,
+    EPROGRAM_USER_ERROR    = 6
+};
 
-#ifdef __linux
-#   define LINUX 1
-#   define POSIX 1
-#   define PLATFORM_DETECTED 1
-#   define PLATFORM_NAME "Generic Linux"
-#endif
+/////////////////////////////////////////////////////////////////////////////
+// Internal application utility functions
+/////////////////////////////////////////////////////////////////////////////
+namespace App
+{
+    enum EAssertionStatus
+    {
+        EAssertion_Halt = 0,
+        EAssertion_Continue = 1,
+        EAssertion_Default = 2
+    };
 
-#ifdef __ANDROID__
-#   error Android support not configured yet
-#   define PLATFORM_DETECTED 1
-#   define PLATFORM_NAME "Android"
-#endif
+    enum EErrorType
+    {
+        EERROR_WARNING,
+        EERROR_ERROR,
+        EERROR_FATAL
+    };
 
-#ifdef macintosh
-#   error Mac OS9 not supported
-#   define PLATFORM_DETECTED 1
-#   define PLATFORM_NAME "Mac OS 9"
-#endif
+    // Specifies the default handling of assertions.
+    const EAssertionStatus GDefaultAssertionStatus = EAssertion_Halt;
 
-#if PLATFORM_DETECTED != 1
-#   error Your operating system was not detected. Cannot compile until fixed
-#endif
+    void setIsInUnitTestMode( bool isInUnitTesting );
+    void setTestAssertsShouldDie( bool shouldBlowUp );
+    void resetTestAssertsShouldDie();
+
+    // Converts an error type enum into a string
+    std::string getNameForError( EErrorType error );
+
+    // Performs any needed platform specific work before starting the game
+    void startup();
+    void quit( EProgramStatus quitStatus, const std::string& message = "" );
+
+    EAssertionStatus raiseAssertion( const char* message,
+                                     const char* expression,
+                                     const char* filename,
+                                     unsigned int linenumber );
+
+    void raiseError( const std::string& message,
+                     const std::string& details = "" );
+
+    void raiseFatalError( const std::string& message,
+                          const std::string& details = "" );
+
+    EAssertionStatus reportAssertion( const std::string& message,
+                                      const std::string& expression,
+                                      const std::string& filename,
+                                      unsigned int line );
+
+    void reportSoftwareError( const std::string& message,
+                              const std::string& details,
+                              EErrorType type,
+                              unsigned int lineNumber,
+                              const char * fileName,
+                              const char * functionName );
+
+    // Returns a "build string", which is a long string containing information
+    // about the settings under which the game was built
+    std::string getBuildString();
+}
 
 #endif
