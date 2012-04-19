@@ -276,6 +276,37 @@ namespace Math
         return v;
     }
 
+    /**
+     * Computes a 32 bit hash from a floating point value. This is used to
+     * quickly cache floats into a hashmap, but care must be taken since two
+     * seemingly identical floating point values can have different memory values
+     * and hence different hash values
+     */
+    inline unsigned int hashfloat( float value )
+    {
+        const unsigned int *intPtr = reinterpret_cast<unsigned int *>( &value );
+        return *intPtr;
+    }
+
+    /**
+     * Computes a 32 bit hash from a floating point value. This is used to
+     * quickly cache floats into a hashmap, but care must be taken since two
+     * seemingly identical floating point values can have different memory values
+     * and hence different hash values
+     */
+    inline unsigned int hashfloat( const float *array, size_t arraySize )
+    {
+        unsigned int hash      = 0;
+        const int *intArrayPtr = reinterpret_cast<const int*>( array );
+
+        for ( size_t i = 0; i < arraySize; ++i )
+        {
+            hash ^= intArrayPtr[i];
+        }
+
+        return hash;
+    }
+
     inline float fastSqrt( float v );
 }
 

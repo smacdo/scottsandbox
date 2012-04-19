@@ -38,19 +38,59 @@ struct Plane;
 struct BoundingBox;
 
 /**
- * A single sided plane.
+ * Represents a single sided plane in 3d space
  */
-struct Plane
+class Plane
 {
+public:
+    // Default constructor
+    Plane();
+
+    // Constructor
     Plane( const Vec3& normal, const Scalar& distance );
 
-    Plane( const Scalar& nX, const Scalar& nY, const Scalar& nZ,
+    // Constructor
+    Plane( const Scalar& nX,
+           const Scalar& nY,
+           const Scalar& nZ,
            const Scalar& distance );
 
-    bool intersects( const Ray& ray ) const;
+    // Constructor
+    Plane( const Vec3& ptA,
+           const Vec3& ptB,
+           const Vec3& ptC );
 
-    Vec3   normal;
-    float  distance;
+    // Comparison operator
+    bool operator == ( const Plane& p ) const;
+
+    // Calculate distance from the point to this plane
+    float distanceToPoint( const Vec3& pt ) const;
+
+    // Check if the ray intersects this planee
+    bool intersects( const Ray& ray, Vec3 * pOutIntersection = NULL ) const;
+
+    // Check if a plane intersects this plane
+    bool intersects( const Plane& plane ) const;
+
+    //
+//    bool testExclusion( const AABox& box, bool * pOutIntersection = NULL ) const;
+
+    /**
+     * Returns a vector containing the plane's normal
+     */
+    inline Vec3 normal() const { return mNormal; }
+
+    /**
+     * 
+     */
+    inline float distance() const { return mDistance; }
+
+private:
+    /// Normal vector that defines the plane in 3d space
+    Vec3   mNormal;
+
+    /// Distance between the origin and the normal vector
+    float  mDistance;
 };
 
 #endif

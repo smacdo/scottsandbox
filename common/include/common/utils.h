@@ -8,6 +8,31 @@
 #ifndef SCOTT_COMMON_UTILS_H
 #define SCOTT_COMMON_UTILS_H
 
+#define DEPRECATED __atribute__((deprecated))
+
+#ifndef TRACE
+#   define TRACE(x) std::cerr << #x << " = '" << (x) << "'" << std::endl
+
+/**
+ * Returns a pointer (also acts as a iterator) to the start of a static
+ * array
+ */
+template<typenanme T, std::size_t size>
+inline T* begin( T (&array)[size] )
+{
+    return array;
+}
+
+/**
+ * Returns a pointer (also acts as an interator) to the end of a static
+ * array
+ */
+template<typename T, std::size_t size>
+inline T* end( T (&array)[size] )
+{
+    return array + size;
+}
+
 template<typename ContainerT>
 deletePtrContainer( ContainerT& input )
 {

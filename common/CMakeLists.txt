@@ -44,11 +44,13 @@ set(applib_incs
         include/app/app.h
         include/app/debug.h
         include/app/platform.h
-        include/app/windowsinclude.h)
+        include/app/windowsinclude.h
+)
 
 set(applib_srcs
         src/app/app.cpp
-        src/app/debug.cpp)
+        src/app/debug.cpp
+)
 
 set(applib_tests
         )
@@ -87,6 +89,8 @@ set(mathlib_incs
         include/math/conversion.h
         include/math/defs.h
         include/math/matrix.h
+        include/math/rect.h
+        include/math/sphere.h
         include/math/tmatrix.h
         include/math/interpolation.h
         include/math/random.h
@@ -100,7 +104,6 @@ set(mathlib_srcs
 
 set(mathlib_tests
         tests/math/test_angle.cpp
-        tests/math/test_matrix2.cpp
         tests/math/test_matrix4.cpp
         tests/math/test_point.cpp
         tests/math/test_utils.cpp

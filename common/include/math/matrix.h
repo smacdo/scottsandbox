@@ -38,6 +38,9 @@ template<typename T> class TMatrix4;
 template<typename T> bool isZeroMatrix( const TMatrix4<T>& );
 template<typename T> bool isIdentityMatrix( const TMatrix4<T>& );
 template<typename T> TMatrix4<T> transpose( const TMatrix4<T>& );
+template<typename T> T determinant( const TMatrix4<T>& );
+template<typename T> bool tryInverse( const TMatrix4<T>&, TMatrix4<T>* );
+template<typename T> TMatrix4<T> inverse( const TMatrix4<T>& );
 
 /**
  * A templated, size-indepdent column major matrix. This templated matrix can
@@ -125,24 +128,8 @@ public:
 
 
     /**
-     * 4x4 matrix constructor. Arguments to the constructor are
-     * in the normal "expected" (row major) format, even though the
-     * underlying matrix class will store these values in column major
-     * format.
-     *
-     * eg, to construct [ [a, b, c, d]
-     *                    [e, f, g, h]
-     *                    [i, j, k, l]
-     *                    [m, n, o, p] ]
-     *
-     * just call TMatrix4( a, b, c, d,
-     *                     e, f, g, h,
-     *                     i, j, k, l,
-     *                     m, n, o, p );
-     *
-     * and the matrix will store these values in memory as follows:
-     *  [ a, e, i, m, b, f, j, n, c, g, k, o, d, h, l, p ]
-     * 
+     * 4x4 matrix constructor. Arguments are to be specified in row
+     * major format.
      */
     TMatrix4( value_type m11, value_type m12, value_type m13, value_type m14,
               value_type m21, value_type m22, value_type m23, value_type m24,
@@ -156,14 +143,10 @@ public:
     }
 
     /**
-     * Construct a matrix from an array of values. The 
-     * constructor assumes the values are listed in column-major
-     * rather than row-major format.
+     * Construct a matrix from an array of values
      *
-     * IMPORTANT NOTE: This constructor expects the array in
-     * column-major format!!! Not row major like the value constructors
-     *
-     * eg [ m11 m21 m23 m21 m22 ... ] rather than [ m11 m21 ... ]
+     * \param  pVals  Pointer to an array of 16 values. Must be in row-major
+     *                order
      */
     explicit TMatrix4( const_pointer pVals )
         : m00( pVals[0]  ), m01( pVals[1]  ), m02( pVals[2]   ), m03( pVals[3]  ),
@@ -174,7 +157,9 @@ public:
     }
 
     /**
-     * Matrix copy constructor
+     * Copy constructor
+     *
+     * \param  m  Matrix to copy values from
      */
     TMatrix4( const TMatrix4<T>& m )
         : m00( m.m00 ), m01( m.m01 ), m02( m.m02 ), m03( m.m03 ),
@@ -185,7 +170,8 @@ public:
     }
 
     /**
-     * Constant pointer to this matrix instance's underyling value array
+     * Constant pointer that points to this instance's underlying 4x4
+     * value array
      */
     const_pointer const_ptr()
     {
@@ -193,7 +179,8 @@ public:
     }
 
     /**
-     * Constant pointer to this matrix instance's underyling value array
+     * Constant pointer that points to this instance's underlying 4x4
+     * value array
      */
     const_pointer ptr() const
     {
@@ -201,7 +188,7 @@ public:
     }
 
     /**
-     * Pointer to this matrix instance's underyling value array
+     * Pointer that points to this instance's underlying 4x4 value array
      */
     pointer ptr() 
     {
@@ -213,7 +200,7 @@ public:
      * Note that the index is different depending on if the matrix is column
      * major or row major!
      */
-    const_reference operator[] ( size_t offset ) const
+    const_reference operator[] ( unsigned int offset ) const
     {
         math_assert( NUM_VALUES && "Matrix4 operator[] out of range" );
         return m[offset];
@@ -224,7 +211,7 @@ public:
      * Note that the index is different depending on if the matrix is column
      * major or row major!
      */
-    reference operator[] ( size_t offset )
+    reference operator[] ( unsigned int offset )
     {
         math_assert( NUM_VALUES && "Matrix4 operator[] out of range" );
         return m[offset];
@@ -326,7 +313,24 @@ public:
      */
     TMatrix4<T> operator * ( const TMatrix4<T>& rhs ) const
     {
-        return *this;
+        return TMatrix4<T>(
+            m00 * rhs.m00 + m01 * rhs.m04 + m02 * rhs.m08 + m03 * rhs.m12,
+            m00 * rhs.m01 + m01 * rhs.m05 + m02 * rhs.m09 + m03 * rhs.m13,
+            m00 * rhs.m02 + m01 * rhs.m06 + m02 * rhs.m10 + m03 * rhs.m14,
+            m00 * rhs.m03 + m01 * rhs.m07 + m02 * rhs.m11 + m03 * rhs.m15,
+            m04 * rhs.m00 + m05 * rhs.m04 + m06 * rhs.m08 + m07 * rhs.m12,
+            m04 * rhs.m01 + m05 * rhs.m05 + m06 * rhs.m09 + m07 * rhs.m13,
+            m04 * rhs.m02 + m05 * rhs.m06 + m06 * rhs.m10 + m07 * rhs.m14,
+            m04 * rhs.m03 + m05 * rhs.m07 + m06 * rhs.m11 + m07 * rhs.m15,
+            m08 * rhs.m00 + m09 * rhs.m04 + m10 * rhs.m08 + m11 * rhs.m12,
+            m08 * rhs.m01 + m09 * rhs.m05 + m10 * rhs.m09 + m11 * rhs.m13,
+            m08 * rhs.m02 + m09 * rhs.m06 + m10 * rhs.m10 + m11 * rhs.m14,
+            m08 * rhs.m03 + m09 * rhs.m07 + m10 * rhs.m11 + m11 * rhs.m15,
+            m12 * rhs.m00 + m13 * rhs.m04 + m14 * rhs.m08 + m15 * rhs.m12,
+            m12 * rhs.m01 + m13 * rhs.m05 + m14 * rhs.m09 + m15 * rhs.m13,
+            m12 * rhs.m02 + m13 * rhs.m06 + m14 * rhs.m10 + m15 * rhs.m14,
+            m12 * rhs.m03 + m13 * rhs.m07 + m14 * rhs.m11 + m15 * rhs.m15
+        );
     }
 
     /**
@@ -334,6 +338,23 @@ public:
      */
     TMatrix4<T>& operator *= ( const TMatrix4<T>& rhs )
     {
+        m00 = m00 * rhs.m00 + m01 * rhs.m04 + m02 * rhs.m08 + m03 * rhs.m12;
+        m01 = m00 * rhs.m01 + m01 * rhs.m05 + m02 * rhs.m09 + m03 * rhs.m13;
+        m02 = m00 * rhs.m02 + m01 * rhs.m06 + m02 * rhs.m10 + m03 * rhs.m14;
+        m03 = m00 * rhs.m03 + m01 * rhs.m07 + m02 * rhs.m11 + m03 * rhs.m15;
+        m04 = m04 * rhs.m00 + m05 * rhs.m04 + m06 * rhs.m08 + m07 * rhs.m12;
+        m05 = m04 * rhs.m01 + m05 * rhs.m05 + m06 * rhs.m09 + m07 * rhs.m13;
+        m06 = m04 * rhs.m02 + m05 * rhs.m06 + m06 * rhs.m10 + m07 * rhs.m14;
+        m07 = m04 * rhs.m03 + m05 * rhs.m07 + m06 * rhs.m11 + m07 * rhs.m15;
+        m08 = m08 * rhs.m00 + m09 * rhs.m04 + m10 * rhs.m08 + m11 * rhs.m12;
+        m09 = m08 * rhs.m01 + m09 * rhs.m05 + m10 * rhs.m09 + m11 * rhs.m13;
+        m10 = m08 * rhs.m02 + m09 * rhs.m06 + m10 * rhs.m10 + m11 * rhs.m14;
+        m11 = m08 * rhs.m03 + m09 * rhs.m07 + m10 * rhs.m11 + m11 * rhs.m15;
+        m12 = m12 * rhs.m00 + m13 * rhs.m04 + m14 * rhs.m08 + m15 * rhs.m12;
+        m13 = m12 * rhs.m01 + m13 * rhs.m05 + m14 * rhs.m09 + m15 * rhs.m13;
+        m14 = m12 * rhs.m02 + m13 * rhs.m06 + m14 * rhs.m10 + m15 * rhs.m14;
+        m15 = m12 * rhs.m03 + m13 * rhs.m07 + m14 * rhs.m11 + m15 * rhs.m15;
+
         return *this;
     }
 
@@ -360,7 +381,7 @@ public:
     /**
      * Returns the value at the given (r,c) matrix cell.
      */
-    value_type at( size_t r, size_t c ) const
+    value_type at( unsigned int r, unsigned int c ) const
     {
         math_assert( r < NUM_ROWS && "Matrix row out of range");
         math_assert( c < NUM_COLS && "Matrix column out of range");
@@ -371,7 +392,7 @@ public:
     /**
      * Sets the value at the given (r,c) matrix cell.
      */
-    void set( size_t r, size_t c, value_type v )
+    void set( unsigned int r, unsigned int c, value_type v )
     {
         math_assert( r < NUM_ROWS && "Matrix row out of range");
         math_assert( c < NUM_COLS && "Matrix column out of range");
@@ -393,6 +414,25 @@ public:
      * Returns the transpose of this matrix
      */
     friend TMatrix4<T> transpose<>( const TMatrix4<T>& );
+
+    /**
+     * Returns the determinant of the matrix
+     */
+    friend value_type determinant<>( const TMatrix4<T>& );
+
+    /**
+     * Conditional inverse calculation. This method attempts to calculate the
+     * matrix's inverse, and indicates if the calculation was successful. This
+     * method can take a pointer to a destination matrix and populate it with
+     * the value of the inverse, if the calculation succeeded.
+     */
+    friend bool tryInverse<>( const TMatrix4<T>& source,
+                              TMatrix4<T> * pDestination );
+
+    /**
+     * Returns the inverse of this matrix
+     */
+    friend TMatrix4<T> inverse<>( const TMatrix4<T>& );
 
 public:
     static const TMatrix4<T> ZERO_MATRIX;

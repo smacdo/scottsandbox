@@ -3,8 +3,42 @@
 
 #include <string>
 #include <ostream>
-
+#include <sstream>
 #include <stdint.h>
+
+namespace StringUtil
+{
+    /**
+     * Writes the contents on a generic STL-like container into a comma separated
+     * string and returns it. The string that separates container entries can be
+     * optionally changed.
+     *
+     * \param  container  The container to print the contents of
+     * \param  sep        String to separate each element
+     * \return            Comma separated list of elements from the container
+     */
+    template<typename T>
+    std::string DumpContainer( const T& container, const char * sep=", " )
+    {
+        std::stringstream ss;
+
+        typename T::const_iterator itr = container.begin();
+        typename T::const_iterator beg = container.begin();
+        typename T::const_iterator end = container.end();
+
+        for ( ; itr != end; ++itr )
+        {
+            if ( itr != beg )
+            {
+                ss << sep;
+            }
+
+            ss << *itr;
+        }
+
+        return ss.str();
+    }
+}
 
 namespace String
 {

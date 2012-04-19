@@ -31,28 +31,28 @@
 #include <limits>
 
 Plane::Plane( const Vec3& normal, const Scalar& distance )
-    : normal( normal ),
-      distance( distance )
+    : mNormal( normal ),
+      mDistance( distance )
 {
 }
 
 Plane::Plane( const Scalar& nX, const Scalar& nY, const Scalar& nZ,
               const Scalar& distance )
-    : normal( Vec3( nX, nY, nZ ) ),
-      distance( distance )
+    : mNormal( Vec3( nX, nY, nZ ) ),
+      mDistance( distance )
 {
 }
 
-bool Plane::intersects( const Ray& ray ) const
+bool Plane::intersects( const Ray& ray, Vec3 * pOutIntersectionPt ) const
 {
-    Scalar d2 = dot( normal, ray.direction );
+    Scalar d2 = dot( mNormal, ray.direction );
 
     if ( d2 > -Math::ZeroEpsilonF ) 
     {
         return false;     // ray is parallel to plane, or ray hits wrong side
     }
 
-    Scalar d1 = -( dot( normal, ray.origin ) + distance );
+    Scalar d1 = -( dot( mNormal, ray.origin ) + mDistance );
     Scalar  t = d1 / d2;
     
     if ( t < Math::ZeroEpsilonF )
@@ -63,4 +63,3 @@ bool Plane::intersects( const Ray& ray ) const
     Vec3 intersectPt = ray.origin + ray.direction * t;
     return true;
 }
-

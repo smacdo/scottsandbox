@@ -41,7 +41,7 @@ bool Frustum::isInFrustum( const BoundingBox& box ) const
         //
         // Test X/Y/Z axis
         //
-        if ( m_planes[i].normal[0] > 0 )
+        if ( m_planes[i].normal()[0] > 0 )
         {
             minX = box.minPoint[0];
             maxX = box.maxPoint[0];
@@ -52,7 +52,7 @@ bool Frustum::isInFrustum( const BoundingBox& box ) const
             maxX = box.minPoint[0];
         }
 
-        if ( m_planes[i].normal[1] > 0 )
+        if ( m_planes[i].normal()[1] > 0 )
         {
             minY = box.minPoint[1];
             maxY = box.maxPoint[1];
@@ -63,7 +63,7 @@ bool Frustum::isInFrustum( const BoundingBox& box ) const
             maxY = box.minPoint[1];
         }
 
-        if ( m_planes[i].normal[2] > 0 )
+        if ( m_planes[i].normal()[2] > 0 )
         {
             minZ = box.minPoint[2];
             maxZ = box.maxPoint[2];
@@ -79,7 +79,7 @@ bool Frustum::isInFrustum( const BoundingBox& box ) const
         //
         Vec3 min( minX, minY, minZ );
 
-        if ( dot( m_planes[i].normal, min ) + m_planes[i].distance > 0.0f )
+        if ( dot( m_planes[i].normal(), min ) + m_planes[i].distance() > 0.0f )
         {
             // It is outside the plane. Hurrah!
             bIsInFrustrum = false;
