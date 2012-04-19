@@ -43,6 +43,10 @@ set(commonlib_tests
 set(applib_incs
         include/app/app.h
         include/app/debug.h
+        include/app/logging.h
+        include/app/logging_debugstreambuf.h
+        include/app/logging_debugstreambuf.inl
+        include/app/logging_stream.h
         include/app/platform.h
         include/app/windowsinclude.h
 )
@@ -50,6 +54,10 @@ set(applib_incs
 set(applib_srcs
         src/app/app.cpp
         src/app/debug.cpp
+        src/app/globallog.cpp
+        src/app/log.cpp
+        src/app/logentry.cpp
+        src/app/logstream.cpp
 )
 
 set(applib_tests
