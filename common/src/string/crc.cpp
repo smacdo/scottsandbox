@@ -26,10 +26,10 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#include "string/crc.h"
+#include <string/crc.h>
+#include <app/debug.h>
 #include <string>
 #include <cstring>
-#include <cassert>
 #include <stdint.h>
 
 #define crc_assert(x) assert(x)

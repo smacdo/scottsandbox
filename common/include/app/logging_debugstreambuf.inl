@@ -17,10 +17,10 @@
 #define SCOTT_COMMON_LOGGING_DEBUGSTREAMBUF_INL_H
 #include "app/logging.h"
 #include "app/logging_debugstreambuf.h"
+#include "app/debug.h"
 #include "common/delete.h"
 #include <sstream>
 #include <ctime>
-#include <cassert>
 
 #include <ostream>
 #include <fstream>

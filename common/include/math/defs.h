@@ -55,7 +55,7 @@
  * By default, math_assert is only enabled when MATH_DEBUG_MODE is defined.
  */
 #ifdef MATH_DEBUG_MODE
-#   include <cassert>
+#   include <app/debug.h>
 #   define math_assert(x) assert(x)
 #else
 #   define math_assert(x) 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2010 Scott MacDonald. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@
 #include <ostream>
 
 #if MATH_DEBUG_MODE == 1
-#   include <cassert>
 #   include <limits>
 #   define VECTOR_DEBUG_MODE 1
 #endif

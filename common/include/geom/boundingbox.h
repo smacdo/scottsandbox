@@ -30,6 +30,8 @@
 
 #include <math/vector.h>
 
+class Sphere;
+
 /**
  * Axis aligned bounding box
  */

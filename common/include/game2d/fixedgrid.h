@@ -18,8 +18,7 @@
 #define SCOTT_COMMON_GAME2D_FIXEDGRID_H
 
 #include "game2d/point.h"
-#include "common/rect.h"
-#include "common/platform.h"
+#include "math/rect.h"
 #include <boost/checked_delete.hpp>
 #include <algorithm>
 

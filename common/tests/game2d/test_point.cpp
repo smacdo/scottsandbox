@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "game2d/point.h"
+#include <googletest/googletest.h>
 #include <ostream>
-#include <gtest.h>
 
 TEST(PointTests,Constructor_Default)
 {

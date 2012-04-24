@@ -27,13 +27,11 @@
  * policies, either expressed or implied, of Scott MacDonald.
  */
 #include <string/tokenizer.h>
-
-#include <cassert>
+#include <app/debug.h>
 
 #include <string>
 #include <vector>
 #include <sstream>
-#include <cassert>
 #include <cctype>
 
 StringTokenizer::StringTokenizer( const std::string& input )

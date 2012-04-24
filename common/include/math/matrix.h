@@ -22,7 +22,6 @@
 #include <math/util.h>
 
 #if MATH_DEBUG_MODE == 1
-#   include <cassert>
 #   include <limits>
 #   define MATRIX_DEBUG_MODE 1
 #   define MATRIX_DV std::numeric_limits<T>::signaling_NaN()

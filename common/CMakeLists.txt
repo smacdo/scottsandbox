@@ -10,34 +10,37 @@
 # that you are not interested in :)
 ########################################################################
 project(CommonLibs)
-set(COMMON_LIBS_VERSION 2)
+set(COMMON_LIBS_VERSION 3)
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 init_googletest()
 include_directories(${PROJECT_SOURCE_DIR}/include)
+add_definitions("-DNDEBUG=1 -DDEBUG=1")
 
 #########################################################################
 ### Core common lib
 #########################################################################
 set(commonlib_incs
         include/common/delete.h
-        include/common/color.h
+        include/common/deref.h
+        include/common/macros.h
         include/common/noncopyable.h
+        include/common/nullptr.h
+        include/common/pointer.h
         include/common/singleton.h
         include/common/static_assert.h
-        include/common/macros.h
-        include/common/nullptr.h
         include/common/time.h
-        include/common/utils.h)
+        include/common/utils.h
+)
 
 set(commonlib_srcs
-        src/common/time.cpp)
+        src/common/time.cpp
+)
 
 set(commonlib_tests
         tests/common/test_delete.cpp
         tests/common/test_deref.cpp
-        tests/common/test_color.cpp
 )
 
 #########################################################################
@@ -63,7 +66,6 @@ set(applib_srcs
         src/app/logentry.cpp
         src/app/logstream.cpp
         src/app/platform.cpp
-        src/app/platform_unix.cpp
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -82,29 +84,54 @@ set(applib_tests
         )
 
 #########################################################################
-### Geometry library
+### Game2d
+#########################################################################
+set(game2d_incs
+    include/game2d/fixedgrid.h
+    include/game2d/point.h
+)
+
+set(game2d_srcs
+    src/game2d/point.cpp
+)
+
+set(game2d_tests
+    tests/game2d/test_fixedgrid.cpp
+    tests/game2d/test_point.cpp
+)
+
+#########################################################################
+### Game3d (geomlib)
 #########################################################################
 set(geomlib_incs
         include/geom/boundingbox.h
         include/geom/camera.h
+        include/geom/defs.h
         include/geom/fpscamera.h
         include/geom/frustum.h
         include/geom/intersection.h
         include/geom/plane.h
+        include/geom/primitives.h
         include/geom/ray.h
-        include/geom/sphere.h)
+        include/geom/sphere.h
+        include/geom/utils.h
+)
 
 set(geomlib_srcs
+        src/geom/boundingbox.cpp
+        src/geom/frustum.cpp
         src/geom/geoms.cpp
-        src/geom/ray.cpp
         src/geom/intersectresult.cpp
         src/geom/plane.cpp
+        src/geom/ray.cpp
         src/geom/utils.cpp
-        src/geom/frustum.cpp)
+)
 
 set(geomlib_tests
         tests/geom/test_ray.cpp
-        tests/geom/test_intersectionresult.cpp)
+        tests/geom/test_intersectionresult.cpp
+        tests/geom/test_color.cpp
+)
 
 #########################################################################
 ### Math library
@@ -114,19 +141,22 @@ set(mathlib_incs
         include/math/constants.h
         include/math/conversion.h
         include/math/defs.h
-        include/math/matrix.h
-        include/math/rect.h
-        include/math/sphere.h
-        include/math/tmatrix.h
         include/math/interpolation.h
-        include/math/random.h
+        include/math/matrix.h
+        include/math/matrixutils.h
         include/math/point.h
+        include/math/random.h
+        include/math/rational.h
+        include/math/rect.h
+        include/math/tmatrix.h
         include/math/util.h
-        include/math/vector.h)
+        include/math/vector.h
+)
 
 set(mathlib_srcs
         src/math/vector.cpp
-        src/math/utils.cpp)
+        src/math/utils.cpp
+)
 
 set(mathlib_tests
         tests/math/test_angle.cpp
@@ -144,18 +174,23 @@ set(mathlib_tests
 #########################################################################
 set(stringlib_incs
         include/string/crc.h
-        include/string/tokenizer.h
-        include/string/stringbuffer.h
-        include/string/makestring.h
         include/string/lcasts.h
-        include/string/util.h)
+        include/string/makestring.h
+        include/string/reftag.h
+        include/string/sequenceformatter.h
+        include/string/stringbuffer.h
+        include/string/tokenizer.h
+        include/string/util.h
+)
 
 set(stringlib_srcs
         src/string/crc.cpp
-        src/string/tokenizer.cpp
-        src/string/replace.cpp
         src/string/loadfile.cpp
-        src/string/streamprint.cpp)
+        src/string/replace.cpp
+        src/string/streamprint.cpp
+        src/string/tokenizer.cpp
+        src/string/utils.cpp
+)
 
 set(stringlib_tests
         tests/string/test_crc.cpp
@@ -163,40 +198,28 @@ set(stringlib_tests
         tests/string/test_streamprint.cpp
         tests/string/test_replace.cpp)
 
-##########################################################################
-### Platform common lib                                                ###
-##########################################################################
-set(platform_incs
-        include/platform/stacktrace.h)
-
-set(platform_srcs
-        src/platform/stacktrace.cpp)
-
-set(platform_tests
-        )
-
-
 ###====================================================================###
 ### Create separate libraries for every common library                 ###
 ###====================================================================###
-add_library(commonlib   STATIC ${commonlib_srcs} ${commonlib_incs})
-add_library(applib      STATIC ${applib_srcs}    ${applib_incs})
-add_library(geomlib     STATIC ${geomlib_srcs}   ${geomlib_incs})
-add_library(mathlib     STATIC ${mathlib_srcs}   ${mathlib_incs})
-add_library(stringlib   STATIC ${stringlib_srcs} ${stringlib_incs})
-add_library(platformlib STATIC ${platform_srcs}  ${platform_incs})
+add_library(common STATIC 
+            ${commonlib_srcs} ${commonlib_incs}
+            ${applib_srcs} ${applib_incs}
+            ${mathlib_srcs} ${mathlib_incs}
+            ${stringlib_srcs} ${stringlib_incs}
+            ${geomlib_srcs} ${geomlib_incs}
+)
 
 ###====================================================================###
 ### Create an executable that will run all unit tests for every common ###
 ### library that we build.                                             ###
 ###====================================================================###
-set(testlibs "commonlib;applib;geomlib;mathlib;stringlib")
+set(testlibs "common")
 set(tests    ${commonlib_tests}
              ${applib_tests}
-             ${geomlib_tests}
              ${mathlib_tests}
+             ${geomlib_tests}
              ${stringlib_tests}
-             ${platform_tests})
+)
 
 add_program_with( testcommonlibs
                   "${testlibs};googletest"

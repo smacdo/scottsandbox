@@ -1,7 +1,7 @@
 /**
  * Color class unit tests
  */
-#include <common/color.h>
+#include <geom/color.h>
 #include <googletest/googletest.h>
 
 TEST(Color,DefaultColor)

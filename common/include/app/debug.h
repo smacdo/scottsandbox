@@ -37,6 +37,7 @@
 // Custom assertion handling
 /////////////////////////////////////////////////////////////////////////////
 #ifdef ASSERTS_ENABLED
+#   define NDEBUG 1
 #   define scott_assert(msg,cond)           \
     do                                      \
         {                                   \
@@ -72,18 +73,12 @@
 #endif
 
 #include <string>
-#include <sstream>
-#include <typeinfo>
-
-#define DUMP_VAR(x) Debug::DumpVar( x, #x );
-#define PRINT_VAR(x) std::cerr << Debug::DumpVar( x, #x ) << std::endl;
 
 namespace Debug
 {
     bool IsDebuggerPresent();
     void Break();
     void PrintString( const std::string& message );
-    void PrintString( const std::stringstream& message );
     void PrintString( const char *message );
 }
 

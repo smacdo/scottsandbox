@@ -43,9 +43,4 @@ private:
     double m_seconds;
 };
 
-class RealTime
-{
-
-};
-
 #endif

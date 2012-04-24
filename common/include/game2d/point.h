@@ -17,7 +17,6 @@
 #define SCOTT_COMMON_MATH_POINT_H
 
 #include <iosfwd>
-#include "common/types.h"
 
 // boost serialization forward declaration
 namespace boost { namespace serialization { class access; } }

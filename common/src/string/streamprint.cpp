@@ -1,7 +1,7 @@
 #include <string/util.h>
+#include <app/debug.h>
 #include <string>
 
-#include <cassert>
 #include <stdint.h>
 
 std::ostream& printHex( std::ostream& stream,

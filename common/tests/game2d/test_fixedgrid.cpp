@@ -17,7 +17,7 @@
 #include "game2d/fixedgrid.h"
 
 // Unit test specific includes
-#include <gtest.h>
+#include <googletest/googletest.h>
 #include <vector>
 
 typedef FixedGrid<int> FGrid;

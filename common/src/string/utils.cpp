@@ -1,5 +1,6 @@
-
-#include "string/utils.h"
+#include "string/util.h"
+#include <algorithm>
+#include <cctype>
 
 std::string toUpper( const std::string& input )
 {
@@ -7,5 +8,5 @@ std::string toUpper( const std::string& input )
 
     std::transform( input.begin(), input.end(),
                     output.begin(),
-                    std::toupper() );
+                    ::toupper );
 }

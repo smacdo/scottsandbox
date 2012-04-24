@@ -1,4 +1,5 @@
 #include "geom/boundingbox.h"
+#include "geom/sphere.h"
 
 /**
  * Axis aligned bounding box constructor. Takes two points, the first of which
@@ -18,13 +19,13 @@ BoundingBox::BoundingBox( const Vec3& minPt, const Vec3& maxPt )
 bool BoundingBox::intersects( const Sphere& sphere ) const
 {
     float sr = sphere.radius();
-    float sx = sphere.origin().x();
-    float sy = sphere.origin().y();
-    float sz = sphere.origin().z();
+    float sx = sphere.center().x();
+    float sy = sphere.center().y();
+    float sz = sphere.center().z();
 
-    return ( sx - sr < mMaxPt.x() ) && ( sx + sr > mMinPt.x() ) &&
-           ( sy - sr < mMaxPt.y() ) && ( sy + sr > mMinPt.y() ) &&
-           ( sz - sr < mMaxPt.z() ) && ( sz + sr > mMinPt.z() );
+    return ( sx - sr < maxPoint.x() ) && ( sx + sr > minPoint.x() ) &&
+           ( sy - sr < maxPoint.y() ) && ( sy + sr > minPoint.y() ) &&
+           ( sz - sr < maxPoint.z() ) && ( sz + sr > minPoint.z() );
 }
 
 /**
@@ -33,7 +34,7 @@ bool BoundingBox::intersects( const Sphere& sphere ) const
 bool BoundingBox::intersects( const BoundingBox& other ) const
 {
     return 
-        ( mMinPt.x() < other.mMaxPt.x() && mMaxPt.x() > other.mMinPt.x() &&
-          mMinPt.y() < other.mMaxPt.y() && mMaxPt.y() > other.mMinPt.y() &&
-          mMinPt.z() < other.mMaxPt.z() && mMaxPt.z() > other.mMinPt.z() );
+        ( minPoint.x() < other.maxPoint.x() && maxPoint.x() > other.minPoint.x() &&
+          minPoint.y() < other.maxPoint.y() && maxPoint.y() > other.minPoint.y() &&
+          minPoint.z() < other.maxPoint.z() && maxPoint.z() > other.minPoint.z() );
 }

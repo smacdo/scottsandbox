@@ -31,11 +31,14 @@
 #include <math/defs.h>
 #include <math/vector.h>
 
+class Ray;
+
 /**
  * Information representing a sphere in 3d space
  */
 class Sphere
 {
+public:
     /**
      * Sphere constructor that creates a new sphere from a vector representing
      * the sphere's center, and a scalar representing the sphere's radius
