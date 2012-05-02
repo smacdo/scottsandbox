@@ -161,7 +161,7 @@ public:
         mSize = newSize;
     }
 
-    Vec2 resize( float width, float height )
+    void resize( float width, float height )
     {
         resize( Vec2( width, height ) );
     }
@@ -174,12 +174,12 @@ public:
                  pt.y() >= 0.0f && pt.y() <= mSize.y() );
     }
 
-    bool contains( const RectF& rect ) const
+    bool contains( const RectF& /*rect*/ ) const
     {
         return false;
     }
 
-    bool intersects( const RectF& rect ) const
+    bool intersects( const RectF& /*rect*/ ) const
     {
         return false;
     }

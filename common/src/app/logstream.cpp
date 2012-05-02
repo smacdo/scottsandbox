@@ -25,8 +25,8 @@
  */
 LogStream::LogStream( std::ostream *pConsoleStream,
                       std::ofstream *pFileStream )
-    : std::ostream( new DebugStreambuf<char> ),
-      std::ios( 0 ),
+    : std::ios( 0 ),
+      std::ostream( new DebugStreambuf<char> ),
       mpStreambuf( NULL ),
       mpConsoleStream( pConsoleStream ),
       mpFileStream( pFileStream )

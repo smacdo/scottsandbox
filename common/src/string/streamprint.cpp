@@ -59,7 +59,7 @@ std::ostream& printBinary( std::ostream& stream,
                << ((v >> 1) & 0x1)
                << ((v     ) & 0x1);
 
-        if ( i == len - 1 )
+        if ( i != len )
         {
             stream << " ";
         }

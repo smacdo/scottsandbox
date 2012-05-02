@@ -30,7 +30,7 @@ namespace App {
  */
 void setIsInUnitTestMode( bool isInUnitTesting )
 {
-    GIsUnitTesting = true;
+    GIsUnitTesting = isInUnitTesting;
 }
 
 void setTestAssertsShouldDie( bool shouldBlowUp )
@@ -97,7 +97,7 @@ EAssertionStatus raiseAssertion( const char *pMessage,
     // assertion should not cause kill the unit test runner
     if ( GIsUnitTesting )
     {
-        ADD_FAILURE_AT( pFilename, line )
+        ADD_FAILURE_AT( pFilename, static_cast<int>(line) )
             << "Application assertion triggered: "
             << pExpression;
 

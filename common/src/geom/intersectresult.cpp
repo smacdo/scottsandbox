@@ -50,5 +50,7 @@ IntersectResult::IntersectResult( const Vec3& pt,
 
 bool IntersectResult::didHit() const
 {
+#pragma GCC diagnostic ignored "-Wfloat-equal"
     return distance != std::numeric_limits<Scalar>::infinity();
+#pragma GCC diagnostic error "-Wfloat-equal"
 }

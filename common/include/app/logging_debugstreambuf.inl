@@ -371,9 +371,12 @@ const char* DebugStreambuf<C,T>::getLogLevelString( ELogLevel level ) const
             return "ERROR";
         case ELOGLEVEL_FATAL:
             return "FATAL";
+        case ELogLevel_Count:
         default:
-            return "???";
+            assert( false && "Unknown enumeration value for ELogLevel" );
     }
+
+    return "???";
 }
 
 #endif

@@ -24,7 +24,7 @@ TEST(StringUtils,SimpleByteToHex)
 
 TEST(StringUtils,IntToHex)
 {
-    long v = 20481024;
+    int32_t v = 20481024;
     std::ostringstream ss;
 
     printHex( ss, v );

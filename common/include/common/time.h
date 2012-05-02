@@ -1,8 +1,6 @@
 #ifndef SCOTT_COMMON_TIME
 #define SCOTT_COMMON_TIME
 
-#include <cstddef>      // size_t
-
 /**
  * Class used to measure and keep track of arbitrary amounts of time.
  * The time class measures time in terms of seconds, and has no pre-defined
@@ -20,9 +18,9 @@ public:
     explicit Time( float seconds );
     explicit Time( double seconds );
 
-    static Time fromNanoSeconds( size_t time );
-    static Time fromMilliSeconds( size_t time );
-    static Time fromMicroSeconds( size_t time );
+    static Time fromNanoSeconds( unsigned int time );
+    static Time fromMilliSeconds( unsigned int time );
+    static Time fromMicroSeconds( unsigned int time );
 
     Time& operator = ( const Time& rhs );
 
@@ -40,7 +38,7 @@ public:
 
     const static double TimeDelta;
 private:
-    double m_seconds;
+    double mSeconds;
 };
 
 #endif

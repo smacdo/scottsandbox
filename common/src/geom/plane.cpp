@@ -60,6 +60,10 @@ bool Plane::intersects( const Ray& ray, Vec3 * pOutIntersectionPt ) const
         return false;     // ray intersects behind plane origin
     }
 
-    Vec3 intersectPt = ray.origin + ray.direction * t;
+    if ( pOutIntersectionPt != NULL )
+    {
+        *pOutIntersectionPt = ray.origin + ray.direction * t;
+    }
+
     return true;
 }

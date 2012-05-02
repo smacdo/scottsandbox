@@ -74,8 +74,8 @@ TEST(UtilsTests,DeletePointer)
 
 TEST(UtilsTest,DeletePointerArray)
 {
-    size_t total = 0;
-    size_t a     = 0;
+    //size_t total = 0;
+    //size_t a     = 0;
 
     // TODO: Implement
     EXPECT_TRUE( true );

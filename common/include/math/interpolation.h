@@ -13,8 +13,7 @@ float easeIn( float time )
 }
 
 /**
- * Performs a linear interpolation on the range [x,y] using s as the
- * linear interpolation value.
+ * Performs a linear interpolation on the range [x,y] using s as the ratio
  *
  * \param  x  Starting value
  * \param  y  Ending value

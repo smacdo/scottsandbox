@@ -16,8 +16,7 @@
 #ifndef SCOTT_COMMON_MATH_MATRIX_H
 #define SCOTT_COMMON_MATH_MATRIX_H
 
-#include <algorithm>
-#include <functional>
+#include <math/vector.h>
 #include <math/defs.h>
 #include <math/util.h>
 
@@ -33,13 +32,16 @@
 // Forward decalarations
 //
 template<typename T> class TMatrix4;
+namespace boost { namespace serialization { class access; } }
 
 template<typename T> bool isZeroMatrix( const TMatrix4<T>& );
 template<typename T> bool isIdentityMatrix( const TMatrix4<T>& );
 template<typename T> TMatrix4<T> transpose( const TMatrix4<T>& );
 template<typename T> T determinant( const TMatrix4<T>& );
-template<typename T> bool tryInverse( const TMatrix4<T>&, TMatrix4<T>* );
+template<typename T> TMatrix4<T> tryInverse( const TMatrix4<T>&, bool* = NULL);
 template<typename T> TMatrix4<T> inverse( const TMatrix4<T>& );
+template<typename T> TMatrix4<T> calculateInverse( const TMatrix4<T>&, T );
+template<typename T> T trace( const TMatrix4<T>& );
 
 /**
  * A templated, size-indepdent column major matrix. This templated matrix can
@@ -117,10 +119,10 @@ public:
      */
     TMatrix4()
 #ifdef MATRIX_DEBUG_MODE
-        : m00( MATRIX_DV ), m01( MATRIX_DV ), m02( MATRIX_DV ), m03( MATRIX_DV ),
-          m04( MATRIX_DV ), m05( MATRIX_DV ), m06( MATRIX_DV ), m07( MATRIX_DV ),
-          m08( MATRIX_DV ), m09( MATRIX_DV ), m10( MATRIX_DV ), m11( MATRIX_DV ),
-          m12( MATRIX_DV ), m13( MATRIX_DV ), m14( MATRIX_DV ), m15( MATRIX_DV )
+        : m11( MATRIX_DV ), m12( MATRIX_DV ), m13( MATRIX_DV ), m14( MATRIX_DV ),
+          m21( MATRIX_DV ), m22( MATRIX_DV ), m23( MATRIX_DV ), m24( MATRIX_DV ),
+          m31( MATRIX_DV ), m32( MATRIX_DV ), m33( MATRIX_DV ), m34( MATRIX_DV ),
+          m41( MATRIX_DV ), m42( MATRIX_DV ), m43( MATRIX_DV ), m44( MATRIX_DV )
 #endif
     {
     }
@@ -130,14 +132,14 @@ public:
      * 4x4 matrix constructor. Arguments are to be specified in row
      * major format.
      */
-    TMatrix4( value_type m11, value_type m12, value_type m13, value_type m14,
-              value_type m21, value_type m22, value_type m23, value_type m24,
-              value_type m31, value_type m32, value_type m33, value_type m34,
-              value_type m41, value_type m42, value_type m43, value_type m44 )
-        : m00(m11), m01(m12), m02(m13), m03(m14),
-          m04(m21), m05(m22), m06(m23), m07(m24),
-          m08(m31), m09(m32), m10(m33), m11(m34),
-          m12(m41), m13(m42), m14(m43), m15(m44)
+    TMatrix4( value_type m34, value_type m41, value_type m42, value_type m43,
+              value_type M21, value_type M22, value_type M23, value_type M24,
+              value_type M31, value_type M32, value_type M33, value_type M34,
+              value_type M41, value_type M42, value_type M43, value_type M44 )
+        : m11(m34), m12(m41), m13(m42), m14(m43),
+          m21(M21), m22(M22), m23(M23), m24(M24),
+          m31(M31), m32(M32), m33(M33), m34(M34),
+          m41(M41), m42(M42), m43(M43), m44(M44)
     {
     }
 
@@ -148,10 +150,10 @@ public:
      *                order
      */
     explicit TMatrix4( const_pointer pVals )
-        : m00( pVals[0]  ), m01( pVals[1]  ), m02( pVals[2]   ), m03( pVals[3]  ),
-          m04( pVals[4]  ), m05( pVals[5]  ), m06( pVals[6]   ), m07( pVals[7]  ),
-          m08( pVals[8]  ), m09( pVals[9]  ), m10( pVals[10] ),  m11( pVals[11] ),
-          m12( pVals[12] ), m13( pVals[13] ), m14( pVals[14] ),  m15( pVals[15] )    
+        : m11( pVals[0]  ), m12( pVals[1]  ), m13( pVals[2]   ), m14( pVals[3]  ),
+          m21( pVals[4]  ), m22( pVals[5]  ), m23( pVals[6]   ), m24( pVals[7]  ),
+          m31( pVals[8]  ), m32( pVals[9]  ), m33( pVals[10] ),  m34( pVals[11] ),
+          m41( pVals[12] ), m42( pVals[13] ), m43( pVals[14] ),  m44( pVals[15] )    
     {
     }
 
@@ -161,10 +163,10 @@ public:
      * \param  m  Matrix to copy values from
      */
     TMatrix4( const TMatrix4<T>& m )
-        : m00( m.m00 ), m01( m.m01 ), m02( m.m02 ), m03( m.m03 ),
-          m04( m.m04 ), m05( m.m05 ), m06( m.m06 ), m07( m.m07 ),
-          m08( m.m08 ), m09( m.m09 ), m10( m.m10 ), m11( m.m11 ),
-          m12( m.m12 ), m13( m.m13 ), m14( m.m14 ), m15( m.m15 )
+        : m11( m.m11 ), m12( m.m12 ), m13( m.m13 ), m14( m.m14 ),
+          m21( m.m21 ), m22( m.m22 ), m23( m.m23 ), m24( m.m24 ),
+          m31( m.m31 ), m32( m.m32 ), m33( m.m33 ), m34( m.m34 ),
+          m41( m.m41 ), m42( m.m42 ), m43( m.m43 ), m44( m.m44 )
     {
     }
 
@@ -221,10 +223,10 @@ public:
      */
     TMatrix4<T>& operator = ( const TMatrix4<T>& rhs )
     {
-        m00 = rhs.m00; m01 = rhs.m01; m02 = rhs.m02; m03 = rhs.m03;
-        m04 = rhs.m04; m05 = rhs.m05; m06 = rhs.m06; m07 = rhs.m07;
-        m08 = rhs.m08; m09 = rhs.m09; m10 = rhs.m10; m11 = rhs.m11;
-        m12 = rhs.m12; m13 = rhs.m13; m14 = rhs.m14; m15 = rhs.m15;
+        m11 = rhs.m11; m12 = rhs.m12; m13 = rhs.m13; m14 = rhs.m14;
+        m21 = rhs.m21; m22 = rhs.m22; m23 = rhs.m23; m24 = rhs.m24;
+        m31 = rhs.m31; m32 = rhs.m32; m33 = rhs.m33; m34 = rhs.m34;
+        m41 = rhs.m41; m42 = rhs.m42; m43 = rhs.m43; m44 = rhs.m44;
 
         return *this;
     }
@@ -235,10 +237,10 @@ public:
     TMatrix4<T> operator + ( const TMatrix4<T>& rhs ) const
     {
         return TMatrix4(
-            m00 + rhs.m00, m01 + rhs.m01, m02 + rhs.m02, m03 + rhs.m03,
-            m04 + rhs.m04, m05 + rhs.m05, m06 + rhs.m06, m07 + rhs.m07,
-            m08 + rhs.m08, m09 + rhs.m09, m10 + rhs.m10, m11 + rhs.m11,
-            m12 + rhs.m12, m13 + rhs.m13, m14 + rhs.m14, m15 + rhs.m15
+            m11 + rhs.m11, m12 + rhs.m12, m13 + rhs.m13, m14 + rhs.m14,
+            m21 + rhs.m21, m22 + rhs.m22, m23 + rhs.m23, m24 + rhs.m24,
+            m31 + rhs.m31, m32 + rhs.m32, m33 + rhs.m33, m34 + rhs.m34,
+            m41 + rhs.m41, m42 + rhs.m42, m43 + rhs.m43, m44 + rhs.m44
         );
     }
 
@@ -247,10 +249,10 @@ public:
      */
     TMatrix4<T>& operator += ( const TMatrix4<T>& rhs )
     {
-        m00 += rhs.m00; m01 += rhs.m01; m02 += rhs.m02; m03 += rhs.m03;
-        m04 += rhs.m04; m05 += rhs.m05; m06 += rhs.m06; m07 += rhs.m07;
-        m08 += rhs.m08; m09 += rhs.m09; m10 += rhs.m10; m11 += rhs.m11;
-        m12 += rhs.m12; m13 += rhs.m13; m14 += rhs.m14; m15 += rhs.m15;
+        m11 += rhs.m11; m12 += rhs.m12; m13 += rhs.m13; m14 += rhs.m14;
+        m21 += rhs.m21; m22 += rhs.m22; m23 += rhs.m23; m24 += rhs.m24;
+        m31 += rhs.m31; m32 += rhs.m32; m33 += rhs.m33; m34 += rhs.m34;
+        m41 += rhs.m41; m42 += rhs.m42; m43 += rhs.m43; m44 += rhs.m44;
 
         return *this;
     }
@@ -261,10 +263,10 @@ public:
     TMatrix4<T> operator - ( const TMatrix4<T>& rhs ) const
     {
         return TMatrix4(
-            m00 - rhs.m00, m01 - rhs.m01, m02 - rhs.m02, m03 - rhs.m03,
-            m04 - rhs.m04, m05 - rhs.m05, m06 - rhs.m06, m07 - rhs.m07,
-            m08 - rhs.m08, m09 - rhs.m09, m10 - rhs.m10, m11 - rhs.m11,
-            m12 - rhs.m12, m13 - rhs.m13, m14 - rhs.m14, m15 - rhs.m15
+            m11 - rhs.m11, m12 - rhs.m12, m13 - rhs.m13, m14 - rhs.m14,
+            m21 - rhs.m21, m22 - rhs.m22, m23 - rhs.m23, m24 - rhs.m24,
+            m31 - rhs.m31, m32 - rhs.m32, m33 - rhs.m33, m34 - rhs.m34,
+            m41 - rhs.m41, m42 - rhs.m42, m43 - rhs.m43, m44 - rhs.m44
         );
     }
 
@@ -273,10 +275,10 @@ public:
      */
     TMatrix4<T>& operator -= ( const TMatrix4<T>& rhs )
     {
-        m00 -= rhs.m00; m01 -= rhs.m01; m02 -= rhs.m02; m03 -= rhs.m03;
-        m04 -= rhs.m04; m05 -= rhs.m05; m06 -= rhs.m06; m07 -= rhs.m07;
-        m08 -= rhs.m08; m09 -= rhs.m09; m10 -= rhs.m10; m11 -= rhs.m11;
-        m12 -= rhs.m12; m13 -= rhs.m13; m14 -= rhs.m14; m15 -= rhs.m15;
+        m11 -= rhs.m11; m12 -= rhs.m12; m13 -= rhs.m13; m14 -= rhs.m14;
+        m21 -= rhs.m21; m22 -= rhs.m22; m23 -= rhs.m23; m24 -= rhs.m24;
+        m31 -= rhs.m31; m32 -= rhs.m32; m33 -= rhs.m33; m34 -= rhs.m34;
+        m41 -= rhs.m41; m42 -= rhs.m42; m43 -= rhs.m43; m44 -= rhs.m44;
 
         return *this;
     }
@@ -287,10 +289,10 @@ public:
     TMatrix4<T> operator * ( value_type rhs ) const
     {
         return TMatrix4(
-            m00 * rhs, m01 * rhs, m02 * rhs, m03 * rhs,
-            m04 * rhs, m05 * rhs, m06 * rhs, m07 * rhs,
-            m08 * rhs, m09 * rhs, m10 * rhs, m11 * rhs,
-            m12 * rhs, m13 * rhs, m14 * rhs, m15 * rhs
+            m11 * rhs, m12 * rhs, m13 * rhs, m14 * rhs,
+            m21 * rhs, m22 * rhs, m23 * rhs, m24 * rhs,
+            m31 * rhs, m32 * rhs, m33 * rhs, m34 * rhs,
+            m41 * rhs, m42 * rhs, m43 * rhs, m44 * rhs
         );
     }
 
@@ -299,10 +301,10 @@ public:
      */
     TMatrix4<T>& operator *= ( value_type rhs )
     {
-        m00 *= rhs; m01 *= rhs; m02 *= rhs; m03 *= rhs;
-        m04 *= rhs; m05 *= rhs; m06 *= rhs; m07 *= rhs;
-        m08 *= rhs; m09 *= rhs; m10 *= rhs; m11 *= rhs;
-        m12 *= rhs; m13 *= rhs; m14 *= rhs; m15 *= rhs;
+        m11 *= rhs; m12 *= rhs; m13 *= rhs; m14 *= rhs;
+        m21 *= rhs; m22 *= rhs; m23 *= rhs; m24 *= rhs;
+        m31 *= rhs; m32 *= rhs; m33 *= rhs; m34 *= rhs;
+        m41 *= rhs; m42 *= rhs; m43 *= rhs; m44 *= rhs;
 
         return *this;
     }
@@ -313,22 +315,22 @@ public:
     TMatrix4<T> operator * ( const TMatrix4<T>& rhs ) const
     {
         return TMatrix4<T>(
-            m00 * rhs.m00 + m01 * rhs.m04 + m02 * rhs.m08 + m03 * rhs.m12,
-            m00 * rhs.m01 + m01 * rhs.m05 + m02 * rhs.m09 + m03 * rhs.m13,
-            m00 * rhs.m02 + m01 * rhs.m06 + m02 * rhs.m10 + m03 * rhs.m14,
-            m00 * rhs.m03 + m01 * rhs.m07 + m02 * rhs.m11 + m03 * rhs.m15,
-            m04 * rhs.m00 + m05 * rhs.m04 + m06 * rhs.m08 + m07 * rhs.m12,
-            m04 * rhs.m01 + m05 * rhs.m05 + m06 * rhs.m09 + m07 * rhs.m13,
-            m04 * rhs.m02 + m05 * rhs.m06 + m06 * rhs.m10 + m07 * rhs.m14,
-            m04 * rhs.m03 + m05 * rhs.m07 + m06 * rhs.m11 + m07 * rhs.m15,
-            m08 * rhs.m00 + m09 * rhs.m04 + m10 * rhs.m08 + m11 * rhs.m12,
-            m08 * rhs.m01 + m09 * rhs.m05 + m10 * rhs.m09 + m11 * rhs.m13,
-            m08 * rhs.m02 + m09 * rhs.m06 + m10 * rhs.m10 + m11 * rhs.m14,
-            m08 * rhs.m03 + m09 * rhs.m07 + m10 * rhs.m11 + m11 * rhs.m15,
-            m12 * rhs.m00 + m13 * rhs.m04 + m14 * rhs.m08 + m15 * rhs.m12,
-            m12 * rhs.m01 + m13 * rhs.m05 + m14 * rhs.m09 + m15 * rhs.m13,
-            m12 * rhs.m02 + m13 * rhs.m06 + m14 * rhs.m10 + m15 * rhs.m14,
-            m12 * rhs.m03 + m13 * rhs.m07 + m14 * rhs.m11 + m15 * rhs.m15
+            m11 * rhs.m11 + m12 * rhs.m21 + m13 * rhs.m31 + m14 * rhs.m41,
+            m11 * rhs.m12 + m12 * rhs.m22 + m13 * rhs.m32 + m14 * rhs.m42,
+            m11 * rhs.m13 + m12 * rhs.m23 + m13 * rhs.m33 + m14 * rhs.m43,
+            m11 * rhs.m14 + m12 * rhs.m24 + m13 * rhs.m34 + m14 * rhs.m44,
+            m21 * rhs.m11 + m22 * rhs.m21 + m23 * rhs.m31 + m24 * rhs.m41,
+            m21 * rhs.m12 + m22 * rhs.m22 + m23 * rhs.m32 + m24 * rhs.m42,
+            m21 * rhs.m13 + m22 * rhs.m23 + m23 * rhs.m33 + m24 * rhs.m43,
+            m21 * rhs.m14 + m22 * rhs.m24 + m23 * rhs.m34 + m24 * rhs.m44,
+            m31 * rhs.m11 + m32 * rhs.m21 + m33 * rhs.m31 + m34 * rhs.m41,
+            m31 * rhs.m12 + m32 * rhs.m22 + m33 * rhs.m32 + m34 * rhs.m42,
+            m31 * rhs.m13 + m32 * rhs.m23 + m33 * rhs.m33 + m34 * rhs.m43,
+            m31 * rhs.m14 + m32 * rhs.m24 + m33 * rhs.m34 + m34 * rhs.m44,
+            m41 * rhs.m11 + m42 * rhs.m21 + m43 * rhs.m31 + m44 * rhs.m41,
+            m41 * rhs.m12 + m42 * rhs.m22 + m43 * rhs.m32 + m44 * rhs.m42,
+            m41 * rhs.m13 + m42 * rhs.m23 + m43 * rhs.m33 + m44 * rhs.m43,
+            m41 * rhs.m14 + m42 * rhs.m24 + m43 * rhs.m34 + m44 * rhs.m44
         );
     }
 
@@ -337,22 +339,22 @@ public:
      */
     TMatrix4<T>& operator *= ( const TMatrix4<T>& rhs )
     {
-        m00 = m00 * rhs.m00 + m01 * rhs.m04 + m02 * rhs.m08 + m03 * rhs.m12;
-        m01 = m00 * rhs.m01 + m01 * rhs.m05 + m02 * rhs.m09 + m03 * rhs.m13;
-        m02 = m00 * rhs.m02 + m01 * rhs.m06 + m02 * rhs.m10 + m03 * rhs.m14;
-        m03 = m00 * rhs.m03 + m01 * rhs.m07 + m02 * rhs.m11 + m03 * rhs.m15;
-        m04 = m04 * rhs.m00 + m05 * rhs.m04 + m06 * rhs.m08 + m07 * rhs.m12;
-        m05 = m04 * rhs.m01 + m05 * rhs.m05 + m06 * rhs.m09 + m07 * rhs.m13;
-        m06 = m04 * rhs.m02 + m05 * rhs.m06 + m06 * rhs.m10 + m07 * rhs.m14;
-        m07 = m04 * rhs.m03 + m05 * rhs.m07 + m06 * rhs.m11 + m07 * rhs.m15;
-        m08 = m08 * rhs.m00 + m09 * rhs.m04 + m10 * rhs.m08 + m11 * rhs.m12;
-        m09 = m08 * rhs.m01 + m09 * rhs.m05 + m10 * rhs.m09 + m11 * rhs.m13;
-        m10 = m08 * rhs.m02 + m09 * rhs.m06 + m10 * rhs.m10 + m11 * rhs.m14;
-        m11 = m08 * rhs.m03 + m09 * rhs.m07 + m10 * rhs.m11 + m11 * rhs.m15;
-        m12 = m12 * rhs.m00 + m13 * rhs.m04 + m14 * rhs.m08 + m15 * rhs.m12;
-        m13 = m12 * rhs.m01 + m13 * rhs.m05 + m14 * rhs.m09 + m15 * rhs.m13;
-        m14 = m12 * rhs.m02 + m13 * rhs.m06 + m14 * rhs.m10 + m15 * rhs.m14;
-        m15 = m12 * rhs.m03 + m13 * rhs.m07 + m14 * rhs.m11 + m15 * rhs.m15;
+        m11 = m11 * rhs.m11 + m12 * rhs.m21 + m13 * rhs.m31 + m14 * rhs.m41;
+        m12 = m11 * rhs.m12 + m12 * rhs.m22 + m13 * rhs.m32 + m14 * rhs.m42;
+        m13 = m11 * rhs.m13 + m12 * rhs.m23 + m13 * rhs.m33 + m14 * rhs.m43;
+        m14 = m11 * rhs.m14 + m12 * rhs.m24 + m13 * rhs.m34 + m14 * rhs.m44;
+        m21 = m21 * rhs.m11 + m22 * rhs.m21 + m23 * rhs.m31 + m24 * rhs.m41;
+        m22 = m21 * rhs.m12 + m22 * rhs.m22 + m23 * rhs.m32 + m24 * rhs.m42;
+        m23 = m21 * rhs.m13 + m22 * rhs.m23 + m23 * rhs.m33 + m24 * rhs.m43;
+        m24 = m21 * rhs.m14 + m22 * rhs.m24 + m23 * rhs.m34 + m24 * rhs.m44;
+        m31 = m31 * rhs.m11 + m32 * rhs.m21 + m33 * rhs.m31 + m34 * rhs.m41;
+        m32 = m31 * rhs.m12 + m32 * rhs.m22 + m33 * rhs.m32 + m34 * rhs.m42;
+        m33 = m31 * rhs.m13 + m32 * rhs.m23 + m33 * rhs.m33 + m34 * rhs.m43;
+        m34 = m31 * rhs.m14 + m32 * rhs.m24 + m33 * rhs.m34 + m34 * rhs.m44;
+        m41 = m41 * rhs.m11 + m42 * rhs.m21 + m43 * rhs.m31 + m44 * rhs.m41;
+        m42 = m41 * rhs.m12 + m42 * rhs.m22 + m43 * rhs.m32 + m44 * rhs.m42;
+        m43 = m41 * rhs.m13 + m42 * rhs.m23 + m43 * rhs.m33 + m44 * rhs.m43;
+        m44 = m41 * rhs.m14 + m42 * rhs.m24 + m43 * rhs.m34 + m44 * rhs.m44;
 
         return *this;
     }
@@ -400,38 +402,53 @@ public:
     }
 
     /**
-     * Checks if all the entries in the matrix are zero
+     * Returns a row of the matrix
      */
+    TVector4<T> row( unsigned int r ) const
+    {
+        math_assert( r < NUM_ROWS && "Matrix row out of range" );
+
+        return TVector4<T>( m[ M_OFFSET(r,0) ],
+                            m[ M_OFFSET(r,1) ],
+                            m[ M_OFFSET(r,2) ],
+                            m[ M_OFFSET(r,3) ] );
+    }
+
+    /**
+     * Returns a column of the matrix
+     */
+    TVector4<T> column( unsigned int c ) const
+    {
+        math_assert( c < NUM_COLS && "Matrix col out of range" );
+
+        return TVector4<T>( m[ M_OFFSET(0,c) ],
+                            m[ M_OFFSET(1,c) ],
+                            m[ M_OFFSET(2,c) ],
+                            m[ M_OFFSET(3,c) ] );
+    }
+
+    friend class boost::serialization::access;
+
+    /**
+     * Serialization
+     */
+    template<typename Archive>
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        ar & m[0]  & m[1]  & m[2]  & m[3]
+           & m[4]  & m[5]  & m[6]  & m[7]
+           & m[8]  & m[9]  & m[10] & m[11]
+           & m[12] & m[13] & m[14] & m[15];
+    }
+
     friend bool isZeroMatrix<>( const TMatrix4<T>& );
-
-    /**
-     * Checks if the gien matrix is an identity matrix
-     */
     friend bool isIdentityMatrix<>( const TMatrix4<T>& );
-        
-    /**
-     * Returns the transpose of this matrix
-     */
     friend TMatrix4<T> transpose<>( const TMatrix4<T>& );
-
-    /**
-     * Returns the determinant of the matrix
-     */
+    friend value_type trace<>( const TMatrix4<T>& );
     friend value_type determinant<>( const TMatrix4<T>& );
-
-    /**
-     * Conditional inverse calculation. This method attempts to calculate the
-     * matrix's inverse, and indicates if the calculation was successful. This
-     * method can take a pointer to a destination matrix and populate it with
-     * the value of the inverse, if the calculation succeeded.
-     */
-    friend bool tryInverse<>( const TMatrix4<T>& source,
-                              TMatrix4<T> * pDestination );
-
-    /**
-     * Returns the inverse of this matrix
-     */
     friend TMatrix4<T> inverse<>( const TMatrix4<T>& );
+    friend TMatrix4<T> tryInverse<>( const TMatrix4<T>&, bool* );
+    friend TMatrix4<T> calculateInverse<>( const TMatrix4<T>&, value_type );
 
 public:
     static const TMatrix4<T> ZERO_MATRIX;
@@ -442,12 +459,12 @@ protected:
     union
     {
         value_type m[NUM_VALUES];
-        struct
+        struct      // row major ordering
         {
-            value_type m00, m01, m02, m03;
-            value_type m04, m05, m06, m07;
-            value_type m08, m09, m10, m11;
-            value_type m12, m13, m14, m15;
+            value_type m11, m12, m13, m14;
+            value_type m21, m22, m23, m24;
+            value_type m31, m32, m33, m34;
+            value_type m41, m42, m43, m44;
         };
     };
 };
@@ -455,6 +472,13 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 // TMatrix4 utility methods and functions
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Check if the matrix is entirely zero
+ *
+ * \param  m  Matrix to check
+ * \return    True if the matrix is all zero, false otherwise
+ */
 template<typename T>
 bool isZeroMatrix( const TMatrix4<T>& m )
 {
@@ -471,6 +495,12 @@ bool isZeroMatrix( const TMatrix4<T>& m )
     return status;
 }
 
+/**
+ * Checks if the given matrix is an identity matrix
+ *
+ * \param  m  Matrix to check
+ * \return    True if the matrix is an identity matrix, false otherwise
+ */
 template<typename T>
 bool isIdentityMatrix( const TMatrix4<T>& m )
 {
@@ -479,21 +509,149 @@ bool isIdentityMatrix( const TMatrix4<T>& m )
     T v = static_cast<T>( 1 );
 
     return 
-        equalsClose( m.m00, v ) && isZero( m.m01 ) && isZero( m.m02 ) && isZero( m.m03 ) &&
-        isZero( m.m04 ) && equalsClose( m.m05, v ) && isZero( m.m06 ) && isZero( m.m07 ) &&
-        isZero( m.m08 ) && isZero( m.m09 ) && equalsClose( m.m10, v ) && isZero( m.m11 ) &&
-        isZero( m.m12 ) && isZero( m.m13 ) && isZero( m.m14 ) && equalsClose( m.m15, v );
+        equalsClose( m.m11, v ) && isZero( m.m21 ) && isZero( m.m31 ) && isZero( m.m41 ) &&
+        isZero( m.m21 ) && equalsClose( m.m22, v ) && isZero( m.m32 ) && isZero( m.m42 ) &&
+        isZero( m.m31 ) && isZero( m.m23 ) && equalsClose( m.m33, v ) && isZero( m.m43 ) &&
+        isZero( m.m41 ) && isZero( m.m24 ) && isZero( m.m34 ) && equalsClose( m.m44, v );
 }
 
+/**
+ * Returns the transpose of the given matrix
+ *
+ * \param  m  Matrix to tranpose
+ * \return    The transposed matrix
+ */
 template<typename T>
 TMatrix4<T> transpose( const TMatrix4<T>& m )
 {
-    return TMatrix4<T>( m.m00, m.m04, m.m08, m.m12,
-                        m.m01, m.m05, m.m09, m.m13,
-                        m.m02, m.m06, m.m10, m.m14,
-                        m.m03, m.m07, m.m11, m.m15 );
+    return TMatrix4<T>( m.m11, m.m21, m.m31, m.m41,
+                        m.m12, m.m22, m.m32, m.m42,
+                        m.m13, m.m23, m.m33, m.m43,
+                        m.m14, m.m24, m.m34, m.m44 );
 }
 
+/**
+ * Returns the sum of the elements on the matrix's diagonal
+ *
+ * \param  m  Matrix to calculate trace
+ * \return    Trace value of the matrix
+ */
+template<typename T>
+T trace( const TMatrix4<T>& m )
+{
+    return m.m11 + m.m22 + m.m33 + m.m44;
+}
+
+/**
+ * Calculates the determinant of the matrix
+ *
+ * \param  m  Matrix to calculate
+ * \return    Value of the determinant
+ */
+template<typename T>
+T determinant( const TMatrix4<T>& m )
+{
+    return 
+        m.m14 * m.m23 * m.m32 * m.m41-m.m13 * m.m24 * m.m32 * m.m41-m.m14 * m.m22 * m.m33 * m.m41+m.m12 * m.m24 * m.m33 * m.m41
+      + m.m13 * m.m22 * m.m34 * m.m41-m.m12 * m.m23 * m.m34 * m.m41-m.m14 * m.m23 * m.m31 * m.m42+m.m13 * m.m24 * m.m31 * m.m42
+      + m.m14 * m.m21 * m.m33 * m.m42-m.m11 * m.m24 * m.m33 * m.m42-m.m13 * m.m21 * m.m34 * m.m42+m.m11 * m.m23 * m.m34 * m.m42
+      + m.m14 * m.m22 * m.m31 * m.m43-m.m12 * m.m24 * m.m31 * m.m43-m.m14 * m.m21 * m.m32 * m.m43+m.m11 * m.m24 * m.m32 * m.m43
+      + m.m12 * m.m21 * m.m34 * m.m43-m.m11 * m.m22 * m.m34 * m.m43-m.m13 * m.m22 * m.m31 * m.m44+m.m12 * m.m23 * m.m31 * m.m44
+      + m.m13 * m.m21 * m.m32 * m.m44-m.m11 * m.m23 * m.m32 * m.m44-m.m12 * m.m21 * m.m33 * m.m44+m.m11 * m.m22 * m.m33 * m.m44;
+}
+
+/**
+ * Conditional matrix inversion. This function attempts to calculate the
+ * inverse of a matrix, but it will abort if the determinant is equal to zero.
+ * If the caller passes a non-null pointer to a bool, it will contain the
+ * success/failure of the calculation.
+ *
+ * \param  m        Matrix to invert
+ * \param  pStatus  Optional. If not null, this will be true if the matrix
+ *                  inversion succeeded, false otherwsie
+ * \return          Result of inversion. If not possible, the identity matrix
+ *                  will be returned
+ */
+template<typename T>
+TMatrix4<T> tryInverse( const TMatrix4<T>& m, bool * pStatus )
+{
+    // Calculate the matrix's determinant. Can it even be inverted?
+    T det = determinant( m );
+
+    if ( Math::isZero( det ) )
+    {
+        if ( pStatus != NULL )
+        {
+            *pStatus = false;
+        }
+
+        return TMatrix4<T>::IDENTITY;
+    }
+    else if ( pStatus!= NULL )
+    {
+        *pStatus = true;
+    }
+
+    return calculateInverse( m, det );
+}
+
+/**
+ * Calculates inverse of the given matrix. This function will assert and die
+ * if the determinant is equal to zero.
+ *
+ * \param  m  Matrix to invert
+ * \return    Inverted matrix
+ */
+template<typename T>
+TMatrix4<T> inverse( const TMatrix4<T>& m )
+{
+    // Calculate the matrix determinant. Can it even be inverted?
+    T det = determinant( m );
+    assert( Math::isNotZero( det ) && "Cannot invert a singular matrix" );
+
+    return calculateInverse( m, det );
+}
+
+/**
+ * Internal function that calculates the "second half" of a matrix inversion.
+ * It takes the matrix's determinant (to avoid recalculating it), and assumes
+ * that it is never zero. It is the responsibility of the caller to ensure
+ * that the determinant is not zero.
+ *
+ * \param  m    Matrix to invert
+ * \param  det  Determinant value of the matrix
+ * \return      An inverted matrix
+ */
+template<typename T>
+TMatrix4<T> calculateInverse( const TMatrix4<T>& m, T det )
+{
+    return TMatrix4<T>(
+        (m.m22*(m.m33*m.m44 - m.m43*m.m34) - m.m23*(m.m32*m.m44 - m.m42*m.m34) - m.m24*(m.m42*m.m33 - m.m32*m.m43)) / det,
+        (m.m12*(m.m43*m.m34 - m.m33*m.m44) - m.m13*(m.m42*m.m34 - m.m32*m.m44) - m.m14*(m.m32*m.m43 - m.m42*m.m33)) / det,
+        (m.m12*(m.m23*m.m44 - m.m43*m.m24) - m.m13*(m.m22*m.m44 - m.m42*m.m24) - m.m14*(m.m42*m.m23 - m.m22*m.m43)) / det,
+        (m.m12*(m.m33*m.m24 - m.m23*m.m34) - m.m13*(m.m32*m.m24 - m.m22*m.m34) - m.m14*(m.m22*m.m33 - m.m32*m.m23)) / det,
+
+        (m.m21*(m.m43*m.m34 - m.m33*m.m44) - m.m23*(m.m41*m.m34 - m.m31*m.m44) - m.m24*(m.m31*m.m43 - m.m41*m.m33)) / det,
+        (m.m11*(m.m33*m.m44 - m.m43*m.m34) - m.m13*(m.m31*m.m44 - m.m41*m.m34) - m.m14*(m.m41*m.m33 - m.m31*m.m43)) / det,
+        (m.m11*(m.m43*m.m24 - m.m23*m.m44) - m.m13*(m.m41*m.m24 - m.m21*m.m44) - m.m14*(m.m21*m.m43 - m.m41*m.m23)) / det,
+        (m.m11*(m.m23*m.m34 - m.m33*m.m24) - m.m13*(m.m21*m.m34 - m.m31*m.m24) - m.m14*(m.m31*m.m23 - m.m21*m.m33)) / det,
+
+        (m.m21*(m.m32*m.m44 - m.m42*m.m34) - m.m22*(m.m31*m.m44 - m.m41*m.m34) - m.m24*(m.m41*m.m32 - m.m31*m.m42)) / det,
+        (m.m11*(m.m42*m.m34 - m.m32*m.m44) - m.m12*(m.m41*m.m34 - m.m31*m.m44) - m.m14*(m.m31*m.m42 - m.m41*m.m32)) / det,
+        (m.m11*(m.m22*m.m44 - m.m42*m.m24) - m.m12*(m.m21*m.m44 - m.m41*m.m24) - m.m14*(m.m41*m.m22 - m.m21*m.m42)) / det,
+        (m.m11*(m.m32*m.m24 - m.m22*m.m34) - m.m12*(m.m31*m.m24 - m.m21*m.m34) - m.m14*(m.m21*m.m32 - m.m31*m.m22)) / det,
+
+        (m.m21*(m.m42*m.m33 - m.m32*m.m43) - m.m22*(m.m41*m.m33 - m.m31*m.m43) - m.m23*(m.m31*m.m42 - m.m41*m.m32)) / det,
+        (m.m11*(m.m32*m.m43 - m.m42*m.m33) - m.m12*(m.m31*m.m43 - m.m41*m.m33) - m.m13*(m.m41*m.m32 - m.m31*m.m42)) / det,
+        (m.m11*(m.m42*m.m23 - m.m22*m.m43) - m.m12*(m.m41*m.m23 - m.m21*m.m43) - m.m13*(m.m21*m.m42 - m.m41*m.m22)) / det,
+        (m.m11*(m.m22*m.m33 - m.m32*m.m23) - m.m12*(m.m21*m.m33 - m.m31*m.m23) - m.m13*(m.m31*m.m22 - m.m21*m.m32)) / det
+   );
+}
+
+/**
+ * Output stream operator. Prints a formatted version of the matrix to
+ * a text stream
+ */
 template<typename T>
 std::ostream& operator << ( std::ostream& os, const TMatrix4<T>& m )
 {
@@ -505,7 +663,7 @@ std::ostream& operator << ( std::ostream& os, const TMatrix4<T>& m )
        << "[ " << m.at(0,2) << ", " << m.at(1,2) << ", "
                << m.at(2,2) << ", " << m.at(3,2) << " ], "
        << "[ " << m.at(0,3) << ", " << m.at(1,3) << ", "
-               << m.at(2,3) << ", " << m.at(3,3) << " ] " << "[";
+               << m.at(2,3) << ", " << m.at(3,3) << " ] " << "]";
 
     return os;
 }

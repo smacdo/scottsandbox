@@ -35,20 +35,21 @@ TEST(Math,Utils_EqualsClose_NotEquals)
 
 TEST(Math,Utils_EqualsClose_Edges)
 {
-    EXPECT_TRUE( equalsClose( 1.0, 0.99999999 ) );
-    EXPECT_TRUE( equalsClose( 1.0, 1.00000001 ) );
+    EXPECT_TRUE( equalsClose( 1.0f, 0.99999999f ) );
+    EXPECT_TRUE( equalsClose( 1.0f, 1.00000001f ) );
 }
 
 TEST(Math,Utils_EqualsClose_ZeroEdges)
 {
-    EXPECT_TRUE( equalsClose( 0.0, 0.000001 ) );
-    EXPECT_TRUE( equalsClose( 0.0,-0.000001 ) );
-    EXPECT_TRUE( equalsClose( 0.0,-0.0      ) );
-}
+    // float32
+    EXPECT_TRUE( equalsClose( 0.0f, 0.000001f ) );
+    EXPECT_TRUE( equalsClose( 0.0f,-0.000001f ) );
+    EXPECT_TRUE( equalsClose( 0.0f,-0.0f      ) );
 
-TEST(Math,Utils_EqualsClose_Negatives)
-{
-    EXPECT_TRUE( equalsClose( -2.00, -2.00001 ) );
+    // float64
+    EXPECT_TRUE( equalsClose( 0.0, 0.0000000001 ) );
+    EXPECT_TRUE( equalsClose( 0.0,-0.0000000001 ) );
+    EXPECT_TRUE( equalsClose( 0.0,-0.0000000000  ) );
 }
 
 //===========================================================================
@@ -80,8 +81,6 @@ TEST(Math,Utils_IsZero_NotZero)
 
 TEST(Math,Utils_IsZero_WithinBounds)
 {
-    const int ZeroBounds = 0.000000001;
-
     EXPECT_TRUE( isZero( 0.0000000009 ) );
     EXPECT_TRUE( isZero(-0.0000000009 ) );
 }
@@ -181,7 +180,7 @@ TEST(Math,Utils_Snap_LessHalfToLessMultiple)
 
 TEST(Math,Utils_Snaps_ToZeroAsMultiple)
 {
-    EXPECT_EQ( 0, snap( 1, 3 ) );
+    EXPECT_EQ( 3, snap( 1, 3 ) );
 }
 
 TEST(Math,Utils_Snaps_NearestNegativeMultipleIfNegative)
@@ -195,90 +194,15 @@ TEST(Math,Utils_Snaps_NearestNegativeMultipleIfNegative)
 TEST(Math,Utils_Square_Value)
 {
     EXPECT_EQ( 25, square( 5 ) );
-}
-
-TEST(Math,Utils_Square_Zero)
-{
     EXPECT_EQ( 0, square( 0 ) );
-}
-
-TEST(Math,Utils_Square_One)
-{
     EXPECT_EQ( 1, square( 1 ) );
 }
 
 TEST(Math,Utils_Cube_Value)
 {
-    EXPECT_EQ( 125, cube( 3 ) );
-}
-
-TEST(Math,Utils_Cube_Zero)
-{
+    EXPECT_EQ( 125, cube( 5 ) );
     EXPECT_EQ( 0, cube( 0 ) );
-}
-
-TEST(Math,Utils_Cube_One)
-{
     EXPECT_EQ( 1, cube( 1 ) );
-}
-
-//===========================================================================
-// Cast and clamp
-//===========================================================================
-TEST(Math,Utils_ClampedCast_SameTypeDoesNotChangeValue)
-{
-    int result = clampedCast<int, int>( 1024 );
-    EXPECT_EQ( 1024, result );
-}
-
-TEST(Math,Utils_ClampedCast_SmallerTypeDoesNotChangeIfInRange)
-{
-    char result = clampedCast<int, char>( 64 );
-    EXPECT_EQ( (char) 64, result );
-}
-
-TEST(Math,Utils_ClampedCast_UnsignedClampsAtZero)
-{
-    unsigned int result = clampedCast<int, unsigned int>( -1024 );
-    EXPECT_EQ( (unsigned int) 0, result );
-}
-
-TEST(Math,Utils_ClampedCast_FromLargerToEdge)
-{
-    unsigned char result = clampedCast<int, unsigned char>( 671 );
-    EXPECT_EQ( (unsigned char) 127, result );
-}
-
-TEST(Math,Utils_ClampedCast_ToSmallerTypeClampsAtMax)
-{
-    unsigned char result = clampedCast<int, unsigned char>( 127 );
-    EXPECT_EQ( (unsigned char) 127, result );
-}
-
-TEST(Math,Utils_ClampedCast_ToSmallerSignedTypeClampsAtMax)
-{
-    signed char result = clampedCast<int, signed char>( 255 );
-    EXPECT_EQ( (signed char) 255, result );
-}
-
-TEST(Math,Utils_Rad2Deg_Values)
-{
-    // pi constant deliberately not used
-    EXPECT_FLOAT_EQ( 0.0f,   rad2deg( 0.00000000f ) );
-    EXPECT_FLOAT_EQ( 90.0f,  rad2deg( 1.57079633f ) );
-    EXPECT_FLOAT_EQ( 180.0f, rad2deg( 3.14159265f ) );
-    EXPECT_FLOAT_EQ( 360.0f, rad2deg( 6.28318531f ) );
-    EXPECT_FLOAT_EQ( 420.0f, rad2deg( 7.33038286f ) );
-}
-
-TEST(Math,Utils_Deg2Rad_Values)
-{
-    // pi constant deliberately not used
-    EXPECT_FLOAT_EQ( 0.00000000f, deg2rad( 0.0f ) );
-    EXPECT_FLOAT_EQ( 1.57079633f, deg2rad( 90.0f ) );
-    EXPECT_FLOAT_EQ( 3.14159265f, deg2rad( 180.0f ) );
-    EXPECT_FLOAT_EQ( 6.28318531f, deg2rad( 360.0f ) );
-    EXPECT_FLOAT_EQ( 7.33038286f, deg2rad( 420.0f ) );
 }
 
 TEST(Math,Utils_ClampAngle_IntValues)
@@ -313,9 +237,12 @@ TEST(Math,Utils_ClampAngle_DoubleValues)
 
 TEST(Math,Utils_NextPowerOfTwo_Values)
 {
-    EXPECT_EQ( 1, nextPowerOfTwo( 0 ) );
-    EXPECT_EQ( 2, nextPowerOfTwo( 1 ) );
-    EXPECT_EQ( 4, nextPowerOfTwo( 2 ) );
-    EXPECT_EQ( 4, nextPowerOfTwo( 4 ) );
-    EXPECT_EQ( 16, nextPowerOfTwo( 12 ) );
+    EXPECT_EQ( 0, nextPowerOfTwo( 0 ) );
+    EXPECT_EQ( 1, nextPowerOfTwo( 1 ) );
+    EXPECT_EQ( 2, nextPowerOfTwo( 2 ) );
+    EXPECT_EQ( 4, nextPowerOfTwo( 3 ) );
+    EXPECT_EQ( 8, nextPowerOfTwo( 5 ) );
+    EXPECT_EQ( 8, nextPowerOfTwo( 6 ) );
+    EXPECT_EQ( 8, nextPowerOfTwo( 7 ) );
+    EXPECT_EQ( 8, nextPowerOfTwo( 8 ) );
 }

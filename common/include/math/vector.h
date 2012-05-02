@@ -48,6 +48,8 @@ template<typename T> class TVector4;
 template<typename T> class TVector3;
 template<typename T> class TVector2;
 
+namespace boost { namespace serialization { class access; } }
+
 template<typename T> T dot( const TVector3<T>& lhs, const TVector3<T>& rhs );
 template<typename T> TVector3<T> cross( const TVector3<T>& lhs, const TVector3<T>& rhs );
 template<typename T> T length( const TVector4<T>& v );
@@ -408,6 +410,18 @@ private:
 		struct { value_type mX, mY, mZ, mW; };
 		struct { value_type v[NUM_COMPONENTS]; };
 	};
+
+private:
+    friend class boost::serialization::access;
+    
+    /**
+     * Serialization
+     */
+    template<typename Archive>
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        ar & mX & mY & mZ & mW;
+    }
 };
 
 /**
@@ -777,6 +791,18 @@ private:
 		struct { value_type mX, mY, mZ; };
 		struct { value_type v[NUM_COMPONENTS]; };
 	};
+
+private:
+    friend class boost::serialization::access;
+    
+    /**
+     * Serialization
+     */
+    template<typename Archive>
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        ar & mX & mY & mZ;
+    }
 };
 
 /**
@@ -1078,8 +1104,19 @@ private:
 		struct { value_type mX, mY; };
 		struct { value_type v[NUM_COMPONENTS]; };
 	};
-};
 
+private:
+    friend class boost::serialization::access;
+    
+    /**
+     * Serialization
+     */
+    template<typename Archive>
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        ar & mX & mY;
+    }
+};
 /////////////////////////////////////////////////////////////////////////////
 // Templated vector method definitions
 /////////////////////////////////////////////////////////////////////////////

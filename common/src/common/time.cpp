@@ -3,43 +3,53 @@
 
 const double Time::TimeDelta = 0.000001;
 
+/**
+ * Default time constructor. Time is set to zero seconds.
+ */
 Time::Time()
-    : m_seconds( 0.0 )
+    : mSeconds( 0.0 )
 {
 }
 
+/**
+ * Copy constructor
+ */
 Time::Time( const Time& t )
-    : m_seconds( t.m_seconds )
+    : mSeconds( t.mSeconds )
 {
 }
 
+/**
+ * Value constructor
+ */
 Time::Time( int seconds )
-    : m_seconds( seconds )
+    : mSeconds( seconds )
 {
     assert( seconds >= 0 && "Time cannot consist of negative seconds" );
 }
 
 Time::Time( float seconds )
-    : m_seconds( static_cast<double>(seconds) )
+    : mSeconds( static_cast<double>(seconds) )
 {
     assert( seconds >= 0.0f && "Time cannot consist of negative seconds" );
 }
 
 Time::Time( double seconds )
-    : m_seconds( seconds )
+    : mSeconds( seconds )
 {
-    assert( seconds >= 0.0f && "Time cannot consist of negative seconds" );
+    assert( seconds >= 0.0 && "Time cannot consist of negative seconds" );
 }
 
 Time& Time::operator = ( const Time& rhs )
 {
-    m_seconds = rhs.m_seconds;
+    mSeconds = rhs.mSeconds;
+    return *this;
 }
 
 bool Time::operator == ( const Time& rhs ) const
 {
-    return ( m_seconds + TimeDelta >= rhs.m_seconds &&
-             m_seconds - TimeDelta <= rhs.m_seconds );
+    return ( mSeconds + TimeDelta >= rhs.mSeconds &&
+             mSeconds - TimeDelta <= rhs.mSeconds );
 }
 
 bool Time::operator != ( const Time& rhs ) const
@@ -49,25 +59,25 @@ bool Time::operator != ( const Time& rhs ) const
 
 Time Time::operator + ( const Time& rhs ) const
 {
-    return Time( m_seconds + rhs.m_seconds );
+    return Time( mSeconds + rhs.mSeconds );
 }
 
 Time& Time::operator += ( const Time& rhs )
 {
-    m_seconds += rhs.m_seconds;
+    mSeconds += rhs.mSeconds;
     return *this;
 }
 
 Time Time::operator - ( const Time& rhs ) const
 {
-    assert( m_seconds >= rhs.m_seconds );
-    return Time( m_seconds - rhs.m_seconds );
+    assert( mSeconds >= rhs.mSeconds );
+    return Time( mSeconds - rhs.mSeconds );
 }
 
 Time& Time::operator -= ( const Time& rhs )
 {
-    assert( m_seconds >= rhs.m_seconds );
+    assert( mSeconds >= rhs.mSeconds );
     
-    m_seconds -= rhs.m_seconds;
+    mSeconds -= rhs.mSeconds;
     return *this;
 }

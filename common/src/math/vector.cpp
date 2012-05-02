@@ -24,7 +24,7 @@ template<>
 float angleBetween( const TVector3<float>& lhs,
                     const TVector3<float>& rhs )
 {
-    float a = acos( dot( lhs, rhs ) / ( length( lhs ) * length( rhs ) ) );
+    float a = acosf( dot( lhs, rhs ) / ( length( lhs ) * length( rhs ) ) );
     return a * 180.0f / Math::Pi;
 }
 

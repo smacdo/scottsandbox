@@ -4,19 +4,84 @@
 namespace MatrixUtil
 {
     /**
+     * Generates a new matrix that rotates around the X axis
+     */
+    template<typename T>
+    TMatrix4<T> createRotationAroundX( T angle )
+    {
+        T s = sinf( angle );
+        T c = cosf( angle );
+
+        return TMatrix4<T>( 1.0f, 0.0f, 0.0f, 0.0f,
+                            0.0f, c,    -s,   0.0f,
+                            0.0f, s,     c,   0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f );
+    }
+
+    /**
+     * Generates a new matrix that rotates around the Y axis
+     */
+    template<typename T>
+    TMatrix4<T> createRotationAroundY( T angle )
+    {
+        T s = sinf( angle );
+        T c = cosf( angle );
+
+        return TMatrix4<T>( c,    0.0f, -s,   0.0f,
+                            0.0f, 1.0f, 0.0f, 0.0f,
+                            s,    0.0f, c,    0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f );
+    }
+
+    /**
+     * Generates a new matrix that rotates around the Z axis
+     */
+    template<typename T>
+    TMatrix4<T> createRotationAroundZ( T angle )
+    {
+        T s = sinf( angle );
+        T c = cosf( angle );
+
+        return TMatrix4<T>( c,    -s,   0.0f, 0.0f,
+                            s,    c,    0.0f, 0.0f,
+                            0.0f, 0.0f, 1.0f, 0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f );
+    }
+
+    /**
      * Generates a new matrix that rotates any given vector around the
      * specified axis
      */
     template<typename T>
     TMatrix4<T> createRotationAroundAxis( T xAngle,
                                           T yAngle,
-                                          T zAngle );
+                                          T zAngle )
+    {
+    }
 
     /**
      * Creates a translation matrix
      */
     template<typename T>
-    TMatrix4<T> createTranslation( T x, T y, T z );
+    TMatrix4<T> createTranslation( T x, T y, T z )
+    {
+        return TMatrix4<T>( 1.0f, 0.0f, 0.0f, x,
+                            0.0f, 1.0f, 0.0f, y,
+                            0.0f, 0.0f, 1.0f, z,
+                            0.0f, 0.0f, 0.0f, 1.0f );
+    }
+
+    /**
+     * Creates a uniform scaling matrix
+     */
+    template<typename T>
+    TMatrix4<T> createScale( T k )
+    {
+        return TMatrix4<T>( k,    0.0f, 0.0f, 0.0f,
+                            0.0f, k,    0.0f, 0.0f,
+                            0.0f, 0.0f, k,    0.0f,
+                            1.0f, 1.0f, 1.0f, 1.0f );
+    }
 
     /**
      * Creates a view matrix that looks from a specified eye position to

@@ -8,8 +8,7 @@ std::string replace( const std::string& input,
     std::string output( input );
     
     std::string::size_type pos   = input.find( findStr );
-    std::string::size_type last  = input.size(),
-                           fSize = findStr.size(),
+    std::string::size_type fSize = findStr.size(),
                            rSize = replaceStr.size();
 
     while ( pos != std::string::npos )

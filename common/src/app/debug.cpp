@@ -23,25 +23,11 @@ bool IsDebuggerPresent()
     return IsDebuggerPresent();
 #else
     // ...
+    return false;
 #endif
-}
-
-void PrintString( const std::stringstream& stream )
-{
-    const std::string message = stream.str();
-    PrintString( message.c_str() );
 }
 
 void PrintString( const std::string& message )
 {
     PrintString( message.c_str() );
-}
-
-void PrintPrint( const char * message )
-{
-#ifdef WINDOWS
-    OutputDebugStringA( message );
-#else
-    std::cerr << "<DEBUG> : " << message << std::endl;
-#endif
 }

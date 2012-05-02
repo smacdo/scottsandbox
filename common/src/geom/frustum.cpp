@@ -33,7 +33,7 @@
 bool Frustum::isInFrustum( const BoundingBox& box ) const
 {
     float minX = 0.0, minY = 0.0, minZ = 0.0;
-    float maxX = 0.0, maxY = 0.0, maxZ = 0.0;
+//    float maxX = 0.0, maxY = 0.0, maxZ = 0.0;
     bool bIsInFrustrum = true;
 
     for ( int i = 0; i < PlaneCount; ++i )
@@ -44,34 +44,34 @@ bool Frustum::isInFrustum( const BoundingBox& box ) const
         if ( m_planes[i].normal()[0] > 0 )
         {
             minX = box.minPoint[0];
-            maxX = box.maxPoint[0];
+//            maxX = box.maxPoint[0];
         }
         else
         {
             minX = box.maxPoint[0];
-            maxX = box.minPoint[0];
+//            maxX = box.minPoint[0];
         }
 
         if ( m_planes[i].normal()[1] > 0 )
         {
             minY = box.minPoint[1];
-            maxY = box.maxPoint[1];
+//            maxY = box.maxPoint[1];
         }
         else
         {
             minY = box.maxPoint[1];
-            maxY = box.minPoint[1];
+//            maxY = box.minPoint[1];
         }
 
         if ( m_planes[i].normal()[2] > 0 )
         {
             minZ = box.minPoint[2];
-            maxZ = box.maxPoint[2];
+//            maxZ = box.maxPoint[2];
         }
         else
         {
             minZ = box.maxPoint[2];
-            maxZ = box.minPoint[2];
+//            maxZ = box.minPoint[2];
         }
 
         //

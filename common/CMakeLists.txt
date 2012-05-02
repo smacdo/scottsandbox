@@ -16,12 +16,28 @@ cmake_minimum_required(VERSION 2.8)
 
 init_googletest()
 include_directories(${PROJECT_SOURCE_DIR}/include)
-add_definitions("-DNDEBUG=1 -DDEBUG=1")
+add_definitions("-DNDEBUG=1 " "-D_DEBUG=1")
+
+###=====================================================================###
+### Extra warnings and options when building the common library         ###
+###=====================================================================###
+set(XTRAOPTS "${XTRAOPTS} -std=c++0x")
+set(XTRAOPTS "${XTRAOPTS} -mtune=native -msse2 -mfpmath=sse -msse3")
+
+
+# Extra warnings
+set(XTRAWARNS "-Wextra -Wdouble-promotion -Winit-self -Wswitch-enum" )
+set(XTRAWARNS "${XTRAWARNS} -Wuninitialized -Wfloat-equal -Wsign-conversion" )
+set(XTRAWARNS "${XTRAWARNS} -Wpointer-arith -Wconversion -Wlogical-op" )
+set(XTRAWARNS "${XTRAWARNS} -Wctor-dtor-privacy -Wnon-virtual-dtor" )
+set(XTRAWARNS "${XTRAWARNS} -Woverloaded-virtual" )
+#set(XTRAWARNS "${XTRAWARNS} -Wnarrowing" )
+#set(XTRAWARNS "${XTRAWARNS} -Wzero-as-null-pointer-constant" )
 
 #########################################################################
 ### Core common lib
 #########################################################################
-set(commonlib_incs
+set(common_incs
         include/common/delete.h
         include/common/deref.h
         include/common/macros.h
@@ -34,11 +50,11 @@ set(commonlib_incs
         include/common/utils.h
 )
 
-set(commonlib_srcs
+set(common_srcs
         src/common/time.cpp
 )
 
-set(commonlib_tests
+set(common_tests
         tests/common/test_delete.cpp
         tests/common/test_deref.cpp
 )
@@ -46,7 +62,7 @@ set(commonlib_tests
 #########################################################################
 ### Application common lib
 #########################################################################
-set(applib_incs
+set(app_incs
         include/app/app.h
         include/app/debug.h
         include/app/logging.h
@@ -58,7 +74,7 @@ set(applib_incs
         include/app/windowsinclude.h
 )
 
-set(applib_srcs
+set(app_srcs
         src/app/app.cpp
         src/app/debug.cpp
         src/app/globallog.cpp
@@ -69,18 +85,18 @@ set(applib_srcs
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    SET(applib_srcs ${applib_srcs} src/app/platform_darwin.cpp)
+    SET(app_srcs ${app_srcs} src/app/platform_darwin.cpp)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    SET(applib_srcs ${applib_srcs} src/app/platform_xp.cpp)
+    SET(app_srcs ${app_srcs} src/app/platform_xp.cpp)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    SET(applib_srcs ${applib_srcs} src/app/platform_unix.cpp)
+    SET(app_srcs ${app_srcs} src/app/platform_unix.cpp)
 endif()
 
-set(applib_tests
+set(app_tests
         )
 
 #########################################################################
@@ -103,7 +119,7 @@ set(game2d_tests
 #########################################################################
 ### Game3d (geomlib)
 #########################################################################
-set(geomlib_incs
+set(geom_incs
         include/geom/boundingbox.h
         include/geom/camera.h
         include/geom/defs.h
@@ -117,8 +133,9 @@ set(geomlib_incs
         include/geom/utils.h
 )
 
-set(geomlib_srcs
+set(geom_srcs
         src/geom/boundingbox.cpp
+        src/geom/color.cpp
         src/geom/frustum.cpp
         src/geom/geoms.cpp
         src/geom/intersectresult.cpp
@@ -127,7 +144,7 @@ set(geomlib_srcs
         src/geom/utils.cpp
 )
 
-set(geomlib_tests
+set(geom_tests
         tests/geom/test_ray.cpp
         tests/geom/test_intersectionresult.cpp
         tests/geom/test_color.cpp
@@ -136,7 +153,7 @@ set(geomlib_tests
 #########################################################################
 ### Math library
 #########################################################################
-set(mathlib_incs
+set(math_incs
         include/math/angle.h
         include/math/constants.h
         include/math/conversion.h
@@ -153,13 +170,14 @@ set(mathlib_incs
         include/math/vector.h
 )
 
-set(mathlib_srcs
+set(math_srcs
         src/math/vector.cpp
         src/math/utils.cpp
 )
 
-set(mathlib_tests
+set(math_tests
         tests/math/test_angle.cpp
+        tests/math/test_conversions.cpp
         tests/math/test_matrix4.cpp
         tests/math/test_point.cpp
         tests/math/test_rect.cpp
@@ -172,7 +190,7 @@ set(mathlib_tests
 #########################################################################
 ### String common lib                                                 ###
 #########################################################################
-set(stringlib_incs
+set(string_incs
         include/string/crc.h
         include/string/lcasts.h
         include/string/makestring.h
@@ -183,46 +201,52 @@ set(stringlib_incs
         include/string/util.h
 )
 
-set(stringlib_srcs
+set(string_srcs
         src/string/crc.cpp
         src/string/loadfile.cpp
         src/string/replace.cpp
         src/string/streamprint.cpp
         src/string/tokenizer.cpp
-        src/string/utils.cpp
 )
 
-set(stringlib_tests
+set(string_tests
         tests/string/test_crc.cpp
         tests/string/test_tokenizer.cpp
         tests/string/test_streamprint.cpp
-        tests/string/test_replace.cpp)
-
-###====================================================================###
-### Create separate libraries for every common library                 ###
-###====================================================================###
-add_library(common STATIC 
-            ${commonlib_srcs} ${commonlib_incs}
-            ${applib_srcs} ${applib_incs}
-            ${mathlib_srcs} ${mathlib_incs}
-            ${stringlib_srcs} ${stringlib_incs}
-            ${geomlib_srcs} ${geomlib_incs}
 )
 
 ###====================================================================###
-### Create an executable that will run all unit tests for every common ###
-### library that we build.                                             ###
+### Generate a static library to hold all of the common code for use   ###
+### in our other projects                                              ###
 ###====================================================================###
-set(testlibs "common")
-set(tests    ${commonlib_tests}
-             ${applib_tests}
-             ${mathlib_tests}
-             ${geomlib_tests}
-             ${stringlib_tests}
+set( allcommonlibsrcs 
+            ${common_srcs} ${common_incs}
+            ${app_srcs} ${app_incs}
+            ${math_srcs} ${math_incs}
+            ${string_srcs} ${string_incs}
+            ${geom_srcs} ${geom_incs}
+)
+
+set_source_files_properties(
+    ${allcommonlibsrcs}
+    PROPERTIES COMPILE_FLAGS "${CXX_FLAGS} -ggdb ${XTRAOPTS} ${XTRAWARNS}"
+)
+
+add_library(common STATIC ${allcommonlibsrcs} )
+
+###=====================================================================###
+### Unit test runner that executes all the common lib unit tests        ###
+###=====================================================================###
+set(tests
+    ${common_tests}
+    ${app_tests}
+    ${math_tests}
+    ${geom_tests}
+    ${string_tests}
 )
 
 add_program_with( testcommonlibs
-                  "${testlibs};googletest"
+                  "common;googletest"
                   "${PROJECT_SOURCE_DIR}/include"
                   "-std=c++0x"
                   ${tests} ${GTEST_RUNNER_PATH} )

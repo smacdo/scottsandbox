@@ -349,3 +349,8 @@ TEST(Math, Vector4_Normalization)
 
     EXPECT_EQ( Vec4( 0.547722557, 0.182574186, 0.365148371, -0.730296743), n );
 }
+
+TEST(Math, Vector4_Serialization)
+{
+
+}

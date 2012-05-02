@@ -16,6 +16,7 @@
 #ifndef SCOTT_COMMON_DEREF_H
 #define SCOTT_COMMON_DEREF_H
 
+#include <common/assert.h>
 #include <memory>
 
 /**
@@ -28,7 +29,7 @@
 template<typename T>
 inline const T& deref( const T* ptr )
 {
-    assert( ptr != NULL );
+    assert2( ptr != NULL, "Pointer was null when dereferencing"  );
     return *ptr;
 }
 
@@ -42,7 +43,7 @@ inline const T& deref( const T* ptr )
 template<typename T>
 inline T& deref( T* ptr )
 {
-    assert( ptr != NULL );
+    assert2( ptr != NULL, "Pointer was null when dereferencing" );
     return *ptr;
 }
 

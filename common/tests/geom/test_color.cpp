@@ -8,10 +8,10 @@ TEST(Color,DefaultColor)
 {
     Color c;
 
-    EXPECT_EQ( 0.0, c.r() );
-    EXPECT_EQ( 0.0, c.g() );
-    EXPECT_EQ( 0.0, c.b() );
-    EXPECT_EQ( 0.0, c.a() );
+    EXPECT_EQ( 1.0, c.r() );
+    EXPECT_EQ( 1.0, c.g() );
+    EXPECT_EQ( 1.0, c.b() );
+    EXPECT_EQ( 1.0, c.a() );
 }
 
 TEST(Color,SimpleColor)
@@ -21,7 +21,7 @@ TEST(Color,SimpleColor)
     EXPECT_EQ( 0.25, c.r() );
     EXPECT_EQ( 0.50, c.g() );
     EXPECT_EQ( 0.75, c.b() );
-    EXPECT_EQ( 0.00, c.a() );
+    EXPECT_EQ( 1.00, c.a() );
 }
 
 TEST(Color,ColorEqual)

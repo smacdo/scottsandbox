@@ -61,7 +61,7 @@ namespace Math
     template<>
     inline bool isZero<float>( float a )
     {
-        return ( std::fabs( a - a ) < ZeroEpsilonF );
+        return ( std::fabs( a ) < ZeroEpsilonF );
     }
 
     /**
@@ -71,7 +71,7 @@ namespace Math
     template<>
     inline bool isZero<double>( double a )
     {
-        return ( std::fabs( a - a ) < ZeroEpsilonD );
+        return ( std::fabs( a ) < ZeroEpsilonD );
     }
 
     /**
@@ -90,7 +90,7 @@ namespace Math
     template<>
     inline bool notZero<float>( float a )
     {
-        return a > ZeroEpsilonF || a < -ZeroEpsilonF;
+        return std::fabs( a ) > ZeroEpsilonF;
     }
 
     /**
@@ -99,7 +99,34 @@ namespace Math
     template<>
     inline bool notZero<double>( double a )
     {
-        return a > ZeroEpsilonD || a < -ZeroEpsilonD;
+        return std::fabs( a ) > ZeroEpsilonD;
+    }
+
+    /**
+     * Return the fractional portion of a value
+     */
+    template<typename T>
+    inline T fraction( T a )
+    {
+        return static_cast<T>( 0 );
+    }
+
+    /**
+     * Return the fractional portion of a value
+     */
+    template<>
+    inline float fraction( float a )
+    {
+        return a - std::floor( a );
+    }
+
+    /**
+     * Return the fractional portion of a value
+     */
+    template<>
+    inline double fraction( double a )
+    {
+        return a - std::floor( a );
     }
 
     /**
@@ -134,6 +161,12 @@ namespace Math
     T snap( const T& val, const T& grid )
     {
         T base = val % grid;
+
+        // Account for negatives
+        if ( base < 0 )
+        {
+            base += grid;
+        }
         
         if ( base < ( grid / 2 ) )
         {
@@ -164,71 +197,32 @@ namespace Math
     }
 
     /**
-     * Casts the provided value to the requested type. The value casted
-     * will be clamped to be within the acceptable bounds of the new
-     * type.
-     *
-     * ex: castAntClamp<int8_t>( 1000 ) == 255
-     */
-    template<typename T, typename U>
-    U clampedCast( const T& base )
-    {
-        if ( base > std::numeric_limits<U>::max() )
-        {
-            return std::numeric_limits<U>::max();
-        }
-        else if ( base < std::numeric_limits<U>::min() )
-        {
-            return std::numeric_limits<U>::min();
-        }
-        else
-        {
-            return static_cast<U>( base );
-        }
-    }
-
-    /**
-     * Converts degrees into radians
-     */
-    static inline float rad2deg( float radians )
-    {
-        return radians * 180 / Math::Pi;
-    }
-
-    /**
-     * Converts radian value into degrees
-     */
-    static inline float deg2rad( float degrees )
-    {
-        return degrees * Math::Pi / 180;
-    }
-
-    /**
      * Clamps an angle given in degrees to its natural 0-360 range.
      */
     template<typename T>
-    inline T clampAngle( T deg )
+    inline T clampAngle( T angle )
     {
-        return deg % 360;
+        angle = angle % 360;
+
+        if ( angle < 0 )
+        {
+            angle += 360;
+        }
+
+        return angle;
     }
 
     /**
      * Returns a clamped double precision angle in [0, 360.0]
      */
     template<>
-    inline double clampAngle<double>( double degrees )
+    inline double clampAngle<double>( double angle )
     {
-        double angle = degrees;
+        angle = std::fmod( angle, 360.0 );
 
-        if ( angle > 360.0 )
+        if ( angle < 0.0 )
         {
-            angle -= 360.0 * static_cast<double>(
-                                static_cast<int>( angle / 360.0 ));
-        }
-        else
-        {
-            angle += 360.0 * static_cast<double>(
-                                static_cast<int>(fabs(angle)/360.0));
+            angle += 360.0;
         }
 
         return angle;
@@ -238,19 +232,13 @@ namespace Math
      * Returns clamped single precision angle in [0, 360.0]
      */
     template<>
-    inline float clampAngle<float>( float degrees )
+    inline float clampAngle<float>( float angle )
     {
-        float angle = degrees;
-
-        if ( angle > 360.0f )
+        angle = std::fmod( angle, 360.0f );
+        
+        if ( angle < 0.0f )
         {
-            angle -= 360.0f * static_cast<float>(
-                                static_cast<int>( angle / 360.0f ) );
-        }
-        else
-        {
-            angle += 360.0f * static_cast<float>(
-                                static_cast<int>(fabs(angle)/360.0f));
+            angle += 360.0f;
         }
 
         return angle;
@@ -263,7 +251,26 @@ namespace Math
      * TODO Verify this works correctly on 64bit platforms for values
      * larger than a 32bit int
      */
-    inline int nextPowerOfTwo( int v )
+    template<typename T>
+    T nextPowerOfTwo( T n )
+    {
+        static_assert( std::numeric_limits<T>::is_integer, "Cannot be float" );
+
+        std::size_t k = 1;
+        n -= 1;
+
+        do
+        {
+            n  |= n >> k;
+            k <<= 1;
+        }
+        while ( k < static_cast<size_t>(std::numeric_limits<T>::digits) );
+
+        return ++n;
+    }
+
+    template<>
+    inline unsigned int nextPowerOfTwo( unsigned int v )
     {
         v--;
         v |= v >> 1;
@@ -282,11 +289,7 @@ namespace Math
      * seemingly identical floating point values can have different memory values
      * and hence different hash values
      */
-    inline unsigned int hashfloat( float value )
-    {
-        const unsigned int *intPtr = reinterpret_cast<unsigned int *>( &value );
-        return *intPtr;
-    }
+    inline unsigned int hashfloat( float value );
 
     /**
      * Computes a 32 bit hash from a floating point value. This is used to
@@ -294,18 +297,7 @@ namespace Math
      * seemingly identical floating point values can have different memory values
      * and hence different hash values
      */
-    inline unsigned int hashfloat( const float *array, size_t arraySize )
-    {
-        unsigned int hash      = 0;
-        const int *intArrayPtr = reinterpret_cast<const int*>( array );
-
-        for ( size_t i = 0; i < arraySize; ++i )
-        {
-            hash ^= intArrayPtr[i];
-        }
-
-        return hash;
-    }
+    inline unsigned int hashfloat( const float * pArray, size_t arraySize );
 
     inline float fastSqrt( float v );
 }

@@ -38,6 +38,11 @@ namespace StringUtil
 
         return ss.str();
     }
+
+
+    std::string loadfile( const std::string& filename, bool *pStatus=NULL );
+
+
 }
 
 namespace String
