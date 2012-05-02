@@ -77,8 +77,8 @@ function(add_program_with name libs includes flags)
     endforeach()
 
     # Enable standard flags
-    set_source_files_properties("${ARGN}" PROPERTIES
-         COMPILE_FLAGS "${CXX_FLAGS} -g -ggdb ${flags}")
+    set_source_files_properties(${ARGN} PROPERTIES
+         COMPILE_FLAGS "${CXX_FLAGS} -ggdb ${flags}")
 
     add_standard_targets(${name})
 endfunction()
