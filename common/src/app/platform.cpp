@@ -21,27 +21,6 @@
 #include <stdlib.h>
 
 namespace App {
-    bool GIsUnitTesting        = false;
-    bool GTestAssertShouldExit = false;
-
-/**
- * Configures assertion handling for either normal application mode or
- * unit testing mode
- */
-void setIsInUnitTestMode( bool isInUnitTesting )
-{
-    GIsUnitTesting = isInUnitTesting;
-}
-
-void setTestAssertsShouldDie( bool shouldBlowUp )
-{
-    GTestAssertShouldExit = shouldBlowUp;
-}
-
-void resetTestAssertsShouldDie()
-{
-    GTestAssertShouldExit = false;
-}
 
 /**
  * Returns a human readable string for the given error enum type
@@ -86,65 +65,6 @@ void raiseFatalError( const std::string& message,
 {
     reportSoftwareError( message, details, EERROR_FATAL, 0, NULL, NULL );
     App::quit( EPROGRAM_FATAL_ERROR, message );
-}
-
-EAssertionStatus raiseAssertion( const char *pMessage,
-                                 const char *pExpression,
-                                 const char *pFilename,
-                                 unsigned int line )
-{
-    // We need to handle a special case of being in unit test mode. A software
-    // assertion should not cause kill the unit test runner
-    if ( GIsUnitTesting )
-    {
-        ADD_FAILURE_AT( pFilename, static_cast<int>(line) )
-            << "Application assertion triggered: "
-            << pExpression;
-
-        if ( GTestAssertShouldExit )
-        {
-            std::cerr << "ASSERTION FAILED: "
-                      << pExpression
-                      << std::endl;
-
-            quit( EPROGRAM_ASSERT_FAILED, "Assertion failed" );
-        }
-
-        return EAssertion_Continue;
-    }
-    
-    // Account for any null strings
-    if ( pMessage == NULL )
-    {
-        pMessage = "An internal software assertion has occurred";
-    }
-
-    if ( pExpression == NULL )
-    {
-        pMessage = "n/a";
-    }
-
-    if ( pFilename == NULL )
-    {
-        pFilename = "n/a";
-    }
-
-    // Call a platform specific reporting function, and check what it decides
-    // to return to us
-    EAssertionStatus ret = reportAssertion( std::string( pMessage ),
-                                            std::string( pExpression ),
-                                            std::string( pFilename ),
-                                            line );
-
-    // Let the engine know how to handle our function
-    if ( ret == EAssertion_Default )
-    {
-        return GDefaultAssertionStatus;
-    }
-    else
-    {
-        return ret;
-    }
 }
 
 /**

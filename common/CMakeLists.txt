@@ -43,7 +43,7 @@ set(common_incs
         include/common/macros.h
         include/common/noncopyable.h
         include/common/nullptr.h
-        include/common/pointer.h
+        include/common/scopedptr.h
         include/common/singleton.h
         include/common/static_assert.h
         include/common/time.h
@@ -52,6 +52,7 @@ set(common_incs
 
 set(common_srcs
         src/common/time.cpp
+        src/common/assert.cpp
 )
 
 set(common_tests
@@ -161,9 +162,8 @@ set(math_incs
         include/math/interpolation.h
         include/math/matrix.h
         include/math/matrixutils.h
-        include/math/point.h
+        include/math/quaternion.h
         include/math/random.h
-        include/math/rational.h
         include/math/rect.h
         include/math/tmatrix.h
         include/math/util.h
@@ -178,8 +178,10 @@ set(math_srcs
 set(math_tests
         tests/math/test_angle.cpp
         tests/math/test_conversions.cpp
+        tests/math/test_interpolation.cpp
         tests/math/test_matrix4.cpp
-        tests/math/test_point.cpp
+        tests/math/test_matrixutils.cpp
+        tests/math/test_quaternion.cpp
         tests/math/test_rect.cpp
         tests/math/test_utils.cpp
         tests/math/test_vector4.cpp

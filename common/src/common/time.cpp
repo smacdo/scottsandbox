@@ -1,5 +1,5 @@
 #include <common/time.h>
-#include <app/debug.h>
+#include <common/assert.h>
 
 const double Time::TimeDelta = 0.000001;
 

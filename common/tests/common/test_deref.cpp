@@ -17,7 +17,7 @@
 #include <memory>
 
 #include "common/deref.h"
-#include "app/platform.h"
+#include "common/assert.h"
 
 
 /**
@@ -71,10 +71,10 @@ TEST(UtilsTests,DerefNullDeath)
 {
     const int *pV = NULL;
 
-    App::setTestAssertsShouldDie( true );
+    Debug::setTestAssertShouldDie( true );
     EXPECT_DEATH( deref( pV ), "ASSERTION FAILED: ptr != __null" );
 
-    App::resetTestAssertsShouldDie();
+    Debug::resetTestAssertShouldDie();
 }
 
 #ifdef USE_CPP_0X
@@ -82,9 +82,9 @@ TEST(UtilsTests,DerefNullSmartPointerDeath)
 {
     std::shared_ptr<int> p;
 
-    App::setTestAssertsShouldDie( true );
+    Debug::setTestAssertShouldDie( true );
     EXPECT_DEATH( deref( p ), "ASSERTION FAILED: ptr != __null" );
 
-    App::resetTestAssertsShouldDie();
+    Debug::resetTestAssertShouldDie();
 }
 #endif

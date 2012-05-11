@@ -18,6 +18,7 @@
 
 // Common includes
 #include "common/macros.h"
+#include "common/assert.h"
 #include "app/debug.h"
 
 // System includes
@@ -39,26 +40,12 @@ enum EProgramStatus
 /////////////////////////////////////////////////////////////////////////////
 namespace App
 {
-    enum EAssertionStatus
-    {
-        EAssertion_Halt = 0,
-        EAssertion_Continue = 1,
-        EAssertion_Default = 2
-    };
-
     enum EErrorType
     {
         EERROR_WARNING,
         EERROR_ERROR,
         EERROR_FATAL
     };
-
-    // Specifies the default handling of assertions.
-    const EAssertionStatus GDefaultAssertionStatus = EAssertion_Halt;
-
-    void setIsInUnitTestMode( bool isInUnitTesting );
-    void setTestAssertsShouldDie( bool shouldBlowUp );
-    void resetTestAssertsShouldDie();
 
     // Converts an error type enum into a string
     std::string getNameForError( EErrorType error );
@@ -67,21 +54,16 @@ namespace App
     void startup();
     void quit( EProgramStatus quitStatus, const std::string& message = "" );
 
-    EAssertionStatus raiseAssertion( const char* message,
-                                     const char* expression,
-                                     const char* filename,
-                                     unsigned int linenumber );
-
     void raiseError( const std::string& message,
                      const std::string& details = "" );
 
     void raiseFatalError( const std::string& message,
                           const std::string& details = "" );
 
-    EAssertionStatus reportAssertion( const std::string& message,
-                                      const std::string& expression,
-                                      const std::string& filename,
-                                      unsigned int line );
+    Debug::EAssertionStatus reportAssertion( const char *pMessage,
+                                             const char *pExpression,
+                                             const char* pFilename,
+                                             unsigned int line );
 
     void reportSoftwareError( const std::string& message,
                               const std::string& details,

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "app/platform.h"
+#include "common/assert.h"
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -30,22 +31,22 @@ namespace App {
  * \param  filename    Name of the file that generated the assertion
  * \param  lineNumber  Line that generated the assertion
  */
-EAssertionStatus reportAssertion( const std::string& message,
-                                  const std::string& expression,
-                                  const std::string& filename,
-                                  unsigned int lineNumber )
+Debug::EAssertionStatus reportAssertion( const char * pMessage,
+                                         const char * pExpression,
+                                         const char * pFilename,
+                                         unsigned int lineNumber )
 {
     std::cerr
-        << "---------- ASSERTION FAILED! ---------- " << std::endl
-        << "MESSAGE   : "  << message                 << std::endl
-        << "EXPRESSION: "  << expression              << std::endl
-        << "FILENAME  : "  << filename                << std::endl
+        << "---------- ASSERTION FAILED! -----------" << std::endl
+        << "MESSAGE   : "  << pMessage                << std::endl
+        << "EXPRESSION: "  << pExpression             << std::endl
+        << "FILENAME  : "  << pFilename               << std::endl
         << "LINE      : "  << lineNumber              << std::endl
-        << "---------------------------------------"  << std::endl
+        << "----------------------------------------" << std::endl
         << std::endl;
 
     // Now return and let the caller know that they should abort
-    return EAssertion_Default;
+    return Debug::EAssertion_Halt;
 }
 
 /**

@@ -34,19 +34,60 @@
 #   define ASSERTS_VERIFY   1
 #endif
 
+// Define the platform specific way of generating a debugger trap
+#ifdef _MSC_VER
+#   define assert_break __debugbreak()
+#else
+#   define assert_break __builtin_trap()
+#endif
+
+//
+// Assertion handling methods
+//
+namespace Debug
+{
+    enum EAssertionStatus
+    {
+        EAssertion_Halt,
+        EAssertion_Continue
+    };
+
+    typedef EAssertionStatus (*assertionHandler)(const char*,
+                                                 const char*,
+                                                 const char*,
+                                                 unsigned int );
+
+    // Install a custom assertion handler
+    void setAssertionHandler( assertionHandler handler );
+
+    // Raises a software assertion
+    EAssertionStatus raiseAssertion( const char *pMessage,
+                                     const char *pExpression,
+                                     const char *pFile,
+                                     unsigned int line );
+
+    // Places the application into unit test mode
+    void setInUnitTestMode( bool isInUnitTestMode );
+
+    // Tells unit tester if we should allow program to keep running
+    void setTestAssertShouldDie( bool shouldDie );
+
+    // Reset default behavior
+    void resetTestAssertShouldDie();
+};
+
 //
 // Custom assertion handling
 //
 #ifdef ASSERTS_ENABLED
-#   include <app/platform.h>        // need to pull in assertion callback
 #   define scott_assert(msg,cond)           \
     do                                      \
     {                                       \
         if ( !(cond) )                      \
         {                                   \
-            if ( App::raiseAssertion(msg,#cond,__FILE__,__LINE__) == \
-                 App::EAssertion_Halt )     \
-                app_break;                  \
+            if ( Debug::raiseAssertion(msg,#cond,__FILE__,__LINE__) == \
+                 Debug::EAssertion_Halt )   \
+                assert_break;               \
         }                                   \
     } while( 0 )
 #   define assert2(expr,msg) scott_assert(msg,expr)
