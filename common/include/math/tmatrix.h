@@ -1,29 +1,17 @@
 /*
- * Copyright 2010 Scott MacDonald. All rights reserved.
+ * Copyright 2010-2012 Scott MacDonald
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  1. Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- * 
- * THIS SOFTWARE IS PROVIDED BY SCOTT MACDONALD ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
- * EVENT SHALL SCOTT MACDONALD OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * The views and conclusions contained in the software and documentation are
- * those of the authors and should not be interpreted as representing official
- * policies, either expressed or implied, of Scott MacDonald.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 #ifndef SCOTT_MATHLIB_MATRIX_H
 #define SCOTT_MATHLIB_MATRIX_H
@@ -658,42 +646,5 @@ public:
     {
     }
 };
-
-/////////////////////////////////////////////////////////////////////////////
-// Typedefs for common types
-/////////////////////////////////////////////////////////////////////////////
-#ifdef MATHLIB_COMMON_TYPEDEFS
-typedef TMatrix2<float> Mat2;
-typedef TMatrix<float,3> Mat3;
-typedef TMatrix4<float> Mat4;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-// Prevent the compiler from instantiating common templates
-//  Matrix 4x4
-/////////////////////////////////////////////////////////////////////////////
-#ifdef MATHLIB_EXTERN_TEMPLATES
-extern template class TMatrix4<float>;
-extern template class TMatrix4<double>;
-extern template class TMatrix4<int>;
-
-extern template void swap( TMatrix<float,4>&  lhs, TMatrix<float,4>&  rhs );
-extern template void swap( TMatrix<double,4>& lhs, TMatrix<double,4>& rhs );
-extern template void swap( TMatrix<int,4>&    lhs, TMatrix<int,4>&    rhs );
-
-//  Matrix 2x2
-extern template class TMatrix2<float>;
-extern template class TMatrix2<double>;
-extern template class TMatrix2<int>;
-
-extern template void swap( TMatrix<float,2>&  lhs, TMatrix<float,2>&  rhs );
-extern template void swap( TMatrix<double,2>& lhs, TMatrix<double,2>& rhs );
-extern template void swap( TMatrix<int,2>&    lhs, TMatrix<int,2>&    rhs );
-
-//  Matrix 3x3 (not implemeneted as a derieved class -- yet)
-extern template class TMatrix<float, 3>;
-extern template class TMatrix<double, 3>;
-extern template class TMatrix<int, 3>;
-#endif
 
 #endif

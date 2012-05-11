@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_COMMON_MATH_MATRIX_H
-#define SCOTT_COMMON_MATH_MATRIX_H
+#ifndef SCOTT_MATH_MATRIX_H
+#define SCOTT_MATH_MATRIX_H
 
 #include <math/vector.h>
 #include <math/defs.h>
 #include <math/util.h>
-
-#if MATH_DEBUG_MODE == 1
-#   include <limits>
-#   define MATRIX_DEBUG_MODE 1
-#   define MATRIX_DV std::numeric_limits<T>::signaling_NaN()
-#endif
 
 #define M_OFFSET(R,C) ((R) * NUM_COLS + (C))
 
@@ -44,45 +38,13 @@ template<typename T> TMatrix4<T> calculateInverse( const TMatrix4<T>&, T );
 template<typename T> T trace( const TMatrix4<T>& );
 
 /**
- * A templated, size-indepdent column major matrix. This templated matrix can
- * accomodate any N-sized square matrix that is sized NxN. The matrix stores
- * its values in column major format (each column is stored contigously),
- * rather than in row major format (where each row is stored contigously). This
- * is done because OpenGL uses column major format, and converting between the
- * two formats continously would be confusing.
+ * A standard templated 4x4 matrix, with values sotred in row major memory
+ * order (similiar to DirectX matrices, opposite that of OpenGL). 
  *
- * If you are using common matrix sizes (2x2, 3x3, 4x4), do not instantiate
- * this class directly. All of the common matrix sizes have their own classes
- * that inherit from this class and provide additional helper constructors. For
- * example, if you wish to construct a 4x4 float matrix,
- *
- *     DO  : TMatrix4<float>
- *     DONT: TMatrix<float,4>
- *
- * Additionally, while the matrices store their values internally in a column
- * major format, the constructors expect their values to be provided in row
- * major format. This might seem awkward and confusing, until you realize that
- * this allows you to call constructors with the "standard" matrix notation.
- *
- * Pretend you have a 3x3 matrix as follows
- *    
- *    M = [ A B C
- *          D E F
- *          G H I ]
- *
- * When calling Matrix3's constructor, you would call it like:
- *
- *    DO  : TMatrix3<float>( A, B, C,
- *                           D, E, F,
- *                           G, H, I )
- *
- * Even though the matrix stores the values like: [ A D G B E H C F I ]. The
- * only time you need concern yourself with this storage information is when:
- *    A) You call a TMatrix4<T>( T* ) constructor that takes a pointer to a
- *       1d array
- *    B) You call TMatrix4<T>::ptr() that returns a pointer to a 1d array
- *
- *
+ * Row major order was picked so that the constructors would accept parameters
+ * in such a way to the values passed would resemble the actual matrix on
+ * paper. This is to minimize confusion, since transposing the matrix for OpenGL
+ * is a very simple operation that can be applied at the end of transformation.
  *
  * That should be enough documentation to cover the matrix class. Otherwise the
  * matrix class (and derived classes) should behave as you expect. They
@@ -119,10 +81,10 @@ public:
      */
     TMatrix4()
 #ifdef MATRIX_DEBUG_MODE
-        : m11( MATRIX_DV ), m12( MATRIX_DV ), m13( MATRIX_DV ), m14( MATRIX_DV ),
-          m21( MATRIX_DV ), m22( MATRIX_DV ), m23( MATRIX_DV ), m24( MATRIX_DV ),
-          m31( MATRIX_DV ), m32( MATRIX_DV ), m33( MATRIX_DV ), m34( MATRIX_DV ),
-          m41( MATRIX_DV ), m42( MATRIX_DV ), m43( MATRIX_DV ), m44( MATRIX_DV )
+        : m11( SCOTT_NAN ), m12( SCOTT_NAN ), m13( SCOTT_NAN ), m14( SCOTT_NAN ),
+          m21( SCOTT_NAN ), m22( SCOTT_NAN ), m23( SCOTT_NAN ), m24( SCOTT_NAN ),
+          m31( SCOTT_NAN ), m32( SCOTT_NAN ), m33( SCOTT_NAN ), m34( SCOTT_NAN ),
+          m41( SCOTT_NAN ), m42( SCOTT_NAN ), m43( SCOTT_NAN ), m44( SCOTT_NAN )
 #endif
     {
     }
@@ -360,6 +322,66 @@ public:
     }
 
     /**
+     * Transforms a direction by this matrix. This function is simliar to
+     * multiplyPoint, but it transforms a direction rather than a position.
+     * When transforming a direction, only the rotational portion of a matrix
+     * is taken into account
+     *
+     * (Assumes the matrix is a affine transform)
+     */
+    TVector4<T> transformDirectionVector( const TVector4<T>& v ) const
+    {
+        return
+            TVector4<T>( v[0] * m11 + v[1] * m21 + v[2] * m31,
+                         v[0] * m12 + v[1] * m22 + v[2] * m32,
+                         v[0] * m13 + v[1] * m23 + v[2] * m33,
+                         static_cast<value_type>( 1 ) );
+    }
+
+    /**
+     * Transforms a position by this matrix. This method returns a position
+     * 'v' transformed by the current matrix of arbitrary makeup.
+     *
+     * If this is a regular 3d transformation matrix, it is faster to use
+     * multiplyPoint3x4
+     */
+    TVector4<T>& transformVector( const TVector4<T>& v ) const
+    {
+        return
+            TVector4<T>( v[0] * m11 + v[1] * m21 + v[2] * m31 + v[3] * m41,
+                         v[0] * m12 + v[1] * m22 + v[2] * m32 + v[3] * m42,
+                         v[0] * m13 + v[1] * m23 + v[2] * m33 + v[3] * m43,
+                         v[0] * m14 + v[1] * m24 + v[2] * m34 + v[3] * m44 );
+    }
+
+    /**
+     * Transforms a position by this transformation matrix. This is a faster
+     * specialized version of MultiplyPoint that assumes that the current
+     * matrix is a regular 3d transformation matrix.
+     */
+    TVector3<T> transformVector3x4( const TVector3<T>& v ) const
+    {
+        return
+            TVector3<T>( v[0] * m11 + v[1] * m21 + v[2] * m31,
+                         v[0] * m12 + v[1] * m22 + v[2] * m32,
+                         v[0] * m13 + v[1] * m23 + v[2] * m33 );
+    }
+
+    /**
+     * Transforms a position by this transformation matrix. This is a faster
+     * specialized version of MultiplyPoint that assumes that the current
+     * matrix is a regular 3d transformation matrix.
+     */
+    TVector4<T> transformVector3x4( const TVector4<T>& v ) const
+    {
+        return
+            TVector4<T>( v[0] * m11 + v[1] * m21 + v[2] * m31,
+                         v[0] * m12 + v[1] * m22 + v[2] * m32,
+                         v[0] * m13 + v[1] * m23 + v[2] * m33,
+                         static_cast<value_type>( 1 ) );
+    }
+
+    /**
      * Marix equality operator
      */
     bool operator == ( const TMatrix4<T>& rhs ) const
@@ -415,6 +437,19 @@ public:
     }
 
     /**
+     * Sets a row in the matrix
+     */
+    void setRow( const TVector4<T>& v, unsigned int r )
+    {
+        math_assert( r < NUM_ROWS && "Matrix row out of range" );
+
+        m[ M_OFFSET(r,0) ] = v[0];
+        m[ M_OFFSET(r,1) ] = v[1];
+        m[ M_OFFSET(r,2) ] = v[2];
+        m[ M_OFFSET(r,3) ] = v[3];
+    }
+
+    /**
      * Returns a column of the matrix
      */
     TVector4<T> column( unsigned int c ) const
@@ -425,6 +460,19 @@ public:
                             m[ M_OFFSET(1,c) ],
                             m[ M_OFFSET(2,c) ],
                             m[ M_OFFSET(3,c) ] );
+    }
+
+    /**
+     * Sets a column of the matrix
+     */
+    void setColumn( const TVector4<T>& v, unsigned int c )
+    {
+        math_assert( c < NUM_COLS && "Matrix col out of range" );
+
+        m[ M_OFFSET(0,c) ] = v[0];
+        m[ M_OFFSET(1,c) ] = v[1];
+        m[ M_OFFSET(2,c) ] = v[2];
+        m[ M_OFFSET(3,c) ] = v[3];
     }
 
     friend class boost::serialization::access;
@@ -690,17 +738,11 @@ const TMatrix4<T> TMatrix4<T>::IDENTITY = TMatrix4(
 /////////////////////////////////////////////////////////////////////////////
 // Common typedefs
 /////////////////////////////////////////////////////////////////////////////
+#ifdef MATH_COMMON_TYPEDEFS
 typedef TMatrix4<float> Mat4;
-
-/////////////////////////////////////////////////////////////////////////////
-// Macro clean up
-/////////////////////////////////////////////////////////////////////////////
-#if MATH_DEBUG_MODE == 1
-#   undef MATRIX_DEBUG_MODE
-#   undef MATRIX_DV
+typedef TMatrix4<float> Mat4f;
+typedef TMatrix4<double> Mat4d;
 #endif
 
 #undef M_OFFSET
-#undef INNER_PRODUCT
-
 #endif
