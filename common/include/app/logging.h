@@ -21,16 +21,6 @@
 #include <boost/noncopyable.hpp>
 #include <iostream>
 
-// Forward declarations
-class LogStream;
-
-#define LOG_TRACE(x)  GlobalLog::getInstance().trace(x)
-#define LOG_DEBUG(x)  GlobalLog::getInstance().debug(x)
-#define LOG_INFO(x)   GlobalLog::getInstance().info(x)
-#define LOG_NOTICE(x) GlobalLog::getInstance().notice(x)
-#define LOG_WARN(x)   GlobalLog::getInstance().warn(x)
-#define LOG_ERROR(x)  GlobalLog::getInstance().error(x)
-
 /**
  * The logging severity level for a log entry
  */
@@ -45,6 +35,15 @@ enum ELogLevel
     ELOGLEVEL_FATAL,
     ELogLevel_Count
 };
+
+#include "app/logging_stream.h"
+
+#define LOG_TRACE(x)  GlobalLog::getInstance().trace(x)
+#define LOG_DEBUG(x)  GlobalLog::getInstance().debug(x)
+#define LOG_INFO(x)   GlobalLog::getInstance().info(x)
+#define LOG_NOTICE(x) GlobalLog::getInstance().notice(x)
+#define LOG_WARN(x)   GlobalLog::getInstance().warn(x)
+#define LOG_ERROR(x)  GlobalLog::getInstance().error(x)
 
 const char* LOG_LEVEL_NAMES[ELogLevel_Count] =
 {

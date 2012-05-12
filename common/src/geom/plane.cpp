@@ -45,14 +45,14 @@ Plane::Plane( const Scalar& nX, const Scalar& nY, const Scalar& nZ,
 
 bool Plane::intersects( const Ray& ray, Vec3 * pOutIntersectionPt ) const
 {
-    Scalar d2 = dot( mNormal, ray.direction );
+    Scalar d2 = dot( mNormal, ray.direction() );
 
     if ( d2 > -Math::ZeroEpsilonF ) 
     {
         return false;     // ray is parallel to plane, or ray hits wrong side
     }
 
-    Scalar d1 = -( dot( mNormal, ray.origin ) + mDistance );
+    Scalar d1 = -( dot( mNormal, ray.origin() ) + mDistance );
     Scalar  t = d1 / d2;
     
     if ( t < Math::ZeroEpsilonF )
@@ -62,7 +62,7 @@ bool Plane::intersects( const Ray& ray, Vec3 * pOutIntersectionPt ) const
 
     if ( pOutIntersectionPt != NULL )
     {
-        *pOutIntersectionPt = ray.origin + ray.direction * t;
+        *pOutIntersectionPt = ray.origin() + ray.direction() * t;
     }
 
     return true;

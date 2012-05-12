@@ -387,7 +387,7 @@ private:
      * Serialization
      */
     template<typename Archive>
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar, const unsigned int /*version*/ )
     {
         ar & mX & mY & mZ & mW;
     }
@@ -761,7 +761,7 @@ private:
      * Serialization
      */
     template<typename Archive>
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar, const unsigned int /*version*/ )
     {
         ar & mX & mY & mZ;
     }
@@ -1068,7 +1068,7 @@ private:
      * Serialization
      */
     template<typename Archive>
-    void serialize( Archive& ar, const unsigned int version )
+    void serialize( Archive& ar, const unsigned int /*version*/ )
     {
         ar & mX & mY;
     }

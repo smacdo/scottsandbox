@@ -32,9 +32,7 @@
 #include <math/vector.h>
 
 struct IntersectResult;
-struct Ray;
-struct Sphere;
-struct Plane;
+class Ray;
 struct BoundingBox;
 
 /**

@@ -35,8 +35,9 @@
 /**
  * A ray in 3d space. Has an origin and a normalized direction vector
  */
-struct Ray
+class Ray
 {
+public:
     /**
      * Ray constructor. Create a ray from a vector representing the ray's
      * origin and direction
@@ -44,14 +45,22 @@ struct Ray
     Ray( const Vec3& origin, const Vec3& direction );
 
     /**
-     * Location in 3d sapce in which the ray originates
+     * Point where ray originates
      */
-    Vec3   origin;
+    inline Vec3 origin() const { return mOrigin; }
 
     /**
-     * Unit normal specifying the direction of the ray from its origin
+     * Unit normal vector that specifies the direction of the ray from its
+     * origin
      */
-    Vec3   direction;
+    inline Vec3 direction() const { return mDirection; }
+
+private:
+    /// Location in 3d sapce in which the ray originates
+    Vec3 mOrigin;
+
+    /// Unit normal specifying the direction of the ray from its origin
+    Vec3 mDirection;
 };
 
 std::ostream& operator << ( std::ostream& os, const Ray& ray );

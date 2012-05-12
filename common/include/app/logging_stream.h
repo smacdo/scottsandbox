@@ -16,6 +16,8 @@
 #ifndef SCOTT_COMMON_LOGGING_LOGSTREAM_H
 #define SCOTT_COMMON_LOGGING_LOGSTREAM_H
 
+#include "logging.h"
+
 #include <ostream>
 #include <string>
 #include <iostream>

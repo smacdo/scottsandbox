@@ -4,13 +4,13 @@
 #include <ostream>
 
 Ray::Ray( const Vec3& origin, const Vec3& direction )
-    : origin( origin ),
-      direction( direction )
+    : mOrigin( origin ),
+      mDirection( direction )
 {
 }
 
 std::ostream& operator << ( std::ostream& os, const Ray& r )
 {
-    os << "{ray: o=" << r.origin << ",d=" << r.direction << "}";
+    os << "{ray: pos=" << r.origin() << ",dir=" << r.direction() << "}";
     return os;
 }

@@ -5,7 +5,7 @@
 #include <math/matrix.h>
 
 const float DELTA = 0.00001;
-
+/*
 TEST(Math,Matrix_2x2_NoValueCtor)
 {
     Mat2 m();
@@ -199,3 +199,4 @@ TEST(Math,Matrix_2x2_Swap)
     EXPECT_NE( x, y );
 }
 
+*/

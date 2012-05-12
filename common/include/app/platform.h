@@ -25,21 +25,18 @@
 #include <string>
 
 /////////////////////////////////////////////////////////////////////////////
-// Platform enumerations
-/////////////////////////////////////////////////////////////////////////////
-enum EProgramStatus
-{
-    EPROGRAM_OK = 0,
-    EPROGRAM_ASSERT_FAILED = 2,
-    EPROGRAM_FATAL_ERROR   = 5,
-    EPROGRAM_USER_ERROR    = 6
-};
-
-/////////////////////////////////////////////////////////////////////////////
 // Internal application utility functions
 /////////////////////////////////////////////////////////////////////////////
 namespace App
 {
+    enum EProgramStatus
+    {
+        EPROGRAM_OK = 0,
+        EPROGRAM_ASSERT_FAILED = 2,
+        EPROGRAM_FATAL_ERROR   = 5,
+        EPROGRAM_USER_ERROR    = 6
+    };
+
     enum EErrorType
     {
         EERROR_WARNING,

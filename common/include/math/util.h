@@ -151,7 +151,7 @@ namespace Math
      * \return    Fractional portion of input value
      */
     template<typename T>
-    inline T fraction( T a )
+    inline T fraction( T /*a*/ )
     {
         return static_cast<T>( 0 );
     }

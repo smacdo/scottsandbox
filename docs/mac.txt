@@ -1,0 +1,4 @@
+cmake -GXcode ../
+xcodebuild -configuration RelWithDebInfo
+
+CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake ../
