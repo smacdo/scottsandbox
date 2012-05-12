@@ -262,7 +262,7 @@ TEST(Math, Vector2_YAccessor)
 
 TEST(Math, Vector2_ZeroVector)
 {
-    const Vec2 a = Vec2::ZeroVector();
+    const Vec2 a = Vec2::ZERO;
 
     EXPECT_EQ( a[0], 0.0 );
     EXPECT_EQ( a[1], 0.0 );
@@ -271,7 +271,7 @@ TEST(Math, Vector2_ZeroVector)
 TEST(Math, Vector2_ZeroVectorIsZeroValueConstructed)
 {
     const Vec2 a( 0.0, 0.0 );
-    const Vec2 z = Vec2::ZeroVector();
+    const Vec2 z = Vec2::ZERO;
 
     EXPECT_EQ( a, z );
 }
@@ -284,7 +284,7 @@ TEST(Math, Vector2_Length)
 
 TEST(Math, Vector2_LengthZero)
 {
-    EXPECT_FLOAT_EQ( 0.0f, length( TVector2<float>::ZeroVector() ) );
+    EXPECT_FLOAT_EQ( 0.0f, length( TVector2<float>::ZERO ) );
 }
 
 TEST(Math, Vector2_SquaredLength)
@@ -295,7 +295,7 @@ TEST(Math, Vector2_SquaredLength)
 
 TEST(Math, Vector2_SquareLengthZero)
 {
-    EXPECT_FLOAT_EQ( 0.0f, lengthSquared( TVector2<float>::ZeroVector() ) );
+    EXPECT_FLOAT_EQ( 0.0f, lengthSquared( TVector2<float>::ZERO ) );
 }
 
 TEST(Math, Vector2_Normalization)

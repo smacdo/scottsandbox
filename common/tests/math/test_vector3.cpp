@@ -288,7 +288,7 @@ TEST(Math, Vector3_ZAccessor)
 
 TEST(Math, Vector3_ZeroVector)
 {
-    const Vec3 a = Vec3::ZeroVector();
+    const Vec3 a = Vec3::ZERO;
 
     EXPECT_EQ( a[0], 0.0 );
     EXPECT_EQ( a[1], 0.0 );
@@ -298,14 +298,14 @@ TEST(Math, Vector3_ZeroVector)
 TEST(Math, Vector3_ZeroVectorIsZeroValueConstructed)
 {
     const Vec3 a( 0.0, 0.0, 0.0 );
-    const Vec3 z = Vec3::ZeroVector();
+    const Vec3 z = Vec3::ZERO;
 
     EXPECT_EQ( a, z );
 }
 
 TEST(Math, Vector3_CrossProductZero)
 {
-    EXPECT_EQ( Vec3::ZeroVector(), cross( Vec3::ZeroVector(), Vec3( 1.0, 2.0, 3.0 ) ) );
+    EXPECT_EQ( Vec3::ZERO, cross( Vec3::ZERO, Vec3( 1.0, 2.0, 3.0 ) ) );
 }
 
 TEST(Math, Vector3_CrossProduct)
@@ -374,7 +374,7 @@ TEST(Math, Vector3_Length)
 
 TEST(Math, Vector3_LengthZero)
 {
-    EXPECT_FLOAT_EQ( 0.0f, length( TVector3<float>::ZeroVector() ) );
+    EXPECT_FLOAT_EQ( 0.0f, length( TVector3<float>::ZERO ) );
 }
 
 TEST(Math, Vector3_SquaredLength)
@@ -385,7 +385,7 @@ TEST(Math, Vector3_SquaredLength)
 
 TEST(Math, Vector3_SquareLengthZero)
 {
-    EXPECT_FLOAT_EQ( 0.0f, lengthSquared( TVector3<float>::ZeroVector() ) );
+    EXPECT_FLOAT_EQ( 0.0f, lengthSquared( TVector3<float>::ZERO ) );
 }
 
 TEST(Math, Vector3_AngleBetween)

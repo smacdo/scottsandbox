@@ -77,6 +77,9 @@ public:
     typedef std::size_t size_type;
     typedef std::ptrdiff_t difference_type;
 
+    // The zero vector
+    const static TVector4<T> ZERO;
+
     // Defines how many values are stored in a vector4 instance
     enum { NUM_COMPONENTS = 4 };
 
@@ -361,30 +364,13 @@ public:
         return mW;
     }
 
-    /**
-     * Returns a vector containing entirely zero
-     */
-    static TVector4<T> ZeroVector()
-    {
-        return TVector4<T>( static_cast<T>(0), 
-                            static_cast<T>(0),
-                            static_cast<T>(0),
-                            static_cast<T>(0) );
-    }
-
-    /**
-     * Returns the length (magnitude) of this vector.
-     */
+    // Returns the length (magnitude) of this vector
     friend value_type length<>( const TVector4<T>& v );
 
-    /**
-     * Returns the length squared of the vector (no sqrt)
-     */
+    // Returns the length squared of this vector
     friend value_type lengthSquared<>( const TVector4<T>& v );
 
-    /**
-     * Returns a normalized version of this vector
-     */
+    // Returns normalized version of this vector
     friend TVector4<T> normalized<>( const TVector4<T>& v );
 
 private:
@@ -430,6 +416,9 @@ public:
     typedef const_value_type* const_pointer;
     typedef std::size_t size_type;
     typedef std::ptrdiff_t difference_type;
+
+    // Zero vector
+    const static TVector3<T> ZERO;
 
     /// Defines how many values are stored in a vector3 instance
     enum { NUM_COMPONENTS = 3 };
@@ -695,16 +684,6 @@ public:
     }
 
     /**
-     * Returns a vector containing entirely zero
-     */
-    static TVector3<T> ZeroVector()
-    {
-        return TVector3( static_cast<T>(0), 
-                         static_cast<T>(0),
-                         static_cast<T>(0) );
-    }
-
-    /**
      * Rotates the vector around the X axis, and returns the result
      * of this rotation
      */
@@ -810,6 +789,9 @@ public:
     typedef const_value_type* const_pointer;
     typedef std::size_t size_type;
     typedef std::ptrdiff_t difference_type;
+
+    // Zero vector
+    const static TVector2<T> ZERO;
 
     // Defines how many values are stored in a vector2 instance
     enum { NUM_COMPONENTS = 2 };
@@ -1058,15 +1040,6 @@ public:
     }
 
     /**
-     * Returns a vector containing entirely zero
-     */
-    static TVector2<T> ZeroVector()
-    {
-        return TVector2<T>( static_cast<T>(0), 
-                            static_cast<T>(0) );
-    }
-
-    /**
      * Returns the length (magnitude) of this vector.
      */
     friend value_type length<>( const TVector2<T>& v );
@@ -1100,6 +1073,19 @@ private:
         ar & mX & mY;
     }
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// Vector static definitions
+/////////////////////////////////////////////////////////////////////////////
+template<typename T>
+const TVector4<T> TVector4<T>::ZERO = TVector4<T>( 0, 0, 0, 0 );
+
+template<typename T>
+const TVector3<T> TVector3<T>::ZERO = TVector3<T>( 0, 0, 0 );
+
+template<typename T>
+const TVector2<T> TVector2<T>::ZERO = TVector2<T>( 0, 0 );
+
 /////////////////////////////////////////////////////////////////////////////
 // Templated vector method definitions
 /////////////////////////////////////////////////////////////////////////////

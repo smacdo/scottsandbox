@@ -72,16 +72,13 @@ public:
     // Check if a plane intersects this plane
     bool intersects( const Plane& plane ) const;
 
-    //
-//    bool testExclusion( const AABox& box, bool * pOutIntersection = NULL ) const;
-
     /**
      * Returns a vector containing the plane's normal
      */
     inline Vec3 normal() const { return mNormal; }
 
     /**
-     * 
+     * Distance between the origin and the normal vector
      */
     inline float distance() const { return mDistance; }
 

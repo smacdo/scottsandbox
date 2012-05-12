@@ -304,7 +304,7 @@ TEST(Math, Vector4_WAccessor)
 
 TEST(Math, Vector4_ZeroVector)
 {
-    const Vec4 a = Vec4::ZeroVector();
+    const Vec4 a = Vec4::ZERO;
 
     EXPECT_FLOAT_EQ( 0.0, a[0] );
     EXPECT_FLOAT_EQ( 0.0, a[1] );
@@ -315,7 +315,7 @@ TEST(Math, Vector4_ZeroVector)
 TEST(Math, Vector4_ZeroVectorIsZeroValueConstructed)
 {
     const Vec4 a( 0.0, 0.0, 0.0, 0.0 );
-    const Vec4 z = Vec4::ZeroVector();
+    const Vec4 z = Vec4::ZERO;
 
     EXPECT_EQ( a, z );
 }
@@ -328,7 +328,7 @@ TEST(Math, Vector4_Length)
 
 TEST(Math, Vector4_LengthZero)
 {
-    EXPECT_FLOAT_EQ( 0.0f, length( TVector4<float>::ZeroVector() ) );
+    EXPECT_FLOAT_EQ( 0.0f, length( TVector4<float>::ZERO ) );
 }
 
 TEST(Math, Vector4_SquaredLength)
@@ -339,7 +339,7 @@ TEST(Math, Vector4_SquaredLength)
 
 TEST(Math, Vector4_SquareLengthZero)
 {
-    EXPECT_FLOAT_EQ( 0.0f, lengthSquared( TVector4<float>::ZeroVector() ) );
+    EXPECT_FLOAT_EQ( 0.0f, lengthSquared( TVector4<float>::ZERO ) );
 }
 
 TEST(Math, Vector4_Normalization)
