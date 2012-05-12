@@ -86,7 +86,7 @@ set(app_srcs
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    SET(app_srcs ${app_srcs} src/app/platform_darwin.cpp)
+    SET(app_srcs ${app_srcs} src/app/platform_darwin.mm)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
