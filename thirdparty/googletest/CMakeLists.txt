@@ -12,4 +12,6 @@ set(GTEST_RUNNER_PATH "${GTEST_PATH}/testrunner.cpp"
 
 # Build Google test as a static library
 include_directories(${GTEST_PATH}/include)
+set_source_files_properties(
+    gtest-all.cpp PROPERTIES COMPILE_FLAGS "-std=c++0x")
 add_library(googletest STATIC gtest-all.cpp)

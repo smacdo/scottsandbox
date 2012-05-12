@@ -105,10 +105,36 @@ add_library(common STATIC ${libcommon_srcs} ${libcommon_incs} )
 # Create a program that executes all of libcommon's unit tests            #
 #=========================================================================#
 if(build_libcommon_tests)
-    init_googletest()
-    add_program_with( testcommonlibs
-                      "common;googletest"
-                      "${PROJECT_SOURCE_DIR}/include"
-                       ""
-                       ${libcommon_tests} testrunner.cpp )
+    # Make sure that test runner can #include google test
+    include_directories( ${CMAKE_SOURCE_DIR}/thirdparty/googletest/include )
+
+    # Need C++0x support and basic warnings enabled for the unit tests
+    set_source_files_properties(
+        testrunner.cpp ${libcommon_tests} PROPERTIES
+        COMPILE_FLAGS "-Wall -Werror -ggdb -std=c++0x")
+
+    # Generate the executable now
+    add_executable( test_commonlibs testrunner.cpp ${libcommon_tests} )
+
+    # Need libraries obviously
+    target_link_libraries( test_commonlibs common googletest )
+
+    # Add a custom target to run the unit tests
+    add_custom_target(
+        test ${CMAKE_CURRENT_BINARY_DIR}/test_commonlibs
+        DEPENDS test_commonlibs )
+
+    # Add custom target that launches unit tests with gdb
+    add_custom_target(
+        test-gdb
+        gdb `pwd`/test_commonlibs -d ${PROJECT_SOURCE_DIR} -cd ${PROJECT_SOURCE_DIR}
+        DEPENDS test_commonlibs
+        COMMENT "Running unit tests with GDB" )
+
+    add_custom_target(
+        test-valgrind
+        COMMAND ${CMAKE_SOURCE_DIR}/scripts/run_memgrind.sh
+                ${CMAKE_CURRENT_BINARY_DIR}/test_commonlibs
+        DEPENDS test_commonlibs
+        COMMENT "Running unit tests with valgrind")
 endif()
