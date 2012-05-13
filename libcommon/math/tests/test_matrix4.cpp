@@ -289,7 +289,10 @@ TEST(Math,Matrix4_Inverse)
 
 TEST(Math,Matrix4_SelfEquality)
 {
-    Mat4 a;
+    const Mat4 a( 6.0f, -7.0f, 10.0f,  2.0f,
+                  0.0f,  3.0f, -1.0f,  6.0f,
+                  0.0f,  5.0f, -7.0f, -1.0f,
+                  3.0f,  6.0f,  1.0f,  4.0f );
 
     EXPECT_EQ( a, a );
 }

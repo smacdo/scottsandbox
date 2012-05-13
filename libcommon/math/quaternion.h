@@ -22,7 +22,7 @@
 // Forward declarations
 template<typename T> class TQuaternion;
 
-template<typename T> T magnitude( const TQuaternion<T>& q );
+template<typename T> T normal( const TQuaternion<T>& q );
 template<typename T> TQuaternion<T> conjugate( const TQuaternion<T>& q );
 template<typename T> TQuaternion<T> inverse( const TQuaternion<T>& q );
 template<typename T> TQuaternion<T> normalize( const TQuaternion<T>& q );
@@ -56,10 +56,10 @@ public:
      */
     TQuaternion()
 #ifdef MATH_DEBUG_MODE
-        : mX( std::numeric_limits<T>::signaling_NaN() ),
+        : mW( std::numeric_limits<T>::signaling_NaN() ),
+          mX( std::numeric_limits<T>::signaling_NaN() ),
           mY( std::numeric_limits<T>::signaling_NaN() ),
-          mZ( std::numeric_limits<T>::signaling_NaN() ),
-          mW( std::numeric_limits<T>::signaling_NaN() )
+          mZ( std::numeric_limits<T>::signaling_NaN() )
 #endif
     {
     }
@@ -67,11 +67,11 @@ public:
     /**
      * Quaternion constructor
      */
-    TQuaternion( value_type x, value_type y, value_type z, value_type w )
-        : mX( x ),
+    TQuaternion( value_type w, value_type x, value_type y, value_type z )
+        : mW( w ),
+          mX( x ),
           mY( y ),
-          mZ( z ),
-          mW( w )
+          mZ( z )
     {
     }
 
@@ -79,10 +79,10 @@ public:
      * Copy constructor
      */
     TQuaternion( const TQuaternion<T>& q )
-        : mX( q.mX ),
+        : mW( q.mW ),
+          mX( q.mX ),
           mY( q.mY ),
-          mZ( q.mZ ),
-          mW( q.mW )
+          mZ( q.mZ )
     {
     }
 
@@ -91,10 +91,10 @@ public:
      */
     TQuaternion<T>& operator =  ( const TQuaternion<T>& q )
     {
+        mW = q.mW;
         mX = q.mX;
         mY = q.mY;
         mZ = q.mZ;
-        mW = q.mW;
 
         return *this;
     }
@@ -104,10 +104,10 @@ public:
      */
     bool operator == ( const TQuaternion<T>& q ) const
     {
-        return Math::equalsClose( mX, q.mX ) &&
+        return Math::equalsClose( mW, q.mW ) &&
+               Math::equalsClose( mX, q.mX ) &&
                Math::equalsClose( mY, q.mY ) &&
-               Math::equalsClose( mZ, q.mZ ) &&
-               Math::equalsClose( mW, q.mW );
+               Math::equalsClose( mZ, q.mZ );
     }
 
     /**
@@ -124,7 +124,7 @@ public:
     const_reference operator[]( unsigned int index ) const
     {
         math_assert( index < 4 && "Quaternion index out of range" );
-        return *(&mX + index);
+        return *(&mW + index);
     }
 
     /**
@@ -133,7 +133,59 @@ public:
     reference operator[]( unsigned int index )
     {
         math_assert( index < 4 && "Quaternion index out of range" );
-        return *(&mX + index);
+        return *(&mW + index);
+    }
+
+    /**
+     * Addition operator
+     */
+    TQuaternion<T> operator + ( const TQuaternion<T>& rhs ) const
+    {
+        return TQuaternion<T>(
+                mW + rhs.mW,
+                mX + rhs.mX,
+                mY + rhs.mY,
+                mZ + rhs.mZ
+        );
+    }
+
+    /**
+     * Self addition operator
+     */
+    TQuaternion<T>& operator += ( const TQuaternion<T>& rhs )
+    {
+        mW += rhs.mW;
+        mX += rhs.mX;
+        mY += rhs.mY;
+        mZ += rhs.mZ;
+
+        return *this;
+    }
+
+    /**
+     * Subtraction operator
+     */
+    TQuaternion<T> operator - ( const TQuaternion<T>& rhs ) const
+    {
+        return TQuaternion<T>(
+                mW - rhs.mW,
+                mX - rhs.mX,
+                mY - rhs.mY,
+                mZ - rhs.mZ
+        );
+    }
+
+    /**
+     * Self subtraction operator
+     */
+    TQuaternion<T>& operator -= ( const TQuaternion<T>& rhs )
+    {
+        mW -= rhs.mW;
+        mX -= rhs.mX;
+        mY -= rhs.mY;
+        mZ -= rhs.mZ;
+
+        return *this;
     }
 
     /**
@@ -142,10 +194,10 @@ public:
     TQuaternion<T> operator * ( const TQuaternion<T>& rhs ) const
     {
         return TQuaternion<T>(
+                mW * rhs.mW - mX * rhs.mX - mY * rhs.mY - mZ * rhs.mZ,
                 mW * rhs.mX + mX * rhs.mW + mY * rhs.mZ - mZ * rhs.mY,
                 mW * rhs.mY + mY * rhs.mW + mZ * rhs.mX - mX * rhs.mZ,
-                mW * rhs.mZ + mZ * rhs.mW + mX * rhs.mY - mY * rhs.mX,
-                mW * rhs.mW - mX * rhs.mX - mY * rhs.mY - mZ * rhs.mZ
+                mW * rhs.mZ + mZ * rhs.mW + mX * rhs.mY - mY * rhs.mX
         );
     }
 
@@ -154,10 +206,15 @@ public:
      */
     TQuaternion<T>& operator *= ( const TQuaternion<T>& rhs )
     {
-        mX = mW * rhs.mX + mX * rhs.mW + mY * rhs.mZ - mZ * rhs.mY;
-        mY = mW * rhs.mY + mY * rhs.mW + mZ * rhs.mX - mX * rhs.mZ;
-        mZ = mW * rhs.mZ + mZ * rhs.mW + mX * rhs.mY - mY * rhs.mX;
-        mW = mW * rhs.mW - mX * rhs.mX - mY * rhs.mY - mZ * rhs.mZ;
+        value_type w = mW * rhs.mW - mX * rhs.mX - mY * rhs.mY - mZ * rhs.mZ;        
+        value_type x = mW * rhs.mX + mX * rhs.mW + mY * rhs.mZ - mZ * rhs.mY;
+        value_type y = mW * rhs.mY + mY * rhs.mW + mZ * rhs.mX - mX * rhs.mZ;
+        value_type z = mW * rhs.mZ + mZ * rhs.mW + mX * rhs.mY - mY * rhs.mX;
+
+        mW = w;
+        mX = x;
+        mY = y;
+        mZ = z;
 
         return *this;
     }
@@ -204,7 +261,7 @@ public:
     }
 
     // Calculate the magnitude of a quaternion
-    friend value_type magnitude<>( const TQuaternion<T>& q );
+    friend value_type normal<>( const TQuaternion<T>& q );
 
     // Calculate the conjugate of a quaternion
     friend TQuaternion<T> conjugate<>( const TQuaternion<T>& q );
@@ -220,7 +277,7 @@ public:
     static const TQuaternion<T> IDENTITY;
 
 private:
-    value_type mX, mY, mZ, mW; 
+    value_type mW, mX, mY, mZ; 
 
 private:
     friend class boost::serialization::access;
@@ -236,12 +293,12 @@ private:
 };
 
 /**
- * Calculates and returns the magnitude of the quaternion
+ * Calculates and returns the normal of the quaternion
  *
  * TODO: Break this out into a .cpp to avoid the cmath include
  */
 template<typename T>
-T magnitude( const TQuaternion<T>& q )
+T normal( const TQuaternion<T>& q )
 {
     return( std::sqrt( q.mX * q.mX + q.mY * q.mY +
                        q.mZ * q.mZ + q.mW * q.mW ) );
@@ -253,7 +310,7 @@ T magnitude( const TQuaternion<T>& q )
 template<typename T>
 TQuaternion<T> conjugate( const TQuaternion<T>& q )
 {
-    return TQuaternion<T>( -q.mX, -q.mY, -q.mZ, q.mW );
+    return TQuaternion<T>( q.mW, -q.mX, -q.mY, -q.mZ );
 }
 
 /**
@@ -262,11 +319,7 @@ TQuaternion<T> conjugate( const TQuaternion<T>& q )
 template<typename T>
 TQuaternion<T> inverse( const TQuaternion<T>& q )
 {
-    TQuaternion<T> t = conjugate( q );
-    return TQuaternion<T>( static_cast<T>(1) / t.mX,
-                           static_cast<T>(1) / t.mY,
-                           static_cast<T>(1) / t.mZ,
-                           static_cast<T>(1) / t.mW );
+    return conjugate( q );
 }
 
 /**
@@ -275,8 +328,8 @@ TQuaternion<T> inverse( const TQuaternion<T>& q )
 template<typename T>
 TQuaternion<T> normalize( const TQuaternion<T>& q )
 {
-    T mag = magnitude( q );
-    return TQuaternion<T>( mag / q.mX, mag / q.mY, mag / q.mZ, mag / q.mW );
+    T mag = normal( q );
+    return TQuaternion<T>( q.mW / mag, q.mX / mag, q.mY / mag, q.mZ / mag );
 }
 
 /**
@@ -286,10 +339,10 @@ template<typename T>
 std::ostream& operator << ( std::ostream& os, const TQuaternion<T>& q )
 {
     os << "{quat; "
-       << "x: " << q.x() << ", "
-       << "y: " << q.y() << ", "
-       << "z: " << q.z() << ", "
-       << "w: " << q.w()
+       << "w: " << q.w() << ", "
+       << "i: " << q.x() << ", "
+       << "j: " << q.y() << ", "
+       << "k: " << q.z()
        << "}";
 
     return os;
@@ -305,7 +358,7 @@ const TQuaternion<T> TQuaternion<T>::ZERO = TQuaternion<T>( 0, 0, 0, 0 );
  * Identity quaternion
  */
 template<typename T>
-const TQuaternion<T> TQuaternion<T>::IDENTITY = TQuaternion<T>( 0, 0, 0, 1 );
+const TQuaternion<T> TQuaternion<T>::IDENTITY = TQuaternion<T>( 1, 0, 0, 0 );
 
 #ifdef MATH_COMMON_TYPEDEFS
 typedef TQuaternion<float> Quat;

@@ -22,10 +22,10 @@ TEST(Math, Quaternion_ValueConstructor)
 {
     Quat q( 3.0, 2.0, -4.0, 6.0 );
 
-    EXPECT_FLOAT_EQ(  3.0, q.x() );
-    EXPECT_FLOAT_EQ(  2.0, q.y() );
-    EXPECT_FLOAT_EQ( -4.0, q.z() );
-    EXPECT_FLOAT_EQ(  6.0, q.w() );
+    EXPECT_FLOAT_EQ(  3.0, q.w() );
+    EXPECT_FLOAT_EQ(  2.0, q.x() );
+    EXPECT_FLOAT_EQ( -4.0, q.y() );
+    EXPECT_FLOAT_EQ(  6.0, q.z() );
 }
 
 TEST(Math, Quaternion_CopyConstructor)
@@ -33,10 +33,10 @@ TEST(Math, Quaternion_CopyConstructor)
     const Quat a( 1.0, -2.0, 0.2, 3.5 );
     const Quat q( a );
 
-    EXPECT_FLOAT_EQ(  1.0, q.x() );
-    EXPECT_FLOAT_EQ( -2.0, q.y() );
-    EXPECT_FLOAT_EQ(  0.2, q.z() );
-    EXPECT_FLOAT_EQ(  3.5, q.w() );
+    EXPECT_FLOAT_EQ(  1.0, q.w() );
+    EXPECT_FLOAT_EQ( -2.0, q.x() );
+    EXPECT_FLOAT_EQ(  0.2, q.y() );
+    EXPECT_FLOAT_EQ(  3.5, q.z() );
 }
 
 TEST(Math, Quaternion_ConstIndexOperatorRead)
@@ -58,10 +58,10 @@ TEST(Math, Quaternion_IndexOperatorWrite)
     q[2] = -1.0;
     q[3] =  2.5;
 
-    EXPECT_FLOAT_EQ(  2.0, q.x() );
-    EXPECT_FLOAT_EQ(  0.2, q.y() );
-    EXPECT_FLOAT_EQ( -1.0, q.z() );
-    EXPECT_FLOAT_EQ(  2.5, q.w() );
+    EXPECT_FLOAT_EQ(  2.0, q.w() );
+    EXPECT_FLOAT_EQ(  0.2, q.x() );
+    EXPECT_FLOAT_EQ( -1.0, q.y() );
+    EXPECT_FLOAT_EQ(  2.5, q.z() );
 
 }
 
@@ -112,24 +112,65 @@ TEST(Math, Quaternion_Inequality)
     EXPECT_FALSE( a != a );
 }
 
+TEST(Math, Quaternion_Addition)
+{
+    const Quat a(  1.0, 2.0, 3.0,  4.0 );
+    const Quat b( -1.5, 2.5, 3.5, -4.2 );
+    const Quat r = a + b;
+
+    EXPECT_EQ( Quat( -0.5, 4.5, 6.5, -0.2 ), r );
+}
+
+TEST(Math, Quaternion_SelfAddition)
+{
+    const Quat a(  1.0, 2.0, 3.0,  4.0 );
+    const Quat b( -1.5, 2.5, 3.5, -4.2 );
+
+    Quat r  = a;
+         r += b;  
+
+    EXPECT_EQ( Quat( -0.5, 4.5, 6.5, -0.2 ), r );
+}
+
+TEST(Math, Quaternion_Subtraction)
+{
+    const Quat a(  1.0, 2.0, 3.0,  4.0 );
+    const Quat b( -1.5, 2.5, 3.2, -4.2 );
+    const Quat r = a - b;
+
+    EXPECT_EQ( Quat( 2.5, -0.5, -0.2, 8.2 ), r );
+}
+
+TEST(Math, Quaternion_SelfSubtraction)
+{
+    const Quat a(  1.0, 2.0, 3.0,  4.0 );
+    const Quat b( -1.5, 2.5, 3.2, -4.2 );
+
+    Quat r  = a;
+         r -= b;
+
+    EXPECT_EQ( Quat( 2.5, -0.5, -0.2, 8.2 ), r );
+}
+
+
 TEST(Math, Quaternion_Multiply)
 {
-    const Quat a( 1.0, 2.0, 3.0, 4.0 );
-    const Quat b( 1.5, 2.5, 3.5, 4.5 );
+    const Quat a(  1.0, 2.0, 3.0,  4.0 );
+    const Quat b( -1.5, 2.5, 3.5, -4.5 );
     const Quat r = a * b;
 
-    EXPECT_EQ( r, Quat( 6.0, 10.0, 18.0, 5.5 ) );
+    EXPECT_EQ( Quat( 1.0, -28.0, 18.0, -11.0 ), r );
 }
 
 TEST(Math, Quaternion_SelfMultiply)
 {
-    const Quat a( 1.0, 2.0, 3.0, 4.0 );
-    const Quat b( 1.5, 2.5, 3.5, 4.5 );
+    const Quat a(  1.0, 2.0, 3.0,  4.0 );
+    const Quat b( -1.5, 2.5, 3.5, -4.5 );
 
     Quat r  = a;
          r *= b;  
 
-    EXPECT_EQ( r, Quat( 6.0, 10.0, 18.0, 5.5 ) );
+    EXPECT_EQ( Quat( 1.0, -28.0, 18.0, -11.0 ), r );
 }
 
 TEST(Math, Quaternion_X)
@@ -137,8 +178,8 @@ TEST(Math, Quaternion_X)
     const Quat a( 1.0, 2.0, 3.0, 4.0 );
     const Quat b( 1.5, 2.5, 3.5, 4.5 );
 
-    EXPECT_EQ( a.x(), 1.0 );
-    EXPECT_EQ( b.x(), 1.5 );
+    EXPECT_EQ( 2.0, a.x() );
+    EXPECT_EQ( 2.5, b.x() );
 }
 
 TEST(Math, Quaternion_Y)
@@ -146,34 +187,34 @@ TEST(Math, Quaternion_Y)
     const Quat a( 1.0, 2.0, 3.0, 4.0 );
     const Quat b( 1.5, 2.5, 3.5, 4.5 );
 
-    EXPECT_EQ( a.y(), 2.0 );
-    EXPECT_EQ( b.y(), 2.5 );
+    EXPECT_EQ( 3.0, a.y() );
+    EXPECT_EQ( 3.5, b.y() );
 }
-
 
 TEST(Math, Quaternion_Z)
 {
     const Quat a( 1.0, 2.0, 3.0, 4.0 );
     const Quat b( 1.5, 2.5, 3.5, 4.5 );
 
-    EXPECT_EQ( a.z(), 3.0 );
-    EXPECT_EQ( b.z(), 3.5 );
+    EXPECT_EQ( 4.0, a.z() );
+    EXPECT_EQ( 4.5, b.z() );
 }
-
 
 TEST(Math, Quaternion_W)
 {
     const Quat a( 1.0, 2.0, 3.0, 4.0 );
     const Quat b( 1.5, 2.5, 3.5, 4.5 );
 
-    EXPECT_EQ( a.w(), 4.0 );
-    EXPECT_EQ( b.w(), 4.5 );
+    EXPECT_EQ( 1.0, a.w() );
+    EXPECT_EQ( 1.5, b.w() );
 }
 
-TEST(Math,Quaternion_Magnitude)
+TEST(Math,Quaternion_Normal)
 {
     const Quat q( 1.0, 2.0, 3.0, 4.0 );
-    EXPECT_FLOAT_EQ( 0.0, magnitude( q ) );
+
+    // norm of quaternion[ 1+2i+3j+4k ]
+    EXPECT_FLOAT_EQ( sqrtf( 30.0 ), normal( q ) );
 }
 
 TEST(Math,Quaternion_Conjugate)
@@ -181,7 +222,8 @@ TEST(Math,Quaternion_Conjugate)
     const Quat q( 1.0, 2.0, 3.0, 4.0 );
     const Quat c = conjugate( q );
 
-    EXPECT_EQ( c, Quat( 1.0, 2.0, 3.0, 4.0 ) );
+    // conjugate of quaternion[ 1+2i+3j+4k ]
+    EXPECT_EQ( Quat( 1.0, -2.0, -3.0, -4.0 ), c );
 }
 
 TEST(Math,Quaternion_Inverse)
@@ -189,7 +231,21 @@ TEST(Math,Quaternion_Inverse)
     const Quat q( 1.0, 2.0, 3.0, 4.0 );
     const Quat c = inverse( q );
 
-    EXPECT_EQ( c, Quat( 1.0, 2.0, 3.0, 4.0 ) );
+    // conjugate of quaternion[ 1+2i+3j+4k ]
+    EXPECT_EQ( Quat( 1.0, -2.0, -3.0, -4.0 ), c );
+}
+
+TEST(Math,Quaternion_Unit)
+{
+    const Quat q( 1.0, 2.0, 3.0, 4.0 );
+    const Quat r = normalize( q );
+
+    EXPECT_EQ( Quat( 1.0 / sqrt( 30 ),
+                     sqrt( 2.0 / 15.0 ),
+                     sqrt( 3.0 / 10.0 ),
+                     2.0 * sqrt( 2.0 / 15.0 ) ),
+                r );
+                    
 }
 
 TEST(Math, Quaternion_Zero)
