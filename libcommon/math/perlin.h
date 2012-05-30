@@ -48,7 +48,7 @@ private:
     const unsigned int RANDOM_LUT_SIZE = 512;
 
     /// Buffer of randomly generated values
-    unsigned char * pRandomLUT;
+    unsigned char * mpRandomLUT;
 };
 
 #endif

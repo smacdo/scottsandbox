@@ -47,7 +47,6 @@ TEST(UtilsTests,DerefConst)
     EXPECT_EQ( 42, deref( pV ) );
 }
 
-#ifdef USE_CPP_0X
 /**
  * Tests if we can deref a non-null smart pointer value
  */
@@ -65,7 +64,6 @@ TEST(UtilsTest,DerefConstSmartPointer)
     std::shared_ptr<const int> p( new int(42) );
     EXPECT_EQ( 42, deref( p ) );
 }
-#endif
 
 TEST(UtilsTests,DerefNullDeath)
 {
@@ -77,7 +75,6 @@ TEST(UtilsTests,DerefNullDeath)
     Debug::resetTestAssertShouldDie();
 }
 
-#ifdef USE_CPP_0X
 TEST(UtilsTests,DerefNullSmartPointerDeath)
 {
     std::shared_ptr<int> p;
@@ -87,4 +84,3 @@ TEST(UtilsTests,DerefNullSmartPointerDeath)
 
     Debug::resetTestAssertShouldDie();
 }
-#endif

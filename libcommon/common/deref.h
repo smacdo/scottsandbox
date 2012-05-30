@@ -47,7 +47,6 @@ inline T& deref( T* ptr )
     return *ptr;
 }
 
-#ifdef USE_CPP_0X
 /**
  * Returns a non-null reference that refers to the given pointer's address,
  * after performing a checking that the pointer passed is not null.
@@ -63,6 +62,5 @@ inline T& deref( std::shared_ptr<T> sharedPtr )
 
     return *ptr;
 }
-#endif
 
 #endif

@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 init_googletest()
 
 add_definitions("-std=c++0x")
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 ###
 ### Build projects

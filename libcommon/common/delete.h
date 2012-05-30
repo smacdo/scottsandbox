@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2012 Scott MacDonald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,36 +97,9 @@ void DeleteArray( T& arrayPointer )
 template<typename T>
 size_t DeletePointerContainer( T& container )
 {
-    typename T::iterator itr;
-    size_t count = 0;
+    std::for_each( container.begin(), container.end(), Delete<typename T::value_type> );
 
-    for ( itr = container.begin(); itr != container.end(); std::advance(itr,1) )
-    {
-        Delete<typename T::value_type>( *itr );
-        count++;
-    }
-
-    // Also reset the container to have zero entries
-    container.clear();
-
-    // Make sure caller knows how many objects were destroyed
-    return count;
-}
-
-/**
- * Deletes an STL container of vectors, and resizes the container to zero.
- *
- * \param  container  A STL vector holding pointers
- */
-template<typename T>
-size_t DeleteVectorPointers( std::vector<T>& container )
-{
-    // Record how many objects are in the container before destroying
     size_t count = container.size();
-
-    // Now destroy every pointer in the container, and then reset the container
-    // to be empty
-    std::for_each( container.begin(), container.end(), Delete<T> );
     container.clear();
 
     return count;

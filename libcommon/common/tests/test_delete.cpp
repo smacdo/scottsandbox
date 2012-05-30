@@ -5,152 +5,212 @@
 #include <common/delete.h>
 #include <ostream>
 #include <vector>
+#include <deque>
+#include <list>
 
 #include "common/delete.h"
+
+unsigned int GNumObjectsCreated = 0;
+unsigned int GNumObjectsDeleted = 0;
+unsigned int GNumObjectsAlive   = 0;
+
+class DeleteTest : public testing::Test
+{
+protected:
+    virtual void SetUp()
+    {
+        GNumObjectsCreated = 0;
+        GNumObjectsDeleted = 0;
+        GNumObjectsAlive   = 0;
+    }
+
+    virtual void TearDown()
+    {
+        ASSERT_EQ( GNumObjectsCreated, GNumObjectsDeleted );
+        EXPECT_EQ( 0u, GNumObjectsAlive );
+    }
+};
 
 class TestDummy
 {
 public:
-    TestDummy( size_t& totalCounter, size_t& selfCounter )
-        : mTotalCounter( totalCounter ),
-          mSelfCounter( selfCounter )
+    TestDummy()
+        : mpAlive(NULL)
     {
-        mTotalCounter++;
-        mSelfCounter++;
+        GNumObjectsCreated++;
+        GNumObjectsAlive++;
+    }
+
+    TestDummy( bool * pAlive )
+        : mpAlive( pAlive )
+    {
+        GNumObjectsCreated++;
+        GNumObjectsAlive++;
+
+        *mpAlive = true;
     }
 
     ~TestDummy()
     {
-        mTotalCounter--;
-        mSelfCounter--;
+        GNumObjectsDeleted++;
+        GNumObjectsAlive--;
+
+        if ( mpAlive )
+        {
+            *mpAlive = false;
+        }
+    }
+
+    void attach( bool * pAlive )
+    {
+        mpAlive = pAlive;
+
+        if ( mpAlive )
+        {
+            *mpAlive = true;
+        }
     }
 
 private:
-    size_t& mTotalCounter;
-    size_t& mSelfCounter;
+    bool * mpAlive;
 };
 
-TEST(UtilsTests,InternalTest_VerifyTestDummy)
+TEST_F(DeleteTest,VerifyTestDummy)
 {
-    size_t total = 0;
-    size_t a     = 0;
-    size_t b     = 0;
+    bool aliveA  = false;
+    bool aliveB  = false;
 
-    TestDummy *pA = new TestDummy( total, a );
-    EXPECT_EQ( 1u, total );
-    EXPECT_EQ( 1u, a );
-    EXPECT_EQ( 0u, b );
+    TestDummy *pA = new TestDummy( &aliveA );
+    EXPECT_TRUE( aliveA );
+    EXPECT_FALSE( aliveB );
 
-    TestDummy *pB = new TestDummy( total, b );
-    EXPECT_EQ( 2u, total );
-    EXPECT_EQ( 1u, a );
-    EXPECT_EQ( 1u, b );
+    TestDummy *pB = new TestDummy( &aliveB );
+    EXPECT_TRUE( aliveA );
+    EXPECT_TRUE( aliveB );
 
     delete pA;
-    EXPECT_EQ( 1u, total );
-    EXPECT_EQ( 0u, a );
-    EXPECT_EQ( 1u, b );
+    EXPECT_FALSE( aliveA );
+    EXPECT_TRUE( aliveB );
 
     delete pB;
-    EXPECT_EQ( 0u, total );
-    EXPECT_EQ( 0u, a );
-    EXPECT_EQ( 0u, b );
-
+    EXPECT_FALSE( aliveA );
+    EXPECT_FALSE( aliveA );
 }
 
-TEST(UtilsTests,DeletePointer)
+TEST_F(DeleteTest,DeletePointer)
 {
-    size_t total = 0;
-    size_t a = 0;
+    bool alive   = false;
 
-    TestDummy *pA = new TestDummy( total, a );
+    TestDummy *pA = new TestDummy( &alive );
+    EXPECT_TRUE( alive );
     Delete( pA );
 
-    EXPECT_EQ( 0u, total );
-    EXPECT_EQ( 0u, a );
-
+    // Make sure destructor was called
+    EXPECT_FALSE( alive );
     EXPECT_TRUE( pA == NULL );
 }
 
-TEST(UtilsTest,DeletePointerArray)
+TEST_F(DeleteTest,DeletePointerArray)
 {
-    //size_t total = 0;
-    //size_t a     = 0;
+    bool aliveA = false, aliveB = false, aliveC = false;
+    TestDummy * pA = new TestDummy[ 3 ];
 
-    // TODO: Implement
-    EXPECT_TRUE( true );
+    pA[0].attach( &aliveA );
+    pA[1].attach( &aliveB );
+    pA[2].attach( &aliveC );
+
+    EXPECT_TRUE( aliveA );
+    EXPECT_TRUE( aliveB );
+    EXPECT_TRUE( aliveC );
+
+    DeleteArray( pA );
+
+    EXPECT_FALSE( aliveA );
+    EXPECT_FALSE( aliveB );
+    EXPECT_FALSE( aliveC );
 }
 
-TEST(UtilsTests,DeletePointerGenericContainerWhichIsAVector)
+TEST_F(DeleteTest,DeleteVectorOfPointers)
 {
-    size_t total = 0;
-    size_t a     = 0;
-    size_t b     = 0;
-    size_t c     = 0;
+    bool aliveA = false;
+    bool aliveB = false;
+    bool aliveC = false;
 
     std::vector<TestDummy*> v;
-    v.push_back( new TestDummy( total, a ) );
-    v.push_back( new TestDummy( total, b ) );
-    v.push_back( new TestDummy( total, c ) );
+    v.push_back( new TestDummy( &aliveA ) );
+    v.push_back( new TestDummy( &aliveB ) );
+    v.push_back( new TestDummy( &aliveC ) );
 
-    EXPECT_EQ( 3u, total );
-    EXPECT_EQ( 1u, a );
-    EXPECT_EQ( 1u, b );
-    EXPECT_EQ( 1u, c );
+    EXPECT_TRUE( aliveA );
+    EXPECT_TRUE( aliveB );
+    EXPECT_TRUE( aliveC );
 
     EXPECT_EQ( 3u, DeletePointerContainer( v ) );
-    EXPECT_EQ( 0u, total );
-    EXPECT_EQ( 0u, a );
-    EXPECT_EQ( 0u, b );
-    EXPECT_EQ( 0u, c );
+    EXPECT_FALSE( aliveA );
+    EXPECT_FALSE( aliveB );
+    EXPECT_FALSE( aliveC );
 }
 
-TEST(UtilsTests,DeleteVectorPointers)
+TEST_F(DeleteTest,DeleteMapOfPointers)
 {
-    size_t total = 0;
-    size_t a     = 0;
-    size_t b     = 0;
-    size_t c     = 0;
-
-    std::vector<TestDummy*> v;
-    v.push_back( new TestDummy( total, a ) );
-    v.push_back( new TestDummy( total, b ) );
-    v.push_back( new TestDummy( total, c ) );
-
-    EXPECT_EQ( 3u, total );
-    EXPECT_EQ( 1u, a );
-    EXPECT_EQ( 1u, b );
-    EXPECT_EQ( 1u, c );
-
-    EXPECT_EQ( 3u, DeleteVectorPointers( v ) );
-    EXPECT_EQ( 0u, total );
-    EXPECT_EQ( 0u, a );
-    EXPECT_EQ( 0u, b );
-    EXPECT_EQ( 0u, c );
-}
-
-TEST(UtilsTests,DeleteMapPointers)
-{
-    size_t total = 0;
-    size_t a     = 0;
-    size_t b     = 0;
-    size_t c     = 0;
+    bool aliveA = false;
+    bool aliveB = false;
+    bool aliveC = false;
 
     std::map<int, TestDummy*> v;
-    v.insert( std::pair<int, TestDummy*>( 0, new TestDummy( total, a ) ) );
-    v.insert( std::pair<int, TestDummy*>( 1, new TestDummy( total, b ) ) );
-    v.insert( std::pair<int, TestDummy*>( 2, new TestDummy( total, c ) ) );
+    v.insert( std::pair<int, TestDummy*>( 0, new TestDummy( &aliveA ) ) );
+    v.insert( std::pair<int, TestDummy*>( 1, new TestDummy( &aliveB ) ) );
+    v.insert( std::pair<int, TestDummy*>( 2, new TestDummy( &aliveC ) ) );
 
-    EXPECT_EQ( 3u, total );
-    EXPECT_EQ( 1u, a );
-    EXPECT_EQ( 1u, b );
-    EXPECT_EQ( 1u, c );
+    EXPECT_TRUE( aliveA );
+    EXPECT_TRUE( aliveB );
+    EXPECT_TRUE( aliveC );
 
     EXPECT_EQ( 3u, DeleteMapPointers( v ) );
-    EXPECT_EQ( 0u, total );
-    EXPECT_EQ( 0u, a );
-    EXPECT_EQ( 0u, b );
-    EXPECT_EQ( 0u, c );
+    EXPECT_FALSE( aliveA );
+    EXPECT_FALSE( aliveB );
+    EXPECT_FALSE( aliveC );
 }
 
+TEST_F(DeleteTest,DeleteDequeOfPointers)
+{
+    bool aliveA = false;
+    bool aliveB = false;
+    bool aliveC = false;
+
+    std::deque<TestDummy*> v;
+    v.push_back( new TestDummy( &aliveA ) );
+    v.push_back( new TestDummy( &aliveB ) );
+    v.push_back( new TestDummy( &aliveC ) );
+
+    EXPECT_TRUE( aliveA );
+    EXPECT_TRUE( aliveB );
+    EXPECT_TRUE( aliveC );
+
+    EXPECT_EQ( 3u, DeletePointerContainer( v ) );
+    EXPECT_FALSE( aliveA );
+    EXPECT_FALSE( aliveB );
+    EXPECT_FALSE( aliveC );
+}
+
+TEST_F(DeleteTest,DeleteStackOfPointers)
+{
+    bool aliveA = false;
+    bool aliveB = false;
+    bool aliveC = false;
+
+    std::list<TestDummy*> v;
+    v.push_front( new TestDummy( &aliveA ) );
+    v.push_front( new TestDummy( &aliveB ) );
+    v.push_back( new TestDummy( &aliveC ) );
+
+    EXPECT_TRUE( aliveA );
+    EXPECT_TRUE( aliveB );
+    EXPECT_TRUE( aliveC );
+
+    EXPECT_EQ( 3u, DeletePointerContainer( v ) );
+    EXPECT_FALSE( aliveA );
+    EXPECT_FALSE( aliveB );
+    EXPECT_FALSE( aliveC );
+}
 
