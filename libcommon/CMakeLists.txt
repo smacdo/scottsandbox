@@ -44,6 +44,7 @@ option(libcommon_performance    "Build libcommon with performance flags" on)
 # Compiler settings and configuration                                     #
 #=========================================================================#
 set( CXX_FLAGS "" )
+
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 if(libcommon_cpp0x)
