@@ -21,6 +21,8 @@
 #include <fstream>
 #include <string>
 
+Log GlobalLog::mLog;
+
 /**
  * Initializes the global log
  */

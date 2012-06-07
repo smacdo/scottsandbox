@@ -16,10 +16,27 @@
 #include "app/logging.h"
 #include "app/logging_debugstreambuf.h"
 #include "app/logging_stream.h"
+#include "common/delete.h"
 #include <iostream>
 #include <ostream>
 #include <fstream>
 #include <string>
+
+/**
+ * Log constructor
+ */
+Log::Log()
+    : mDebugStream( new LogStream( NULL, NULL ) )
+{
+}
+
+/**
+ * Log destructor
+ */
+Log::~Log()
+{
+    Delete( mDebugStream );
+}
 
 /**
  * Writes a trace entry to the program's log, and a stream that can be
