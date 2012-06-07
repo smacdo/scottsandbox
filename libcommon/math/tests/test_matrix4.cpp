@@ -321,7 +321,10 @@ TEST(Math,Matrix4_Equality)
 
 TEST(Math,Matrix4_SelfInequalityFalse)
 {
-    Mat4 m;
+    Mat4 m( 2.0f, 4.0f, 6.0f, 9.0f, 
+            1.2f, 3.0f, 5.0f, 7.0f,
+            9.5f, 1.5f, 1.0f, 0.0f,
+            2.8f, 9.8f, 6.6f, 8.8f );
 
     EXPECT_FALSE( m != m );
 }
