@@ -25,6 +25,7 @@ add_subdirectory(common)
 add_subdirectory(math)
 add_subdirectory(app)
 add_subdirectory(string)
+add_subdirectory(game)
 #add_subdirectory(game2d)
 add_subdirectory(game3d)
 

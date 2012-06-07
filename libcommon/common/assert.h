@@ -91,8 +91,9 @@ namespace Debug
         }                                   \
     } while( 0 )
 #   define assert2(expr,msg) scott_assert(msg,expr)
-#   define assert_null(var) scott_assert("Pointer was expected to be null",#var##" == NULL")
-#   define assert_notNull(var) scott_assert("Pointer was expected to be non-null",#var##" != NULL")
+#   define assert_null(var) scott_assert("Pointer was expected to be null",(var)==NULL)
+#   define assert_notNull(var) scott_assert("Pointer was expected to be non-null",(var)!=NULL)
+#   define core_assert(expr,msg) scott_assert(msg,expr)
 
 #   ifdef ASSERTS_VERIFY        // only enabled for full sanity checks
 #       define verify(expression)  scott_assert(NULL,expression)
@@ -107,6 +108,7 @@ namespace Debug
 #   ifndef assert
 #       define assert(x)          do { (void)sizeof(x); } while(0)
 #   endif
+#   define core_assert(m,x)   do { (void)sizeof(x); } while(0)
 #   define assert2(x,m)       do { (void)sizeof(x); } while(0)
 #   define assert_null(x)     do { (void)sizeof(x); } while(0)
 #   define assert_notNull(x)  do { (void)sizeof(x); } while(0)
