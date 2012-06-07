@@ -1,8 +1,11 @@
 project(GoogleTestLib)
 cmake_minimum_required(VERSION 2.6)
 
-# Disable threads (for the moment)
-add_definitions(-DGTEST_HAS_PTHREAD=0)
+# We want to compile with thread support
+find_package(Threads)
+
+# Manually disable thread support in google test
+#add_definitions(-DGTEST_HAS_PTHREAD=0)
 
 # Set global property that tells everyone where Google Test is, and
 # how it is configured
@@ -15,3 +18,6 @@ include_directories(${GTEST_PATH}/include)
 set_source_files_properties(
     gtest-all.cpp PROPERTIES COMPILE_FLAGS "-std=c++0x")
 add_library(googletest STATIC gtest-all.cpp)
+
+# Make sure we link threading
+target_link_libraries(googletest ${CMAKE_THREAD_LIBS_INIT})
