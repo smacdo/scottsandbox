@@ -1,0 +1,10 @@
+Bytecode format
+====================================================================
+struct Instruction
+{
+    uint16_t opcode;
+    uint64_t param;
+};
+
+
+
