@@ -32,8 +32,6 @@
 #include <cstring>
 #include <stdint.h>
 
-#define crc_assert(x) assert(x)
-
 const size_t CRC_TABLE_SIZE = 256;
 
 uint32_t CRCTable[CRC_TABLE_SIZE] =
@@ -85,7 +83,7 @@ uint32_t CRCTable[CRC_TABLE_SIZE] =
 
 uint32_t crc32( const uint8_t * pInput, size_t length )
 {
-    crc_assert( pInput != NULL && "Pointer to data cannot be null" );
+    ASSERT_MSG( pInput != NULL, "Input data pointer cannot be null" );
 
     const uint8_t* byte = pInput;
           uint32_t crc  = 0xFFFFFFFF;

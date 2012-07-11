@@ -38,9 +38,9 @@
  * By default, math_assert is only enabled when MATH_DEBUG_MODE is defined.
  */
 #ifdef MATH_DEBUG_MODE
-#   include <app/debug.h>
+#   include <common/assert.h>
 #   include <limits>
-#   define math_assert(x) scott_assert("Math assertion failed", x)
+#   define math_assert(x) ASSERT_MSG(x, "libcommon math assertion")
 #   define SCOTT_NAN      std::numeric_limits<T>::signaling_NaN()
 #   define MATRIX_DEBUG_MODE 1
 #   define VECTOR_DEBUG_MODE 1

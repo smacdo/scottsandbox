@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 #include <googletest/googletest.h>
-#include <common/assert.h>
+#include <app/platform.h>
 
 int main( int argc, char * argv[] )
 {
-    // Make sure to configure the platform for unit testing
-    Debug::setInUnitTestMode( true );
+    App::startup();
 
     // Now run the unit tests
     ::testing::InitGoogleTest( &argc, argv );

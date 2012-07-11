@@ -19,29 +19,29 @@ typedef AssertTests AssertDeathTests;
 
 TEST_F(AssertTests,AssertSuccess)
 {
-    assert( 1 == 1 );
+    ASSERT( 1 == 1 );
 }
 
 TEST_F(AssertDeathTests,AssertFailed)
 {
-    EXPECT_DEATH( { assert( 1 == 0 ); }, "ASSERTION FAILED: 1 == 0" );
+    EXPECT_DEATH( { ASSERT( 1 == 0 ); }, "ASSERTION FAILED: 1 == 0" );
 }
 
 TEST_F(AssertTests,AssertNullSuccess)
 {
     int *p = NULL;
-    assert_null( p );
+    ASSERT_NULL( p );
 }
 
 TEST_F(AssertTests,AssertNotNullSuccess)
 {
     int *p = new int;
-    assert_notNull( p );
+    ASSERT_NOT_NULLl( p );
 
     delete p;
 }
 
 TEST_F(AssertTests,AssertCore)
 {
-    core_assert( true, "This is a libcommon assertion" );
+    CORE_ASSERT( true, "This is a libcommon assertion" );
 }
