@@ -42,13 +42,13 @@ public:
 
     T& operator*() const                        // never throws
     {
-        core_assert( mPtr != 0, "Cannot dereference a null scoped pointer" );
+        CORE_ASSERT( mPtr != 0, "Cannot dereference a null scoped pointer" );
         return *mPtr;
     }
 
     T * operator->() const                      // never throws
     {
-        core_assert( mPtr != 0, "Cannot dereference a null scoped pointer" );
+        CORE_ASSERT( mPtr != 0, "Cannot dereference a null scoped pointer" );
         return mPtr;
     }
 

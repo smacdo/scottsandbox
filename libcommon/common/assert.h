@@ -44,19 +44,17 @@
 #if defined( DISABLE_ASSERTS ) || defined( NDEBUG )
 #   define ASSERT(expr) ((void)0)
 #elif defined( ENABLE_ASSERT_HANDLER )
-#   include <thirdparty/miniboost/current_function.hpp>
+#   include <miniboost/current_function.hpp>
 #   define ASSERT(expr)                     \
     do                                      \
     {                                       \
         if ( !(expr) )                      \
         {                                   \
-            if ( Debug::raiseAssertion(#expr,NULL,BOOST_CURRENT_FUNCTION,__FILE__,__LINE__) == \
-                 Debug::EAssertion_Halt )   \
+            if ( Assert::raiseAssertion(#expr,NULL,BOOST_CURRENT_FUNCTION,__FILE__,__LINE__) ) \
                 assert_break;               \
         }                                   \
     } while( 0 )
 #else
-#   include <assert.h> // .h to support old libraries w/o <cassert> - effect is the same
 #   define ASSERT(expr) assert(expr)
 #endif
 
@@ -73,13 +71,13 @@
     {                                       \
         if ( !(expr) )                      \
         {                                   \
-            if ( Debug::raiseAssertion(#expr,msg,BOOST_CURRENT_FUNCTION,__FILE__,__LINE__) == \
-                 Debug::EAssertion_Halt )   \
+            if ( Assert::raiseAssertion(#expr,msg,BOOST_CURRENT_FUNCTION,__FILE__,__LINE__) ) \
                 assert_break;               \
         }                                   \
     } while( 0 )
 #else
-#   define ASSERT_MSG(expr) ASSERT(expr)
+#   error WTF
+#   define ASSERT_MSG(expr,msg) ASSERT(expr && (msg))
 #endif
 
 //

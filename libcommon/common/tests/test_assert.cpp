@@ -1,4 +1,5 @@
 #include <googletest/googletest.h>
+#include <testing/testing.h>
 #include <common/assert.h>
 
 class AssertTests : public ::testing::Test
@@ -6,12 +7,12 @@ class AssertTests : public ::testing::Test
 protected:
     virtual void SetUp()
     {
-        Debug::setTestAssertShouldDie( true );
+//        Tests::setTestAssertShouldDie( true );
     }
 
     virtual void TearDown()
     {
-        Debug::resetTestAssertShouldDie();
+//        Tests::resetTestAssertShouldDie();
     }
 };
 
@@ -36,7 +37,7 @@ TEST_F(AssertTests,AssertNullSuccess)
 TEST_F(AssertTests,AssertNotNullSuccess)
 {
     int *p = new int;
-    ASSERT_NOT_NULLl( p );
+    ASSERT_NOT_NULL( p );
 
     delete p;
 }

@@ -69,6 +69,8 @@ namespace Assert
                          const char * pFile,
                          unsigned int line )
     {
+
+        std::cerr << "FAILED ASSERTION FIRED" << std::endl;
         // Subsitute default values if they were not provided
         if ( pReason == NULL )
         {

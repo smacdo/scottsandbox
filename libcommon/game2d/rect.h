@@ -13,39 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_MATH_RECT_H
-#define SCOTT_MATH_RECT_H
+#ifndef SCOTT_GAME2D_RECT_H
+#define SCOTT_GAME2D_RECT_H
 
-#include <math/vector.h>
-#include <math/config.h>
+#include <game2d/point.h>
 
 /**
- * 2d axis aligned rectangle.
+ * 2D axis align rectangle that uses non-negative integer coordinates
+ * to define it's position.
  */
-class RectF
+class Rect
 {
 public:
-    RectF( const Vec2& topLeft, const Vec2& rectSize )
+    Rect( const Point& topLeft, const Point& rectSize )
         : mTopLeft( topLeft ),
           mSize( rectSize )
     {
-        ASSERT( mSize.x() > 0.0f && mSize.y() > 0.0f );
     }
 
-    RectF( float topX, float topY, float width, float height )
+    Rect( const Point& topLeft, unsigned int width, unsigned int height )
+        : mTopLeft( topLeft ),
+          mSize( width, height )
+    {
+    }
+
+    Rect( unsigned int topX,
+          unsigned int topY,
+          unsigned int width,
+          unsigned int height )
         : mTopLeft( topX, topY ),
           mSize( width, height )
     {
-        ASSERT( width > 0.0f && height > 0.0f );
     }
 
-    RectF( const RectF& rect )
+    Rect( const Rect& rect )
         : mTopLeft( rect.mTopLeft ),
           mSize( rect.mSize )
     {
     }
 
-    RectF& operator = ( const RectF& rect )
+    Rect& operator = ( const Rect& rect )
     {
         mTopLeft = rect.mTopLeft;
         mSize    = rect.mSize;
@@ -53,129 +60,123 @@ public:
         return *this;
     }
 
-    bool operator == ( const RectF& rect ) const
+    bool operator == ( const Rect& rect ) const
     {
         return ( mTopLeft == rect.mTopLeft && mSize == rect.mSize );
     }
 
-    bool operator != ( const RectF& rect ) const
+    bool operator != ( const Rect& rect ) const
     {
         return !( mTopLeft == rect.mTopLeft && mSize == rect.mSize ); 
     }
 
-    Vec2 position() const
+    Point position() const
     {
         return mTopLeft;
     }
 
-    Vec2 topLeft() const
+    Point topLeft() const
     {
         return mTopLeft;
     }
 
-    Vec2 topRight() const
+    Point topRight() const
     {
-        return Vec2( mTopLeft.x() + mSize.x(), mTopLeft.y() );
+        return Point( mTopLeft.x() + mSize.x(), mTopLeft.y() );
     }
 
-    Vec2 bottomLeft() const
+    Point bottomLeft() const
     {
-        return Vec2( mTopLeft.x(), mTopLeft.y() + mSize.y() );
+        return Point( mTopLeft.x(), mTopLeft.y() + mSize.y() );
     }
     
-    Vec2 bottomRight() const
+    Point bottomRight() const
     {
         return mTopLeft + mSize;
     }
 
-    Vec2 center() const
+    Point center() const
     {
-        return ( mTopLeft + mSize ) / 2.0f;
+        return Point( ( mTopLeft.x() + mSize.x() ) / 2,
+                      ( mTopLeft.y() + mSize.y() ) / 2 );
     }
 
-    Vec2 size() const
+    Point size() const
     {
         return mSize;
     }
 
-    float top() const
+    unsigned int top() const
     {
         return mTopLeft.y();
     }
 
-    float left() const
+    unsigned int left() const
     {
         return mTopLeft.x();
     }
 
-    float right() const
+    unsigned int right() const
     {
         return mTopLeft.x() + mSize.x();
     }
 
-    float bottom() const
+    unsigned int bottom() const
     {
         return mTopLeft.y() + mSize.y();
     }
 
-    float width() const
+    unsigned int width() const
     {
         return mSize.x();
     }
 
-    float height() const
+    unsigned int height() const
     {
         return mSize.y();
     }
 
-    void move( const Vec2& delta )
+    void move( const Point& delta )
     {
         mTopLeft += delta;
     }
 
-    void moveTo( const Vec2& position )
+    void moveTo( const Point& position )
     {
         mTopLeft = position;
     }
 
-    void adjustSize( const Vec2& newSize )
+    void adjustSize( const Point& newSize )
     {
         mSize += newSize;
-        ASSERT( mSize.x() > 0.0f && mSize.y() > 0.0f );
     }
 
-    void resize( const Vec2& newSize )
+    void resize( const Point& newSize )
     {
-        ASSERT( newSize.x() > 0.0f && newSize.y() > 0.0f );
         mSize = newSize;
     }
 
-    void resize( float width, float height )
+    bool contains( const Point& point ) const
     {
-        resize( Vec2( width, height ) );
-    }
-
-    bool contains( const Vec2& point ) const
-    {
-        Vec2 pt = point - mTopLeft;
+        Point pt = point - mTopLeft;
 
         return ( pt.x() >= 0.0f && pt.x() <= mSize.x() &&
                  pt.y() >= 0.0f && pt.y() <= mSize.y() );
     }
 
-    bool contains( const RectF& /*rect*/ ) const
+    bool contains( const Rect& /*rect*/ ) const
     {
         return false;
     }
 
-    bool intersects( const RectF& /*rect*/ ) const
+    bool intersects( const Rect& /*rect*/ ) const
     {
         return false;
     }
 
 private:
-    Vec2 mTopLeft;
-    Vec2 mSize;
+    Point mTopLeft;
+    Point mSize;
 };
 
 #endif

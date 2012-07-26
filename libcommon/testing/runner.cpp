@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 #include <googletest/googletest.h>
-#include <app/platform.h>
+#include <platform/platform.h>
+#include <testing/testing.h>
+#include <common/assert.h>
 
 int main( int argc, char * argv[] )
 {
     App::startup();
+    Assert::setAssertHandler( UTest::testAssertHandler );
 
     // Now run the unit tests
     ::testing::InitGoogleTest( &argc, argv );

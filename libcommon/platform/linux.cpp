@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "app/platform.h"
-#include "common/assert.h"
-#include <googletest/googletest.h>
+#include <platform/platform.h>
+#include <common/assert.h>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -37,24 +36,30 @@ Time currentTime()
  * Generates a assertion reporting dialog (or console output) to show to the
  * player, before exiting the application
  *
- * \param  message     An accompanying assertion description (if provided)
- * \param  expression  String containing the expression text
- * \param  filename    Name of the file that generated the assertion
- * \param  lineNumber  Line that generated the assertion
+ * \praam  pExpression  Expression that generated failed assert
+ * \param  pReason      Reason provided for failing assert
+ * \param  pFunction    Function that failed
+ * \param  pFilename    Name of the file containing the failing assert
+ * \param  lineNumber   Line number of the assert
  */
-Assert::EAssertAction testAssertHandler( const char * pExpression,
-                                         const char * pReason,
-                                         const char * pFunction,
-                                         const char * pFile,
-                                         unsigned int line )
+Assert::EAssertAction linuxAssertion( const char * pExpression,
+                                      const char * pReason,
+                                      const char * pFunction,
+                                      const char * pFilename,
+                                      unsigned int lineNumber )
 {
-    std::cerr << "ASSERTION FAILED: " << pExpression << std::endl;
+    std::cerr
+        << "---------- ASSERTION FAILED! -----------" << std::endl
+        << "EXPRESSION: "  << pExpression             << std::endl
+        << "REASON    : "  << pReason                 << std::endl
+        << "FUNCTION  : "  << pFunction               << std::endl
+        << "FILENAME  : "  << pFilename               << std::endl
+        << "LINE NUM  : "  << lineNumber              << std::endl
+        << "----------------------------------------" << std::endl
+        << std::endl;
 
-    ADD_FAILURE_AT( pFile, static_cast<int>( line ) )
-        << "Application assertion: "
-        << pExpression;
-
-    return Assert::EASSERT_EXIT;
+    // Now return and let the caller know that they should abort
+    return Assert::EASSERT_BREAK;
 }
 
 /**
@@ -76,14 +81,6 @@ void reportSoftwareError( const std::string& message,
                           const char * filename,
                           const char * functionName )
 {
-    std::cerr << "SOFTWARE ERROR: " << message << std::endl;
-
-    ADD_FAILURE_AT( pFile, static_cast<int>( line ) )
-        << "Application assertion: "
-        << pExpression;
-
-    return Assert::EASSERT_EXIT;
-
     // Error header
     std::cerr
         << std::endl
@@ -133,7 +130,8 @@ void reportSoftwareError( const std::string& message,
  */
 void startup()
 {
-    Assert::setAssertHandler( reportAssertion );
+    setAssertHandler( linuxAssertion );
+    // nothing
 }
 
 /**

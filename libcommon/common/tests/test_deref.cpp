@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include <googletest/googletest.h>
+#include <testing/testing.h>
 #include <memory>
 
 #include "common/deref.h"
@@ -72,10 +73,10 @@ TEST(DerefDeathTests,NullPointer)
 {
     int *pV = NULL;
 
-    Debug::setTestAssertShouldDie( true );
-    EXPECT_DEATH( deref( pV ), "ASSERTION FAILED: ptr != __null" );
+    UTest::assertDeath( true );
+    EXPECT_DEATH( deref( pV ), "ASSERTION FAILED: ptr != NULL" );
 
-    Debug::resetTestAssertShouldDie();
+    UTest::resetAssertDeath();
 }
 
 /**
@@ -85,10 +86,10 @@ TEST(DerefDeathTests,NullConstPointer)
 {
     const int *pV = NULL;
 
-    Debug::setTestAssertShouldDie( true );
-    EXPECT_DEATH( deref( pV ), "ASSERTION FAILED: ptr != __null" );
+    UTest::assertDeath( true );
+    EXPECT_DEATH( deref( pV ), "ASSERTION FAILED: ptr != NULL" );
 
-    Debug::resetTestAssertShouldDie();
+    UTest::resetAssertDeath();
 }
 
 /**
@@ -98,8 +99,8 @@ TEST(DerefDeathTests,NullSmartPointer)
 {
     std::shared_ptr<int> p;
 
-    Debug::setTestAssertShouldDie( true );
-    EXPECT_DEATH( deref( p ), "ASSERTION FAILED: ptr != __null" );
+    UTest::assertDeath( true );
+    EXPECT_DEATH( deref( p ), "ASSERTION FAILED: ptr != NULL" );
 
-    Debug::resetTestAssertShouldDie();
+    UTest::resetAssertDeath();
 }

@@ -1,4 +1,5 @@
 #include <googletest/googletest.h>
+#include <testing/testing.h>
 #include <common/scopedptr.h>
 
 class Resource
@@ -131,10 +132,10 @@ TEST(ScopedPointerDeathTests,DereferenceOperatorWithNull)
 {
     scoped_ptr<int> v( NULL );
 
-    Debug::setTestAssertShouldDie( true );
+    UTest::assertDeath( true );
     EXPECT_DEATH( *v, "ASSERTION FAILED: mPtr != 0" );
 
-    Debug::resetTestAssertShouldDie();
+    UTest::resetAssertDeath();
 }
 
 TEST(ScopedPointerTests,IndirectionOperator)
@@ -152,10 +153,10 @@ TEST(ScopedPointerDeathTests,IndirectionOperatorWithNull)
 {
     scoped_ptr<Resource> v( NULL );
 
-    Debug::setTestAssertShouldDie( true );
+    UTest::assertDeath( true );
     EXPECT_DEATH( v->get(), "ASSERTION FAILED: mPtr != 0" );
 
-    Debug::resetTestAssertShouldDie();
+    UTest::resetAssertDeath();
 }
 
 TEST(ScopedPointerTests,GetOperator)
