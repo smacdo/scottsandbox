@@ -14,7 +14,8 @@ include( config )
 include( GetGitRevisionDescription )
 include( GetCompilerInfoString )
 include( EnableExtraCompilerWarnings )
-include( ./BuildRules.cmake )
+include( MSVCMultipleProcessCompile )
+include( SandboxBuildRules )
 
 #=========================================================================#
 # Build options - Enable or disable these options to configure the build  #
@@ -44,7 +45,8 @@ endif()
 # Sub projects                                                            #
 #=========================================================================#
 if(BUILD_THIRDPARTY)
-    add_subdirectory(thirdparty)
+    set( THIRD_PARTY_ROOT "${CMAKE_SOURCE_DIR}/thirdparty" )
+    add_subdirectory( ${THIRD_PARTY_ROOT} )
 endif()
 
 if(BUILD_COMMON)

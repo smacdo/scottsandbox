@@ -1,9 +1,20 @@
 #!/bin/bash
-currtime=`date +"%Y_%m_%d-%H_%M_%S"`
-filepath="logs/memgrind/$currtime.txt"
+path=$1
+app=$2
+out=$3
 branchsim="yes"
 
-echo "Running memgrind, log is located: $filepath"
+echo "RUNNING VALGRIND WITH $path/$app"
+echo "LOG: $out"
 
-mkdir -p logs/memgrind
-valgrind --log-file=$filepath --tool=memcheck $1
+mkdir -p $path
+mkdir -p $path/valgrind
+
+valgrind \
+    --tool=memcheck                         \
+    --trace-children=yes                    \
+    --child-silent-after-fork=yes           \
+    --log-file=$path/valgrind/$out_%p.txt   \
+    --xml=yes                               \
+    --xml-file=$path/valgrind/$out_%p.xml   \
+    $path/$app
