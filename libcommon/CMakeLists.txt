@@ -10,11 +10,18 @@
 # that you are not interested in :)
 ########################################################################
 project(commonlibs)
-set(COMMON_LIBS_VERSION 4)
+set(COMMON_LIBS_VERSION 5)
 
 cmake_minimum_required(VERSION 2.8)
 
+#=========================================================================#
+# Required external libraries and modules                                 #
+#=========================================================================#
 include(CheckCXXCompilerFlag)
+
+set(Boost_USE_STATIC_LIBS true)
+find_package(Boost REQUIRED)
+
 
 #=========================================================================#
 # libcommon components                                                    #
@@ -55,15 +62,25 @@ set( CXX_FLAGS "" )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} ${THIRD_PARTY_ROOT} )
 
 if(libcommon_cpp0x)
-    set(CXX_FLAGS "${CXX_FLAGS} -std=c++0x")
+	if(NOT MSVC)
+		set(CXX_FLAGS "${CXX_FLAGS} -std=c++0x")
+	endif()
 endif()
 
 if(libcommon_assert)
-    set(CXX_FLAGS "${CXX_FLAGS} -DENABLE_ASSERT_HANDLER")
+	if(MSVC)
+		set(CXX_FLAGS "${CXX_FLAGS} /DENABLE_ASSERT_HANDLER")
+	else()
+		set(CXX_FLAGS "${CXX_FLAGS} -DENABLE_ASSERT_HANDLER")
+	endif()
 endif()
 
 if(libcommon_debug)
-    set(CXX_FLAGS "${CXX_FLAGS} -ggdb")
+	if(MSVC)
+		set(CXX_FLAGS "${CXX_FLAGS} /GS /Zi")
+	else()
+		set(CXX_FLAGS "${CXX_FLAGS} -ggdb")
+	endif()
 endif()
 
 if(libcommon_performance)
@@ -89,7 +106,7 @@ if(libcommon_performance)
         set( CXX_FLAGS "${CXX_FLAGS} /fp:fast" )
 
         # Enable instrinsics even in debug
-        set( CXX_FLAGS "${CXX_FLAGS} /Oi" )
+        set( CXX_FLAGS "${CXX_FLAGS} /Oi /Ot /arch:SSE2" )
     endif()
 endif()
 
@@ -97,6 +114,13 @@ endif()
 # Visual Studio specific settings
 #
 if ( MSVC )
+	# Disable several strict visual studio warnings
+	#	- nameless unions/structs is non-standard
+	#	- conditional expression is constant ( assert( x && "..." ) )
+	#	- unknown pragma
+	#   - remove warnings about not using microsoft's 'safe' functions
+	set(CXX_FLAGS "${CXX_FLAGS} /wd4201 /wd4127 /wd4068 /wd4996")
+
     if ( CMAKE_CL_64 )
         # VS errors out in 64 bit debug builds for some reason
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
@@ -134,6 +158,11 @@ endif()
 #=========================================================================#
 # Apply all compile flags to the source code and header files             #
 #=========================================================================#
+include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${Boost_INCLUDE_DIRS}
+)
+
 set_source_files_properties(
     ${libcommon_incs}
     ${libcommon_srcs}
@@ -157,11 +186,19 @@ if(build_libcommon_tests)
     find_package(Threads)
 
     # Need to have C++0x support turned on
+	set(TESTING_CPP_FLAGS "")
+	
+	if(MSVC)
+		set(TESTING_CPP_FLAGS "/DENABLE_ASSERT_HANDLER")
+	else()
+		set(TESTING_CPP_FLAGS "-ggdb -std=c++0x -DENABLE_ASSERT_HANDLER")
+	endif()
+	
     set_source_files_properties(
         testing/runner.cpp
         testing/testing.cpp
         ${libcommon_tests} PROPERTIES
-        COMPILE_FLAGS "-ggdb -std=c++0x -DENABLE_ASSERT_HANDLER")
+        COMPILE_FLAGS "${TESTING_CPP_FLAGS}")
 
     # Generate the executable now
     add_executable( test_commonlibs
@@ -179,23 +216,25 @@ if(build_libcommon_tests)
         ${CMAKE_THREAD_LIBS_INIT} )
 
     # Add a custom target to run the unit tests
-    add_custom_target(
-        test ${CMAKE_CURRENT_BINARY_DIR}/test_commonlibs
-        DEPENDS test_commonlibs )
+	if ( NOT MSVC )
+		add_custom_target(
+			test ${CMAKE_CURRENT_BINARY_DIR}/test_commonlibs
+			DEPENDS test_commonlibs )
 
-    # Add custom target that launches unit tests with gdb
-    add_custom_target(
-        test-gdb
-        gdb `pwd`/test_commonlibs -d ${PROJECT_SOURCE_DIR} -cd ${PROJECT_SOURCE_DIR}
-        DEPENDS test_commonlibs
-        COMMENT "Running unit tests with GDB" )
+		# Add custom target that launches unit tests with gdb
+		add_custom_target(
+			test-gdb
+			gdb `pwd`/test_commonlibs -d ${PROJECT_SOURCE_DIR} -cd ${PROJECT_SOURCE_DIR}
+			DEPENDS test_commonlibs
+			COMMENT "Running unit tests with GDB" )
 
-    add_custom_target(
-        test-valgrind
-        COMMAND ${CMAKE_SOURCE_DIR}/scripts/run_memgrind.sh
-                ${CMAKE_CURRENT_BINARY_DIR}
-                test_commonlibs
-                test_commonlibs
-        DEPENDS test_commonlibs
-        COMMENT "Running unit tests with valgrind")
+		add_custom_target(
+			test-valgrind
+			COMMAND ${CMAKE_SOURCE_DIR}/scripts/run_memgrind.sh
+					${CMAKE_CURRENT_BINARY_DIR}
+					test_commonlibs
+					test_commonlibs
+			DEPENDS test_commonlibs
+			COMMENT "Running unit tests with valgrind")
+	endif()
 endif()
