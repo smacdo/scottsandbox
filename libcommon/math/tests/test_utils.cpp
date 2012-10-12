@@ -246,3 +246,18 @@ TEST(Math,Utils_NextPowerOfTwo_Values)
     EXPECT_EQ( 8, nextPowerOfTwo( 7 ) );
     EXPECT_EQ( 8, nextPowerOfTwo( 8 ) );
 }
+
+TEST(Math,Utils_Fraction)
+{
+
+}
+
+TEST(Math,Utils_HashFloat)
+{
+
+}
+
+TEST(Math,Utils_FastSqrt)
+{
+
+}

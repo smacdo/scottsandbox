@@ -3,26 +3,23 @@
 ###########################################################################
 set(includes
         ${CMAKE_CURRENT_SOURCE_DIR}/crc.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/lcasts.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/reftag.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/sequenceformatter.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/transferstring.h
         ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/util.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/stringutil.h
 )
 
 set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/crc.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/loadfile.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/replace.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/streamprint.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/stringutil.cpp
 )
 
 set(tests
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_crc.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_lcasts.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_tokenizer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_sequencelister.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_streamprint.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_stringutils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_transferstring.cpp
 )
 

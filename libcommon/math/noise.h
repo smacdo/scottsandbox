@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SCOTT_MATH_PERLIN_H
-#define SCOTT_MATH_PERLIN_H
+#ifndef SCOTT_MATH_NOISE_H
+#define SCOTT_MATH_NOISE_H
 
 #include <stdlib>
 
@@ -25,11 +25,11 @@ class Random;
  * generating random numbers. This implementation is heavily based on the
  * work of Michael Brundage (which was placed in the public domain).
  */
-class PerlinNoise
+class Noise
 {
 public:
-    PerlinNoise( unsigned int seed );
-    ~PerlinNoise();
+    Noise( unsigned int seed );
+    ~Noise();
 
     float noise( float x ) const;
     float noise( float x, float y ) const;

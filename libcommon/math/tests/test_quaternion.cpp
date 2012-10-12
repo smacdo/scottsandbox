@@ -174,6 +174,11 @@ TEST(Math, Quaternion_SelfMultiply)
     EXPECT_EQ( Quat( 1.0f, -28.0f, 18.0f, -11.0f ), r );
 }
 
+TEST(Math, Quaternion_EulerAngles)
+{
+
+}
+
 TEST(Math, Quaternion_X)
 {
     const Quat a( 1.0f, 2.0f, 3.0f, 4.0f );

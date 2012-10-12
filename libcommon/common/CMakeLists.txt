@@ -2,6 +2,7 @@
 # Common code
 ###########################################################################
 set(headers
+        ${CMAKE_CURRENT_SOURCE_DIR}/bits.h
         ${CMAKE_CURRENT_SOURCE_DIR}/delete.h
         ${CMAKE_CURRENT_SOURCE_DIR}/deref.h
         ${CMAKE_CURRENT_SOURCE_DIR}/macros.h
@@ -21,6 +22,7 @@ set(sources
 
 set(tests
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_assert.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_bits.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_delete.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_deref.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_scopedptr.cpp

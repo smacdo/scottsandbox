@@ -1,9 +1,9 @@
 #include <googletest/googletest.h>
-#include <string/stringbuffer.h>
+#include <string/stringutil.h>
 #include <string>
 
-TEST(StringUtils,StringBuffer_Construct)
+TEST(StringUtil,TransferString_Construct)
 {
     std::string output;
-    output = StringBuffer( output, 512 );
+    output = TransferString( output, 512 );
 }

@@ -1,5 +1,5 @@
 #include <googletest/googletest.h>
-#include <string/util.h>
+#include <string/stringutil.h>
 #include <sstream>
 
 using namespace StringUtil;

@@ -33,12 +33,22 @@ struct OMGWTFBBQ { char a; char b; char c; char d; char e; };
 
 TEST(CRC,EmptyStringIsZero)
 {
-    EXPECT_EQ( (uint32_t) 0, crc32("") );
+    const char * cstring  = "";
+    const uint32_t result = 0; 
+
+    EXPECT_EQ( result, crc32( cstring, strlen( cstring ) ) );
+    EXPECT_EQ( result, crc32( cstring ) );
+    EXPECT_EQ( result, crc32( std::string( cstring ) ) );
 }
 
 TEST(CRC,HelloWorldStringIsCorrect)
 {
-    EXPECT_EQ( (uint32_t) 0x4A17B156, crc32("Hello World") );
+    const char * cstring  = "Hello World";
+    const uint32_t result = 0x4A17B156; 
+
+    EXPECT_EQ( result, crc32( cstring, strlen( cstring ) ) );
+    EXPECT_EQ( result, crc32( cstring ) );
+    EXPECT_EQ( result, crc32( std::string( cstring ) ) );
 }
 
 TEST(CRC,ByteArray)
@@ -49,18 +59,8 @@ TEST(CRC,ByteArray)
 
 TEST(CRC,TemplatedCrc)
 {
+    // Create an arbitrary object and pass it into the templated crc32
+    // function.
     OMGWTFBBQ v = { 115, 99, 111, 116, 116 };
-
-    // Hopefully this works on all platforms.
     EXPECT_EQ( (uint32_t) 0x0E73B025, crc32<OMGWTFBBQ>(v) );
-}
-
-TEST(CRC,CStyleStringArray)
-{
-    EXPECT_EQ( (uint32_t) 0x0E73B025, crc32("scott") );
-}
-
-TEST(CRC,StlString)
-{
-    EXPECT_EQ( (uint32_t) 0x0E73B025, crc32(std::string("scott")) );
 }

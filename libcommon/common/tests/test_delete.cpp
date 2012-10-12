@@ -97,6 +97,37 @@ TEST_F(DeleteTest,VerifyTestDummy)
     EXPECT_FALSE( aliveA );
 }
 
+TEST_F(DeleteTest,CheckedDelete)
+{
+    bool alive   = false;
+
+    TestDummy *pA = new TestDummy( &alive );
+    EXPECT_TRUE( alive );
+    CheckedDelete( pA );
+
+    EXPECT_FALSE( alive );
+}
+
+TEST_F(DeleteTest,CheckedArrayDelete)
+{
+    bool aliveA = false, aliveB = false, aliveC = false;
+    TestDummy * pA = new TestDummy[ 3 ];
+
+    pA[0].attach( &aliveA );
+    pA[1].attach( &aliveB );
+    pA[2].attach( &aliveC );
+
+    EXPECT_TRUE( aliveA );
+    EXPECT_TRUE( aliveB );
+    EXPECT_TRUE( aliveC );
+
+    CheckedArrayDelete( pA );
+
+    EXPECT_FALSE( aliveA );
+    EXPECT_FALSE( aliveB );
+    EXPECT_FALSE( aliveC );
+}
+
 TEST_F(DeleteTest,DeletePointer)
 {
     bool alive   = false;

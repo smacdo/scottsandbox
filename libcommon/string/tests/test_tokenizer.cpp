@@ -26,41 +26,11 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#include "string/crc.h"
 #include <googletest/googletest.h>
+#include <string/tokenizer.h>
 
-struct OMGWTFBBQ { char a; char b; char c; char d; char e; };
-
-TEST(CRC,EmptyStringIsZero)
+TEST(Common,Tokenizer_Constructor)
 {
-    EXPECT_EQ( (uint32_t) 0, crc32("") );
-}
-
-TEST(CRC,HelloWorldStringIsCorrect)
-{
-    EXPECT_EQ( (uint32_t) 0x4A17B156, crc32("Hello World") );
-}
-
-TEST(CRC,ByteArray)
-{
-    uint8_t v[] = { 115, 99, 111, 116, 116 };
-    EXPECT_EQ( (uint32_t) 0x0E73B025, crc32( &v[0], 5 ) );
-}
-
-TEST(CRC,TemplatedCrc)
-{
-    OMGWTFBBQ v = { 115, 99, 111, 116, 116 };
-
-    // Hopefully this works on all platforms.
-    EXPECT_EQ( (uint32_t) 0x0E73B025, crc32<OMGWTFBBQ>(v) );
-}
-
-TEST(CRC,CStyleStringArray)
-{
-    EXPECT_EQ( (uint32_t) 0x0E73B025, crc32("scott") );
-}
-
-TEST(CRC,StlString)
-{
-    EXPECT_EQ( (uint32_t) 0x0E73B025, crc32(std::string("scott")) );
+    std::string blah;
+    StringTokenizer tokenizer( blah );
 }

@@ -8,7 +8,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/conversion.h
         ${CMAKE_CURRENT_SOURCE_DIR}/interpolation.h
         ${CMAKE_CURRENT_SOURCE_DIR}/matrix.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/perlin.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/noise.h
         ${CMAKE_CURRENT_SOURCE_DIR}/matrixutils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/quaternion.h
         ${CMAKE_CURRENT_SOURCE_DIR}/random.h
@@ -29,6 +29,7 @@ set(tests
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_interpolation.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_matrix4.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_matrixutils.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_noise.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_quaternion.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_rect.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_utils.cpp

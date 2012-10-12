@@ -26,18 +26,20 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Scott MacDonald.
  */
-#ifndef SCOTT_COMMON_STRING_CRC_H
-#define SCOTT_COMMON_STRING_CRC_H
+#ifndef SCOTT_COMMON_CRC_H
+#define SCOTT_COMMON_CRC_H
 
 #include <stdint.h>
 #include <string>
-#include <iostream>
 
 // Calculate CRC-32 value of byte array
 uint32_t crc32( const uint8_t * pInput, size_t length );
 
-// Calculate CRC-32 value of cstring array
+// Calculate CRC-32 value of cstring array (with size)
 uint32_t crc32( const char * pInput, size_t length );
+
+// Calculate CRC-32 value of cstring array (without size)
+uint32_t crc32( const char * input );
 
 // Calculate CRC-32 value of STL string
 uint32_t crc32( const std::string& input );

@@ -7,6 +7,13 @@
 
 const float DELTA = 0.00001f;
 
+TEST(Math,Matrix4_Constants)
+{
+    EXPECT_EQ( 4, Mat4::NUM_ROWS );
+    EXPECT_EQ( 4, Mat4::NUM_COLS );
+    EXPECT_EQ( 16, Mat4::NUM_VALUES );
+}
+
 TEST(Math,Matrix4_NoValueCtor)
 {
     Mat4 m();
@@ -89,6 +96,26 @@ TEST(Math,Matrix4_CopyCtor)
     Mat4 r( m );
 
     EXPECT_EQ( m, r );
+}
+
+TEST(Math,Matrix4_DataConstPtr)
+{
+
+}
+
+TEST(Math,Matrix4_DataPtr)
+{
+
+}
+
+TEST(Math,Matrxi4_IndexOperator)
+{
+
+}
+
+TEST(Math,Matrix4_ConstIndexOperator)
+{
+
 }
 
 TEST(Math,Matrix4_Assignment)
@@ -202,6 +229,16 @@ TEST(Math,Matrix4_SelfSubtraction)
     EXPECT_NE( b, v );
 }
 
+TEST(Math,Matrix4_MultiplicationByScalar)
+{
+
+}
+
+TEST(Math,Matrix4_SelfMultiplicationByScalar)
+{
+
+}
+
 TEST(Math,Matrix4_Multiplication)
 {
     Mat4 a( 0.0f, 1.0f, 3.0f, 5.0f,
@@ -220,6 +257,11 @@ TEST(Math,Matrix4_Multiplication)
             110.0f,  73.0f,  88.0f, 116.0f );
 
     EXPECT_EQ( v, a * b );
+}
+
+TEST(Math,Matrix4_SelfMultiplication)
+{
+
 }
 
 TEST(Math,Matrix4_Multiplication2)
@@ -242,6 +284,16 @@ TEST(Math,Matrix4_Multiplication2)
         EXPECT_EQ( v, a * b );
 }
 
+TEST(Math,Matrix4_IsZeroMatrix)
+{
+
+}
+
+TEST(Math,Matrix4_IsIdentityMatrix)
+{
+
+}
+
 TEST(Math,Matrix4_Transpose)
 {
     Mat4 a(  1,  2,  3,  4,
@@ -255,6 +307,11 @@ TEST(Math,Matrix4_Transpose)
              4,  8, 12, 16 );
 
     EXPECT_EQ( v, transpose( a ) );
+}
+
+TEST(Math,Matrix4_Trace)
+{
+
 }
 
 TEST(Math,Matrix4_Determinant)
@@ -285,6 +342,16 @@ TEST(Math,Matrix4_Inverse)
                    0.0350109f,  0.203501f,  0.0109409f, -0.0700219f );
 
     EXPECT_EQ( r, inverse( a ) );
+}
+
+TEST(Math,Matrix4_TryInverse)
+{
+
+}
+
+TEST(Math,Matrix4_CalculateInverse)
+{
+
 }
 
 TEST(Math,Matrix4_SelfEquality)
@@ -391,4 +458,67 @@ TEST(Math,Matrix4_IsIdentityMatrix)
     EXPECT_TRUE(  isIdentityMatrix( b ) );
 }
 
+TEST(Math,Matrix4_TransformDirectionVector)
+{
 
+}
+
+TEST(Math,Matrix4_TransformVector)
+{
+
+}
+
+TEST(Math,Matrix4_TransformVector3x4_Vec3)
+{
+
+}
+
+TEST(Math,Matrix4_TransformVector3x4_Vec4)
+{
+
+}
+
+TEST(Math,Matrix4_At)
+{
+
+}
+
+TEST(Math,Matrix4_Set)
+{
+
+}
+
+TEST(Math,Matrix4_Row)
+{
+
+}
+
+TEST(Math,Matrix4_SetRow)
+{
+
+}
+
+TEST(Math,Matrix4_Col)
+{
+
+}
+
+TEST(Math,Matrix4_SetCol)
+{
+
+}
+
+TEST(Math,Matrix4,Serialization)
+{
+
+}
+
+TEST(Math,Matrix4_ZeroMatrixStatic)
+{
+
+}
+
+TEST(Math,Matrix4_IdentityMatrixStatic)
+{
+
+}

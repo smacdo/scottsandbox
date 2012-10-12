@@ -30,6 +30,7 @@
 #include <common/assert.h>
 
 #include <string>
+#include <cstring>
 #include <stdint.h>
 
 /// Number of entries in the CRC-32 lookup table
@@ -107,8 +108,7 @@ uint32_t crc32( const uint8_t * pInput, size_t length )
 }
 
 /**
- * Calculate the CRC-32 value of a c-string. The provided string pointer
- * cannot be null, and length must be larger than zero.
+ * Calculate the CRC-32 value of a c-string.
  *
  * \param  pInput  Pointer to a c-string
  * \param  length  Number of characters in the string
@@ -121,6 +121,18 @@ uint32_t crc32( const char * pInput, size_t length )
 }
 
 /**
+ * Calculate the CRC-32 value of a cstring.
+ *
+ * \param  pInput  Pointer to a c-string
+ * \return         Computed CRC-32 value
+ */
+uint32_t crc32( const char * pInput )
+{
+    const uint8_t * pBytes = reinterpret_cast<const uint8_t*>( pInput );
+    return crc32( pBytes, strlen( pInput ) * sizeof(char) );
+}
+
+/**
  * Calculate the CRC-32 value of a STL string.
  *
  * \param  pInput  STL string input
@@ -128,7 +140,6 @@ uint32_t crc32( const char * pInput, size_t length )
  */
 uint32_t crc32( const std::string& input )
 {
-    const uint8_t * pBytes = reinterpret_cast<const uint8_t*>(input.c_str());
-    return crc32( pBytes, input.size() * sizeof(char) );
+    return crc32( input.c_str(), input.size() );
 }
 
